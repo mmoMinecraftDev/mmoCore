@@ -1,0 +1,32 @@
+name: mmoCore
+main: mmo.Core.mmoCore
+version: 0.8
+website: http://forums.bukkit.org/threads/31054/
+author: Rycochet <rycochet@rycochet.com>
+softdepend: [Spout]
+
+description: Utility functions for mmo-minecraft
+
+commands:
+  mmoset:
+    description: Sets config options for mmoMinecraft plugins
+    permission: mmocore.set
+    usage: /mmoset <plugin> <path.to.option> <value>
+  mmoupdate:
+    description: Update all mmoMinecraft plugins
+    permission: mmocore.update
+    usage: /mmoupate
+
+permissions:
+  mmocore.*:
+    description: Access to mmoCore commands
+    default: false
+    children:
+      mmocore.set: true
+      mmocore.update: true
+  mmocore.set:
+    description: Allows you to edit mmoMinecraft module settings
+    default: false
+  mmocore.update:
+    description: Allows you to update all mmoMinecraft plugins
+    default: false
