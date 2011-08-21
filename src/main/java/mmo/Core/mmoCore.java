@@ -17,7 +17,6 @@
 package mmo.Core;
 
 import java.util.List;
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -25,13 +24,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
+import org.getspout.spoutapi.SpoutManager;
 
 public class mmoCore extends JavaPlugin {
 
-	private static Logger log;
 	protected static Server server;
 	protected static PluginManager pm;
 	protected static PluginDescriptionFile description;
@@ -92,15 +94,15 @@ public class mmoCore extends JavaPlugin {
 				} else {
 					if (args.length > 2) {
 						if (old instanceof Boolean) {
-							plugin.cfg.setProperty(args[1], new Boolean(args[2]));
+							plugin.cfg.setProperty(args[1], Boolean.valueOf(args[2]));
 						} else if (old instanceof Double) {
 							plugin.cfg.setProperty(args[1], new Double(args[2]));
 						} else if (old instanceof Integer) {
 							plugin.cfg.setProperty(args[1], new Integer(args[2]));
 						} else if (old instanceof List) {
-							plugin.cfg.setProperty(args[1], new String(args[2]));
+							plugin.cfg.setProperty(args[1], args[2]);
 						} else {
-							plugin.cfg.setProperty(args[1], new String(args[2]));
+							plugin.cfg.setProperty(args[1], args[2]);
 						}
 						plugin.cfg.save();
 					}
@@ -116,5 +118,18 @@ public class mmoCore extends JavaPlugin {
 			return true;
 		}
 		return false;
+	}
+
+	public class mmoCorePlayerListener extends PlayerListener {
+
+		@Override
+		public void onPlayerQuit(PlayerQuitEvent event) {
+			mmo.remove(SpoutManager.getPlayer(event.getPlayer()));
+		}
+
+		@Override
+		public void onPlayerKick(PlayerKickEvent event) {
+			mmo.remove(SpoutManager.getPlayer(event.getPlayer()));
+		}
 	}
 }
