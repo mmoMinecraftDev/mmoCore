@@ -56,6 +56,7 @@ public class mmoCore extends JavaPlugin {
 
 		// Default values
 		mmo.cfg.getBoolean("auto_update", true);
+		mmo.cfg.getBoolean("show_display_name", false);
 		mmo.cfg.save();
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();

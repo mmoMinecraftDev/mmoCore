@@ -527,12 +527,20 @@ public class mmo {
 	public static String getSimpleName(LivingEntity target, boolean showOwner) {
 		String name = "";
 		if (target instanceof Player) {
-			name += ((Player)target).getName();
+			if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
+				name += ((Player)target).getName();
+			} else {
+				name += ((Player)target).getDisplayName();
+			}
 		} else {
 			if (target instanceof Tameable) {
 				if (((Tameable)target).isTamed()) {
 					if (showOwner && ((Tameable)target).getOwner() instanceof Player) {
-						name += ((Player)((Tameable)target).getOwner()).getName() + "'s ";
+						if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
+							name += ((Player)((Tameable)target).getOwner()).getName() + "'s ";
+						} else {
+							name += ((Player)((Tameable)target).getOwner()).getDisplayName() + "'s ";
+						}
 					} else {
 						name += "Pet ";
 					}
