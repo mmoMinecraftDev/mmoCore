@@ -62,9 +62,6 @@ public class mmo {
 	/**
 	 * Spout
 	 */
-	private static final HashMap<SpoutPlayer, HashMap<String, Widget>> widgets = new HashMap<SpoutPlayer, HashMap<String, Widget>>();
-	private static final HashMap<String, Integer> pos_x = new HashMap<String, Integer>();
-	private static final HashMap<String, Integer> pos_y = new HashMap<String, Integer>();
 	public Plugin plugin;
 	public static Server server;
 	public static Logger log;
@@ -155,7 +152,7 @@ public class mmo {
 		if (always || cfg.getBoolean("auto_update", true)) {
 			boolean canUpdate = false;
 			try {
-				URL url = new URL("http://mmo-minecraft.googlecode.com/svn/trunk/" + description.getName() + "/src/plugin.yml");
+				URL url = new URL("http://mmo.rycochet.net/" + description.getName() + ".yml");
 
 				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 				String str;
@@ -181,8 +178,8 @@ public class mmo {
 							}
 						}
 						File newFile = new File(directory.getPath(), description.getName() + ".jar");
-						if (!newFile.exists()) {
-							url = new URL("http://mmo-minecraft.googlecode.com/svn/trunk/" + description.getName() + "/" + description.getName() + ".jar");
+						if (newFile.canWrite()) {
+							url = new URL("http://mmo.rycochet.net/" + description.getName() + ".jar");
 							HttpURLConnection con = (HttpURLConnection) (url.openConnection());
 							ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
 							fos = new FileOutputStream(newFile);
@@ -371,104 +368,10 @@ public class mmo {
 	public void updateUI(String data) {
 	}
 
-//	private static final HashMap<SpoutPlayer, HashMap<String, Widget>> widgets = new HashMap<SpoutPlayer, HashMap<String, Widget>>();
-	public void addWidget(SpoutPlayer player, String id, Widget widget) {
-		HashMap<String, Widget> map = widgets.get(player);
-		if (map == null) {
-			map = new HashMap<String, Widget>();
-			widgets.put(player, map);
-		}
-		map.put(id, widget);
-	}
-
-	public Widget getWidget(SpoutPlayer player, String id) {
-		HashMap<String, Widget> map = widgets.get(player);
-		return map == null ? null : map.get(id);
-	}
-
-	public void setText(Player player, String text) {
-		setText(player, title, text);
-	}
-
-	public void setText(Player player, String id, String text) {
-		if (hasSpout && player != null && id != null) {
-			SpoutPlayer splayer = SpoutManager.getPlayer(player);
-			GenericLabel label = (GenericLabel) getWidget(splayer, id);
-			if (label == null) {
-				label = new GenericLabel(text);
-				int x = pos_x.containsKey(id) ? pos_x.get(id) : 0;
-				int y = pos_y.containsKey(id) ? pos_y.get(id) : 0;
-				label.setX(x).setY(y);
-				splayer.getMainScreen().attachWidget(plugin, label);
-				addWidget(splayer, id, label);
-			} else {
-				label.setText(text);
-				label.setDirty(true);
-				label.getScreen().updateWidget(label);
-			}
-		}
-	}
-	protected HashMap<Player, HashMap<String, Container>> containers = new HashMap<Player, HashMap<String, Container>>();
-
-//	public void setGenericBar(Player player, int value, String text) {
-//		setGenericBar(player, title, value, text);
-//	}
-	public void setGenericBar(Container container, Player player, String id, int value, String text) {
-		if (hasSpout && player != null && id != null) {
-			SpoutPlayer splayer = SpoutManager.getPlayer(player);
-		}
-	}
-
-	public void clearText(Player player) {
-		setText(player, title, " ");
-	}
-
-	public void clearText(Player player, String id) {
-		setText(player, id, " ");
-	}
-
-	public mmo setX(int i) {
-		return setX(title, i);
-	}
-
-	public mmo setX(String id, int i) {
-		pos_x.put(id, i);
-		return this;
-	}
-
-	public mmo setY(int i) {
-		return setY(title, i);
-	}
-
-	public mmo setY(String id, int i) {
-		pos_y.put(id, i);
-		return this;
-	}
-
 	public void setGlobalTitle(LivingEntity target, String title) {
 		if (hasSpout && target != null) {
 			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
 		}
-	}
-
-	public static synchronized void remove(SpoutPlayer player) {
-		HashMap<String, Widget> map = widgets.get(player);
-		if (map != null) {
-			map.clear();
-		}
-	}
-
-	public static synchronized void remove(String id) {
-		for (SpoutPlayer player : widgets.keySet()) {
-			HashMap<String, Widget> map = widgets.get(player);
-			if (map.containsKey(id)) {
-				map.remove(id);
-			}
-		}
-	}
-
-	public static void clear() {
-		widgets.clear();
 	}
 
 	/**
@@ -506,19 +409,23 @@ public class mmo {
 		return 0;
 	}
 
-	public static ArrayList<LivingEntity> getPets(HumanEntity player) {
+	public static LivingEntity[] getPets(HumanEntity player) {
 		ArrayList<LivingEntity> pets = new ArrayList<LivingEntity>();
-		String name = player.getName();
-		for (World world : server.getWorlds()) {
-			for (LivingEntity entity : world.getLivingEntities()) {
-				if (entity instanceof Tameable && ((Tameable) entity).isTamed() && ((Tameable) entity).getOwner() instanceof Player) {
-					if (name.equals(((Player) ((Tameable) entity).getOwner()).getName())) {
-						pets.add(entity);
+		if (player != null && (!(player instanceof Player) || ((Player)player).isOnline())) {
+			String name = player.getName();
+			for (World world : server.getWorlds()) {
+				for (LivingEntity entity : world.getLivingEntities()) {
+					if (entity instanceof Tameable && ((Tameable) entity).isTamed() && ((Tameable) entity).getOwner() instanceof Player) {
+						if (name.equals(((Player) ((Tameable) entity).getOwner()).getName())) {
+							pets.add(entity);
+						}
 					}
 				}
 			}
 		}
-		return pets;
+		LivingEntity[] list = new LivingEntity[pets.size()];
+		pets.toArray(list);
+		return list;
 	}
 
 	/**
@@ -567,7 +474,7 @@ public class mmo {
 			} else {
 				name = "" + ChatColor.GRAY;
 			}
-			name += getSimpleName(target);
+			name += getSimpleName(target, true);
 			if (target instanceof Tameable) {
 				Tameable pet = (Tameable) target;
 				if (pet.isTamed() && pet.getOwner() instanceof HumanEntity) {
@@ -578,37 +485,92 @@ public class mmo {
 		return name;
 	}
 
-	public static String getSimpleName(LivingEntity target) {
-		if (target instanceof Chicken) {
-			return "Chicken";
-		} else if (target instanceof Cow) {
-			return "Cow";
-		} else if (target instanceof Creeper) {
-			return "Creeper";
-		} else if (target instanceof Giant) {
-			return "Giant";
-		} else if (target instanceof Pig) {
-			return "Pig";
-		} else if (target instanceof PigZombie) {
-			return "PigZombie";
-		} else if (target instanceof Sheep) {
-			return "Sheep";
-		} else if (target instanceof Skeleton) {
-			return "Skeleton";
-		} else if (target instanceof Spider) {
-			return "Spider";
-		} else if (target instanceof Squid) {
-			return "Squid";
-		} else if (target instanceof Wolf) {
-			return "Wolf";
-		} else if (target instanceof Zombie) {
-			return "Zombie";
-		} else if (target instanceof Monster) {
-			return "Monster";
-		} else if (target instanceof Creature) {
-			return "Creature";
+	/**
+	 * Get the colour of a LivingEntity target from a player's point of view.
+	 * @param player The player viewing the target
+	 * @param target The target to name
+	 * @return The name to use
+	 */
+	public static String getColor(Player player, LivingEntity target) {
+		if (target instanceof Player) {
+			return ChatColor.YELLOW.toString();
+		} else {
+			if (target instanceof Monster) {
+				if (player != null && player.equals(((Creature) target).getTarget())) {
+					return ChatColor.RED.toString();
+				} else {
+					return ChatColor.YELLOW.toString();
+				}
+			} else if (target instanceof WaterMob) {
+				return ChatColor.GREEN.toString();
+			} else if (target instanceof Flying) {
+				return ChatColor.YELLOW.toString();
+			} else if (target instanceof Animals) {
+				if (player != null && player.equals(((Creature) target).getTarget())) {
+					return ChatColor.RED.toString();
+				} else if (target instanceof Tameable) {
+					Tameable pet = (Tameable) target;
+					if (pet.isTamed()) {
+						return ChatColor.GREEN.toString();
+					} else {
+						return ChatColor.YELLOW.toString();
+					}
+				} else {
+					return ChatColor.GRAY.toString();
+				}
+			} else {
+				return ChatColor.GRAY.toString();
+			}
 		}
-		return "Unknown";
+	}
+
+	public static String getSimpleName(LivingEntity target, boolean showOwner) {
+		String name = "";
+		if (target instanceof Player) {
+			name += ((Player)target).getName();
+		} else {
+			if (target instanceof Tameable) {
+				if (((Tameable)target).isTamed()) {
+					if (showOwner && ((Tameable)target).getOwner() instanceof Player) {
+						name += ((Player)((Tameable)target).getOwner()).getName() + "'s ";
+					} else {
+						name += "Pet ";
+					}
+				}
+			}
+			if (target instanceof Chicken) {
+				name += "Chicken";
+			} else if (target instanceof Cow) {
+				name += "Cow";
+			} else if (target instanceof Creeper) {
+				name += "Creeper";
+			} else if (target instanceof Giant) {
+				name += "Giant";
+			} else if (target instanceof Pig) {
+				name += "Pig";
+			} else if (target instanceof PigZombie) {
+				name += "PigZombie";
+			} else if (target instanceof Sheep) {
+				name += "Sheep";
+			} else if (target instanceof Skeleton) {
+				name += "Skeleton";
+			} else if (target instanceof Spider) {
+				name += "Spider";
+			} else if (target instanceof Squid) {
+				name += "Squid";
+			} else if (target instanceof Wolf) {
+				name += "Wolf";
+			} else if (target instanceof Zombie) {
+				name += "Zombie";
+			} else if (target instanceof Monster) {
+				name += "Monster";
+			} else if (target instanceof Creature) {
+				name += "Creature";
+			} else {
+				name += "Unknown";
+			}
+		}
+		return name;
 	}
 
 	public static String name(String name) {

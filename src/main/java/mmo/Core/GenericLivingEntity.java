@@ -16,7 +16,9 @@
  */
 package mmo.Core;
 
+import java.util.List;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.*;
 
 public class GenericLivingEntity extends GenericContainer {
@@ -27,35 +29,149 @@ public class GenericLivingEntity extends GenericContainer {
 	private Gradient _health;
 	private Gradient _armor;
 	private GenericFace _face;
-	private LivingEntity entity;
 	private int health = 100;
 	private int armor = 100;
 	private int def_width = 80;
 	private int def_height = 14;
+	private boolean target = false;
+	String face = "~";
 	String label = "";
 
 	public GenericLivingEntity() {
 		super();
 		Color black = new Color(0, 0, 0, 0.75f);
 
-		this.addChildren(
-			_space = (Container) new GenericContainer() //				  .setFixed(true)
-			.setMinWidth(def_width / 4).setMaxWidth(def_width / 4).setVisible(false),
-			new GenericContainer(
-			new GenericGradient().setTopColor(black).setBottomColor(black).setPriority(RenderPriority.Highest),
-			_bars = (Container) new GenericContainer(
-			_health = (Gradient) new GenericGradient(),
-			_armor = (Gradient) new GenericGradient()).setMargin(1).setPriority(RenderPriority.High),
-			new GenericContainer(
-			_face = (GenericFace) new GenericFace().setMargin(3, 0, 3, 3),
-			_label = (Label) new GenericLabel().setMargin(3)).setLayout(ContainerType.HORIZONTAL)).setLayout(ContainerType.OVERLAY)).setLayout(ContainerType.HORIZONTAL).setFixed(true).setAnchor(WidgetAnchor.TOP_LEFT).setMargin(1, 0, 0, 0).setWidth(def_width).setHeight(def_height);
+		this.addChildren( 
+			new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
+				_space = (Container) new GenericContainer()
+					  .setMinWidth(def_width / 4)
+					  .setMaxWidth(def_width / 4)
+					  .setVisible(target),
+				new GenericContainer(
+					new GenericGradient()
+							.setTopColor(black)
+							.setBottomColor(black)
+							.setPriority(RenderPriority.Highest),
+					_bars = (Container) new GenericContainer(
+						_health = (Gradient) new GenericGradient(),
+						_armor = (Gradient) new GenericGradient()
+					)		.setMargin(1)
+							.setPriority(RenderPriority.High),
+					new GenericContainer(
+						_face = (GenericFace) new GenericFace()
+								.setMargin(3, 0, 3, 3),
+						_label = (Label) new GenericLabel()
+								.setMargin(3)
+					)		.setLayout(ContainerType.HORIZONTAL)
+				)		.setLayout(ContainerType.OVERLAY)
+			)		.setLayout(ContainerType.HORIZONTAL)
+					.setMargin(0, 0, 1, 0)
+					.setFixed(true)
+					.setWidth(def_width)
+					.setHeight(def_height)
+		)		.setAlign(WidgetAnchor.TOP_LEFT)
+				.setFixed(true)
+				.setWidth(def_width)
+				.setHeight(def_height + 1);
 
 		this.setHealthColor(new Color(1f, 0, 0, 0.75f));
 		this.setArmorColor(new Color(0.75f, 0.75f, 0.75f, 0.75f));
+	}
 
-		// Now we have the correct heights, these don't want to be re-sized horizontally
-		_health.setFixed(true);
-		_armor.setFixed(true);
+	/**
+	 * Set the display from a possibly offline player
+	 * @param name
+	 * @return 
+	 */
+	public GenericLivingEntity setEntity(String name) {
+		return setEntity(name, "");
+	}
+
+	/**
+	 * Set the display from a possibly offline player
+	 * @param name
+	 * @param prefix Place before the name
+	 * @return 
+	 */
+	public GenericLivingEntity setEntity(String name, String prefix) {
+		Player player = mmo.server.getPlayer(name);
+		if (player != null && player.isOnline()) {
+			return setEntity(player, prefix);
+		}
+		setHealth(0);
+		setArmor(0);
+		setLabel((!"".equals(prefix) ? prefix : "") + mmo.getColor(screen != null ? screen.getPlayer() : null, null) + name);
+		setFace("~" + name);
+		return this;
+	}
+
+	/**
+	 * Set the display from a player or living entity
+	 * @param entity
+	 * @return 
+	 */
+	public GenericLivingEntity setEntity(LivingEntity entity) {
+		return setEntity(entity, "");
+	}
+
+	/**
+	 * Set the display from a player or living entity
+	 * @param entity
+	 * @param prefix Place before the name
+	 * @return 
+	 */
+	public GenericLivingEntity setEntity(LivingEntity entity, String prefix) {
+		if (entity != null && entity instanceof LivingEntity) {
+			setHealth(mmo.getHealth(entity)); // Needs a maxHealth() check
+			setArmor(mmo.getArmor(entity));
+			setLabel((!"".equals(prefix) ? prefix : "") + mmo.getColor(screen != null ? screen.getPlayer() : null, entity) + mmo.getSimpleName(entity, !target));
+			setFace(entity instanceof Player ? ((Player)entity).getName() : "");
+		} else {
+			setHealth(0);
+			setArmor(0);
+			setLabel("");
+			setFace("");
+		}
+		return this;
+	}
+
+	/**
+	 * Set the targets of this entity - either actual targets, or pets etc
+	 * @param targets
+	 * @return 
+	 */
+	public GenericLivingEntity setTargets(LivingEntity... targets) {
+		Widget[] widgets = this.getChildren();
+		if (targets.length == 1 && targets[0] == null) {
+			targets = new LivingEntity[0];
+		}
+		if (targets.length + 1 < widgets.length) {
+			for (int i=targets.length + 1; i<widgets.length; i++) {
+				this.removeChild(widgets[i]);
+			}
+		}
+		for (int i=0; i<targets.length; i++) {
+			GenericLivingEntity child;
+			if (widgets.length > i + 1) {
+				child = (GenericLivingEntity) widgets[i+1];
+			} else {
+				this.addChild(child = new GenericLivingEntity());
+			}
+			child.setTarget(true);
+			child.setEntity(targets[i]);
+		}
+		setHeight((targets.length + 1) * (def_height + 1));
+		updateLayout();
+		return this;
+	}
+
+	public GenericLivingEntity setTarget(boolean target) {
+		if (this.target != target) {
+			this.target = target;
+			_space.setVisible(target);
+			updateLayout();
+		}
+		return this;
 	}
 
 	public GenericLivingEntity setHealth(int health) {
@@ -84,12 +200,20 @@ public class GenericLivingEntity extends GenericContainer {
 		return this;
 	}
 
-	public GenericLivingEntity setLabel(String prefix, String name) {
-		if (!this.label.equals(prefix + name)) {
-			this.label = prefix + name;
-			_label.setText(prefix + name).setDirty(true);
-			_face.setVisible(!name.equals(""));
-			_face.setName(name).setDirty(true);
+	public GenericLivingEntity setLabel(String label) {
+		if (!this.label.equals(label)) {
+			this.label = label;
+			_label.setText(label).setDirty(true);
+			updateLayout();
+		}
+		return this;
+	}
+
+	public GenericLivingEntity setFace(String name) {
+		if (!this.face.equals(name)) {
+			this.face = name;
+			_face.setVisible(!name.isEmpty());
+			_face.setName(name);
 			updateLayout();
 		}
 		return this;
@@ -97,7 +221,6 @@ public class GenericLivingEntity extends GenericContainer {
 
 	@Override
 	public Container updateLayout() {
-		_space.setVisible(armor == -1);
 		super.updateLayout();
 		_armor.setWidth((_bars.getWidth() * armor) / 100).setDirty(true);
 		_health.setWidth((_bars.getWidth() * health) / 100).setDirty(true);
