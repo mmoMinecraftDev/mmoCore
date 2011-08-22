@@ -124,12 +124,10 @@ public class mmoCore extends JavaPlugin {
 
 		@Override
 		public void onPlayerQuit(PlayerQuitEvent event) {
-			mmo.remove(SpoutManager.getPlayer(event.getPlayer()));
 		}
 
 		@Override
 		public void onPlayerKick(PlayerKickEvent event) {
-			mmo.remove(SpoutManager.getPlayer(event.getPlayer()));
 		}
 	}
 }

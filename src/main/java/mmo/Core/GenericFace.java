@@ -44,8 +44,9 @@ public final class GenericFace extends GenericTexture {
 	}
 
 	public GenericFace setName(String name) {
-		this.name = name;
+		this.name = name == null ? "" : name;
 		super.setUrl(facePath + this.name + ".png");
+		super.setDirty(true);
 		return this;
 	}
 
