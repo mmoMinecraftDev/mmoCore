@@ -142,13 +142,11 @@ public class GenericLivingEntity extends GenericContainer {
 	 */
 	public GenericLivingEntity setTargets(LivingEntity... targets) {
 		Widget[] widgets = this.getChildren();
-		if (targets.length == 1 && targets[0] == null) {
-			targets = new LivingEntity[0];
+		if (targets == null) {
+			targets = new LivingEntity[0]; // zero-length array is easier to handle
 		}
-		if (targets.length + 1 < widgets.length) {
-			for (int i=targets.length + 1; i<widgets.length; i++) {
-				this.removeChild(widgets[i]);
-			}
+		for (int i=targets.length + 1; i<widgets.length; i++) {
+			this.removeChild(widgets[i]);
 		}
 		for (int i=0; i<targets.length; i++) {
 			GenericLivingEntity child;
