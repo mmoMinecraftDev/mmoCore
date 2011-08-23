@@ -125,7 +125,7 @@ public class GenericLivingEntity extends GenericContainer {
 			setHealth(mmo.getHealth(entity)); // Needs a maxHealth() check
 			setArmor(mmo.getArmor(entity));
 			setLabel((!"".equals(prefix) ? prefix : "") + mmo.getColor(screen != null ? screen.getPlayer() : null, entity) + mmo.getSimpleName(entity, !target));
-			setFace(entity instanceof Player ? ((Player)entity).getName() : "");
+			setFace(entity instanceof Player ? ((Player)entity).getName() : "+" + mmo.getSimpleName(entity,false).replaceAll(" ", ""));
 		} else {
 			setHealth(0);
 			setArmor(0);

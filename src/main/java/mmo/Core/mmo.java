@@ -552,6 +552,8 @@ public class mmo {
 				name += "Cow";
 			} else if (target instanceof Creeper) {
 				name += "Creeper";
+			} else if (target instanceof Ghast) {
+				name += "Ghast";
 			} else if (target instanceof Giant) {
 				name += "Giant";
 			} else if (target instanceof Pig) {
@@ -560,6 +562,8 @@ public class mmo {
 				name += "PigZombie";
 			} else if (target instanceof Sheep) {
 				name += "Sheep";
+			} else if (target instanceof Slime) {
+				name += "Slime";
 			} else if (target instanceof Skeleton) {
 				name += "Skeleton";
 			} else if (target instanceof Spider) {
