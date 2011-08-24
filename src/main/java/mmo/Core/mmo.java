@@ -42,8 +42,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Container;
+import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.GenericLabel;
 import org.getspout.spoutapi.gui.Widget;
+import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class mmo {
@@ -365,12 +367,126 @@ public class mmo {
 		}
 	}
 
+	/**
+	 * Get the container for use by this plugin, anchor and position can be overridden by options.
+	 * @return 
+	 */
+	public GenericContainer getContainer() {
+		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
+		String anchorName = cfg.getString("ui.default.align", "TOP_LEFT");
+		int offsetX = cfg.getInt("ui.default.left", 0), offsetY = cfg.getInt("ui.default.top", 0);
+
+		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_LEFT;
+		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_CENTER;
+			offsetX -= 213;
+		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_RIGHT;
+			offsetX = -427 - offsetX;
+		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_LEFT;
+			offsetY -= 120;
+		} else if ("CENTER_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_CENTER;
+			offsetX -= 213;
+			offsetY -= 120;
+		} else if ("CENTER_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_RIGHT;
+			offsetX = -427 - offsetX;
+			offsetY -= 120;
+		} else if ("BOTTOM_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_LEFT;
+			offsetY = -240 - offsetY;
+		} else if ("BOTTOM_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_CENTER;
+			offsetX -= 213;
+			offsetY = -240 - offsetY;
+		} else if ("BOTTOM_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_RIGHT;
+			offsetX = -427 - offsetX;
+			offsetY = -240 - offsetY;
+		}
+		GenericContainer container = new GenericContainer();
+		container.setAlign(anchor)
+			.setAnchor(anchor)
+			.setX(offsetX)
+			.setY(offsetY)
+			.setWidth(427)
+			.setHeight(240)
+			.setFixed(true);
+		return container;
+	}
+	
 	public void updateUI(String data) {
 	}
 
-	public void setGlobalTitle(LivingEntity target, String title) {
+	/**
+	 * Spout-safe version of setGlobalTitle
+	 * @param target
+	 * @param title 
+	 */
+	public void setTitle(LivingEntity target, String title) {
 		if (hasSpout && target != null) {
 			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerTitle
+	 * @param player 
+	 * @param target
+	 * @param title 
+	 */
+	public void setTitle(Player player, LivingEntity target, String title) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerTitle(SpoutManager.getPlayer(player), target, title);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setGlobalCloak
+	 * @param target
+	 * @param url 
+	 */
+	public void setCloak(HumanEntity target, String url) {
+		if (hasSpout && target != null) {
+			SpoutManager.getAppearanceManager().setGlobalCloak(target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerCloak
+	 * @param player 
+	 * @param target
+	 * @param url 
+	 */
+	public void setCloak(Player player, HumanEntity target, String url) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerCloak(SpoutManager.getPlayer(player), target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setGlobalCloak
+	 * @param target
+	 * @param url 
+	 */
+	public void setSkin(HumanEntity target, String url) {
+		if (hasSpout && target != null) {
+			SpoutManager.getAppearanceManager().setGlobalSkin(target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerCloak
+	 * @param player 
+	 * @param target
+	 * @param url 
+	 */
+	public void setSkin(Player player, HumanEntity target, String url) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerSkin(SpoutManager.getPlayer(player), target, url);
 		}
 	}
 
