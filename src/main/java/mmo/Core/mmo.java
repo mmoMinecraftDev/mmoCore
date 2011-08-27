@@ -41,12 +41,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
-import org.getspout.spoutapi.gui.GenericLabel;
-import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.gui.WidgetAnchor;
-import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class mmo {
 
@@ -61,6 +57,8 @@ public class mmo {
 	public static boolean mmoParty = false;
 	public static boolean mmoPet = false;
 	public static boolean mmoTarget = false;
+	public static boolean mmoFriends = false;
+	public static boolean mmoChat = false;
 	/**
 	 * Spout
 	 */
@@ -208,11 +206,43 @@ public class mmo {
 
 	/**
 	 * Send a message to one person by name.
+	 * @param prefix Whether to show the plugin name
 	 * @param name The player to message
 	 * @param msg The message to send
 	 */
 	public void sendMessage(String name, String msg, Object... args) {
-		sendMessage(server.getPlayer(name), msg, args);
+		sendMessage(true, server.getPlayer(name), msg, args);
+	}
+
+	/**
+	 * Send a message to multiple people.
+	 * @param prefix Whether to show the plugin name
+	 * @param players The Players to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(List<Player> players, String msg, Object... args) {
+		for (Player player : players) {
+			sendMessage(true, player, msg, args);
+		}
+	}
+
+	/**
+	 * Send a message to one person.
+	 * @param prefix Whether to show the plugin name
+	 * @param player The Player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(Player player, String msg, Object... args) {
+		sendMessage(true, player, msg, args);
+	}
+
+	/**
+	 * Send a message to one person by name.
+	 * @param name The player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, String name, String msg, Object... args) {
+		sendMessage(prefix, server.getPlayer(name), msg, args);
 	}
 
 	/**
@@ -220,9 +250,9 @@ public class mmo {
 	 * @param players The Players to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(List<Player> players, String msg, Object... args) {
+	public void sendMessage(boolean prefix, List<Player> players, String msg, Object... args) {
 		for (Player player : players) {
-			sendMessage(player, msg, args);
+			sendMessage(prefix, player, msg, args);
 		}
 	}
 
@@ -231,11 +261,11 @@ public class mmo {
 	 * @param player The Player to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(Player player, String msg, Object... args) {
+	public void sendMessage(boolean prefix, Player player, String msg, Object... args) {
 		if (player != null) {
 			try {
 				for (String line : String.format(msg, args).split("\n")) {
-					player.sendMessage(prefix + line);
+					player.sendMessage((prefix ? this.prefix : "") + line);
 				}
 			} catch (Exception e) {
 				// Bad format->Object type
@@ -609,6 +639,9 @@ public class mmo {
 	 */
 	public static String getColor(Player player, LivingEntity target) {
 		if (target instanceof Player) {
+			if (((Player)target).isOp()) {
+				return ChatColor.GOLD.toString();
+			}
 			return ChatColor.YELLOW.toString();
 		} else {
 			if (target instanceof Monster) {
@@ -718,5 +751,9 @@ public class mmo {
 
 	public void log(String text) {
 		log.log(Level.INFO, "[" + description.getName() + "] " + text);
+	}
+
+	public void log(String text, Object... args) {
+		log.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
 	}
 }
