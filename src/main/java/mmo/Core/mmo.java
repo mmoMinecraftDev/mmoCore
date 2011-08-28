@@ -81,7 +81,7 @@ public class mmo {
 	 * @param plugin The plugin to associate it with
 	 * @return The new mmo Object
 	 */
-	public final static mmo create(Plugin plugin) {
+	public static mmo create(Plugin plugin) {
 		mmo me = null;
 		String name = plugin.getDescription().getName();
 		synchronized (modules) {
@@ -91,11 +91,11 @@ public class mmo {
 				modules.put(name, me);
 			}
 			me.plugin = plugin;
-			me.server = plugin.getServer();
 			me.description = plugin.getDescription();
 			me.cfg = plugin.getConfiguration();
 			me.cfg.setHeader("#" + name + " Configuration");
-			me.log = Logger.getLogger("Minecraft");
+			mmo.server = plugin.getServer();
+			mmo.log = Logger.getLogger("Minecraft");
 			me.setPluginName(name);
 		}
 		return me;
@@ -106,7 +106,7 @@ public class mmo {
 	 * @param name The name of the plugin
 	 * @return The mmo Object if it exists
 	 */
-	public static final mmo findPlugin(String name) {
+	public static mmo findPlugin(String name) {
 		if (name != null) {
 			return modules.get(name);
 		}
@@ -117,7 +117,7 @@ public class mmo {
 	 * Get a list of installed plugin names
 	 * @return Installed plugins
 	 */
-	public static final String listPlugins() {
+	public static String listPlugins() {
 		String list = "";
 		for (String name : modules.keySet()) {
 			if (!list.equals("")) {
@@ -755,5 +755,31 @@ public class mmo {
 
 	public void log(String text, Object... args) {
 		log.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
+	}
+
+	/**
+	 * Return the first word of a line
+	 * @param line
+	 * @return 
+	 */
+	public static String firstWord(String line) {
+		int endIndex = line.indexOf(" ");
+		if (endIndex == -1) {
+			endIndex = line.length();
+		}
+		return line.substring(0, endIndex);
+	}
+
+	/**
+	 * Return a line with the first word removed
+	 * @param line
+	 * @return 
+	 */
+	public static String removeFirstWord(String line) {
+		int endIndex = line.indexOf(" ");
+		if (endIndex == -1) {
+			endIndex = line.length();
+		}
+		return line.substring(endIndex).trim();
 	}
 }

@@ -27,12 +27,10 @@ import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-import org.getspout.spoutapi.SpoutManager;
 
-public class mmoCore extends JavaPlugin {
+public class mmoCore extends mmoPlugin {
 
 	protected static Server server;
 	protected static PluginManager pm;
@@ -57,6 +55,15 @@ public class mmoCore extends JavaPlugin {
 		// Default values
 		mmo.cfg.getBoolean("auto_update", true);
 		mmo.cfg.getBoolean("show_display_name", false);
+
+		mmo.cfg.getString("database.driver", "org.sqlite.JDBC");
+		mmo.cfg.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db");
+		mmo.cfg.getString("database.username", "root");
+		mmo.cfg.getString("database.password", "");
+		mmo.cfg.getString("database.isolation", "SERIALIZABLE");
+		mmo.cfg.getBoolean("database.logging", false);
+		mmo.cfg.getBoolean("database.rebuild", true);
+
 		mmo.cfg.save();
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
