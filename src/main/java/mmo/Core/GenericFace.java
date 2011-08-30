@@ -25,18 +25,20 @@ public final class GenericFace extends GenericTexture {
 	private String name;
 
 	public GenericFace() {
-		this.setWidth(defaultSize).setHeight(defaultSize).setFixed(true);
-		setName("");
+		this("", defaultSize);
 	}
 
 	public GenericFace(String name) {
-		this.setWidth(defaultSize).setHeight(defaultSize).setFixed(true);
-		setName(name);
+		this(name, defaultSize);
 	}
 
 	public GenericFace(String name, int size) {
-		this.setWidth(size).setHeight(size).setFixed(true);
-		setName(name);
+		if (mmoCore.mmo.cfg.getBoolean("show_player_faces", true)) {
+			this.setWidth(size).setHeight(size).setFixed(true);
+			setName(name);
+		} else {
+			this.setVisible(false);
+		}
 	}
 
 	public String getName() {
@@ -44,14 +46,18 @@ public final class GenericFace extends GenericTexture {
 	}
 
 	public GenericFace setName(String name) {
-		this.name = name == null ? "" : name;
-		super.setUrl(facePath + this.name + ".png");
-		super.setDirty(true);
+		if (mmoCore.mmo.cfg.getBoolean("show_player_faces", true)) {
+			this.name = name == null ? "" : name;
+			super.setUrl(facePath + this.name + ".png");
+			super.setDirty(true);
+		}
 		return this;
 	}
 
 	public GenericFace setSize(int size) {
-		super.setWidth(size).setHeight(size);
+		if (mmoCore.mmo.cfg.getBoolean("show_player_faces", true)) {
+			super.setWidth(size).setHeight(size);
+		}
 		return this;
 	}
 }

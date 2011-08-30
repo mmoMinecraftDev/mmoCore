@@ -16,6 +16,8 @@
  */
 package mmo.Core;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,6 +61,7 @@ public class mmo {
 	public static boolean mmoTarget = false;
 	public static boolean mmoFriends = false;
 	public static boolean mmoChat = false;
+	public static boolean mmoInfo = false;
 	/**
 	 * Spout
 	 */
@@ -158,9 +161,11 @@ public class mmo {
 				String str;
 				while ((str = in.readLine()) != null) {
 					if (str.startsWith("version: ")) {
-						Float oldVersion = new Float(description.getVersion().replaceAll("[^0-9.]", ""));
-						Float newVersion = new Float(str.replaceAll("[^0-9.]", ""));
-						if (newVersion > oldVersion) {
+						String oldVersion[] = description.getVersion().replaceAll("[^0-9.]", "").split(".");
+						String newVersion[] = str.replaceAll("[^0-9.]", "").split(".");
+						int oldVer = new Integer(oldVersion[0]), oldRev = new Integer(oldVersion[1]);
+						int newVer = new Integer(newVersion[0]), newRev = new Integer(newVersion[1]);
+						if (newVer > oldVer || (newVer == oldVer && newRev > oldRev)) {
 							canUpdate = true;
 							break;
 						}
@@ -405,15 +410,19 @@ public class mmo {
 		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
 		String anchorName = cfg.getString("ui.default.align", "TOP_LEFT");
 		int offsetX = cfg.getInt("ui.default.left", 0), offsetY = cfg.getInt("ui.default.top", 0);
+		int extra = mmoInfo ? 11 : 0; // If mmoInfo exists
 
 		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_LEFT;
+			offsetY += extra;
 		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_CENTER;
 			offsetX -= 213;
+			offsetY += extra;
 		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_RIGHT;
 			offsetX = -427 - offsetX;
+			offsetY += extra;
 		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.CENTER_LEFT;
 			offsetY -= 120;
@@ -438,16 +447,10 @@ public class mmo {
 			offsetY = -240 - offsetY;
 		}
 		GenericContainer container = new GenericContainer();
-		container.setAlign(anchor)
-			.setAnchor(anchor)
-			.setX(offsetX)
-			.setY(offsetY)
-			.setWidth(427)
-			.setHeight(240)
-			.setFixed(true);
+		container.setAlign(anchor).setAnchor(anchor).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240).setFixed(true);
 		return container;
 	}
-	
+
 	public void updateUI(String data) {
 	}
 
@@ -557,7 +560,7 @@ public class mmo {
 
 	public static LivingEntity[] getPets(HumanEntity player) {
 		ArrayList<LivingEntity> pets = new ArrayList<LivingEntity>();
-		if (player != null && (!(player instanceof Player) || ((Player)player).isOnline())) {
+		if (player != null && (!(player instanceof Player) || ((Player) player).isOnline())) {
 			String name = player.getName();
 			for (World world : server.getWorlds()) {
 				for (LivingEntity entity : world.getLivingEntities()) {
@@ -639,7 +642,7 @@ public class mmo {
 	 */
 	public static String getColor(Player player, LivingEntity target) {
 		if (target instanceof Player) {
-			if (((Player)target).isOp()) {
+			if (((Player) target).isOp()) {
 				return ChatColor.GOLD.toString();
 			}
 			return ChatColor.YELLOW.toString();
@@ -677,18 +680,18 @@ public class mmo {
 		String name = "";
 		if (target instanceof Player) {
 			if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
-				name += ((Player)target).getName();
+				name += ((Player) target).getName();
 			} else {
-				name += ((Player)target).getDisplayName();
+				name += ((Player) target).getDisplayName();
 			}
 		} else {
 			if (target instanceof Tameable) {
-				if (((Tameable)target).isTamed()) {
-					if (showOwner && ((Tameable)target).getOwner() instanceof Player) {
+				if (((Tameable) target).isTamed()) {
+					if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
 						if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
-							name += ((Player)((Tameable)target).getOwner()).getName() + "'s ";
+							name += ((Player) ((Tameable) target).getOwner()).getName() + "'s ";
 						} else {
-							name += ((Player)((Tameable)target).getOwner()).getDisplayName() + "'s ";
+							name += ((Player) ((Tameable) target).getOwner()).getDisplayName() + "'s ";
 						}
 					} else {
 						name += "Pet ";
@@ -781,5 +784,14 @@ public class mmo {
 			endIndex = line.length();
 		}
 		return line.substring(endIndex).trim();
+	}
+
+	private static FontMetrics fm = new FontMetrics(new Font("Arial", Font.PLAIN, 8)){};
+	public static int getStringWidth(String text) {
+		int length = 0;
+		for (String line : ChatColor.stripColor(text).split("\n")) {
+			length = Math.max(length, fm.stringWidth(line));
+		}
+		return length;
 	}
 }

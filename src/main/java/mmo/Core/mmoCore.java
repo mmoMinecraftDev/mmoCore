@@ -55,6 +55,7 @@ public class mmoCore extends mmoPlugin {
 		// Default values
 		mmo.cfg.getBoolean("auto_update", true);
 		mmo.cfg.getBoolean("show_display_name", false);
+		mmo.cfg.getBoolean("show_player_faces", true);
 
 		mmo.cfg.getString("database.driver", "org.sqlite.JDBC");
 		mmo.cfg.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db");
@@ -128,7 +129,7 @@ public class mmoCore extends mmoPlugin {
 		return false;
 	}
 
-	public class mmoCorePlayerListener extends PlayerListener {
+	public static class mmoCorePlayerListener extends PlayerListener {
 
 		@Override
 		public void onPlayerQuit(PlayerQuitEvent event) {

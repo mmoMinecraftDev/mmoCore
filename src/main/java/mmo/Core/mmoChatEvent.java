@@ -43,12 +43,37 @@ public interface mmoChatEvent {
 	public String getMessage(Player player);
 
 	/**
+	 * Set the default format for all players
+	 * @param format 
+	 */
+	public void setFormat(String format);
+
+	/**
+	 * Set the format for a single player
+	 * @param player
+	 * @param format 
+	 */
+	public void setFormat(Player player, String format);
+
+	/**
+	 * Get the default format for all players
+	 * @param player
+	 * @return 
+	 */
+	public String getFormat();
+
+	/**
+	 * Get the format for a single player
+	 * @param player
+	 * @return 
+	 */
+	public String getFormat(Player player);
+
+	/**
 	 * Inherit from PlayerEvent
 	 */
 	public Player getPlayer();
-	/**
-	 * Inherit from PlayerChatEvent
-	 */
+
 	public boolean isCancelled();
 	public void setCancelled(boolean cancel);
 	public String getMessage();
