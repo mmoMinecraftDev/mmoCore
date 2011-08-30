@@ -27,11 +27,16 @@ public class mmoListener extends CustomEventListener implements Listener {
 
 	public void onMMOChat(mmoChatEvent event) {
 	}
+	
+	public void onMMOPVPDamage(mmoPVPDamageEvent evt) {
+	}
 
 	@Override
 	public void onCustomEvent(Event event) {
 		if (event instanceof mmoChatEvent) {
 			onMMOChat((mmoChatEvent) event);
+		} else if (event instanceof mmoPVPDamageEvent) {
+			onMMOPVPDamage((mmoPVPDamageEvent) event);
 		}
 	}
 }
