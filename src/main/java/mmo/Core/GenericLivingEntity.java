@@ -16,7 +16,6 @@
  */
 package mmo.Core;
 
-import java.util.List;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.*;
