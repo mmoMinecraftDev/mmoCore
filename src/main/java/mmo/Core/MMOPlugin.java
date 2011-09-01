@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
-public abstract class mmoPlugin extends JavaPlugin {
+public abstract class MMOPlugin extends JavaPlugin {
 
 	private MyDatabase database;
 	protected List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -52,7 +52,7 @@ public abstract class mmoPlugin extends JavaPlugin {
 					return classes;
 				}
 			};
-			Configuration cfg = mmoCore.mmo.cfg;
+			Configuration cfg = MMOCore.mmo.cfg;
 			database.initializeDatabase(
 					  cfg.getString("database.driver", "org.sqlite.JDBC"),
 					  cfg.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db"),

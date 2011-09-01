@@ -30,12 +30,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 
-public class mmoCore extends mmoPlugin {
+public class MMOCore extends MMOPlugin {
 
 	protected static Server server;
 	protected static PluginManager pm;
 	protected static PluginDescriptionFile description;
-	protected static mmo mmo;
+	protected static MMO mmo;
 	protected String prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + "mmoParty" + ChatColor.GREEN + "] " + ChatColor.WHITE;
 
 	@Override
@@ -86,7 +86,7 @@ public class mmoCore extends mmoPlugin {
 		}
 		Player player = (Player) sender;
 		if ((player.isOp() || player.hasPermission("mmocore.set")) && command.getName().equalsIgnoreCase("mmoset")) {
-			mmo plugin;
+			MMO plugin;
 			if (args.length == 0 || (plugin = mmo.findPlugin(args[0])) == null) {
 				mmo.sendMessage(player, "Plugins: %s", mmo.listPlugins());
 			} else {

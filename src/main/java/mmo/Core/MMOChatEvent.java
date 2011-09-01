@@ -19,7 +19,7 @@ package mmo.Core;
 import java.util.HashSet;
 import org.bukkit.entity.Player;
 
-public interface mmoChatEvent {
+public interface MMOChatEvent {
 
 	/**
 	 * Check if a filter is supposed to be used

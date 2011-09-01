@@ -92,13 +92,13 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return 
 	 */
 	public GenericLivingEntity setEntity(String name, String prefix) {
-		Player player = mmo.server.getPlayer(name);
+		Player player = MMO.server.getPlayer(name);
 		if (player != null && player.isOnline()) {
 			return setEntity(player, prefix);
 		}
 		setHealth(0);
 		setArmor(0);
-		setLabel((!"".equals(prefix) ? prefix : "") + mmo.getColor(screen != null ? screen.getPlayer() : null, null) + name);
+		setLabel((!"".equals(prefix) ? prefix : "") + MMO.getColor(screen != null ? screen.getPlayer() : null, null) + name);
 		setFace("~" + name);
 		return this;
 	}
@@ -120,10 +120,10 @@ public class GenericLivingEntity extends GenericContainer {
 	 */
 	public GenericLivingEntity setEntity(LivingEntity entity, String prefix) {
 		if (entity != null && entity instanceof LivingEntity) {
-			setHealth(mmo.getHealth(entity)); // Needs a maxHealth() check
-			setArmor(mmo.getArmor(entity));
-			setLabel((!"".equals(prefix) ? prefix : "") + mmo.getColor(screen != null ? screen.getPlayer() : null, entity) + mmo.getSimpleName(entity, !target));
-			setFace(entity instanceof Player ? ((Player)entity).getName() : "+" + mmo.getSimpleName(entity,false).replaceAll(" ", ""));
+			setHealth(MMO.getHealth(entity)); // Needs a maxHealth() check
+			setArmor(MMO.getArmor(entity));
+			setLabel((!"".equals(prefix) ? prefix : "") + MMO.getColor(screen != null ? screen.getPlayer() : null, entity) + MMO.getSimpleName(entity, !target));
+			setFace(entity instanceof Player ? ((Player)entity).getName() : "+" + MMO.getSimpleName(entity,false).replaceAll(" ", ""));
 		} else {
 			setHealth(0);
 			setArmor(0);

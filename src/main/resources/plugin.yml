@@ -1,5 +1,5 @@
 name: mmoCore
-main: mmo.Core.mmoCore
+main: mmo.Core.MMOCore
 version: 1.1
 website: http://forums.bukkit.org/threads/31054/
 author: Rycochet <rycochet@rycochet.com>

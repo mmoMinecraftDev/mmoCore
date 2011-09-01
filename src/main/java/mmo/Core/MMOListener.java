@@ -20,23 +20,23 @@ import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 
-public class mmoListener extends CustomEventListener implements Listener {
+public class MMOListener extends CustomEventListener implements Listener {
 
-	public mmoListener() {
+	public MMOListener() {
 	}
 
-	public void onMMOChat(mmoChatEvent event) {
+	public void onMMOChat(MMOChatEvent event) {
 	}
 	
-	public void onMMOPVPDamage(mmoPVPDamageEvent evt) {
+	public void onMMOPVPDamage(MMOPVPDamageEvent evt) {
 	}
 
 	@Override
 	public void onCustomEvent(Event event) {
-		if (event instanceof mmoChatEvent) {
-			onMMOChat((mmoChatEvent) event);
-		} else if (event instanceof mmoPVPDamageEvent) {
-			onMMOPVPDamage((mmoPVPDamageEvent) event);
+		if (event instanceof MMOChatEvent) {
+			onMMOChat((MMOChatEvent) event);
+		} else if (event instanceof MMOPVPDamageEvent) {
+			onMMOPVPDamage((MMOPVPDamageEvent) event);
 		}
 	}
 }

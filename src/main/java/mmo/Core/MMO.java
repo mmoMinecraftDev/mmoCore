@@ -44,12 +44,12 @@ import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 
-public class mmo {
+public class MMO {
 
 	/**
 	 * All opened mmo Objects
 	 */
-	protected static final HashMap<String, mmo> modules = new HashMap<String, mmo>();
+	protected static final HashMap<String, MMO> modules = new HashMap<String, MMO>();
 	/**
 	 * Quick checking of the various plugins...
 	 */
@@ -74,7 +74,7 @@ public class mmo {
 	/**
 	 * Never want to manually create a new instance outside of mmo.create()
 	 */
-	private mmo() {
+	private MMO() {
 	}
 
 	/**
@@ -82,21 +82,21 @@ public class mmo {
 	 * @param plugin The plugin to associate it with
 	 * @return The new mmo Object
 	 */
-	public static mmo create(Plugin plugin) {
-		mmo me = null;
+	public static MMO create(Plugin plugin) {
+		MMO me = null;
 		String name = plugin.getDescription().getName();
 		synchronized (modules) {
 			me = modules.get(name);
 			if (me == null) {
-				me = new mmo();
+				me = new MMO();
 				modules.put(name, me);
 			}
 			me.plugin = plugin;
 			me.description = plugin.getDescription();
 			me.cfg = plugin.getConfiguration();
 			me.cfg.setHeader("#" + name + " Configuration");
-			mmo.server = plugin.getServer();
-			mmo.log = Logger.getLogger("Minecraft");
+			MMO.server = plugin.getServer();
+			MMO.log = Logger.getLogger("Minecraft");
 			me.setPluginName(name);
 		}
 		return me;
@@ -107,7 +107,7 @@ public class mmo {
 	 * @param name The name of the plugin
 	 * @return The mmo Object if it exists
 	 */
-	public static mmo findPlugin(String name) {
+	public static MMO findPlugin(String name) {
 		if (name != null) {
 			return modules.get(name);
 		}
@@ -133,7 +133,7 @@ public class mmo {
 	 * Set the notification title.
 	 * @param title Title to use
 	 */
-	public final mmo setPluginName(String title) {
+	public final MMO setPluginName(String title) {
 		this.title = title;
 		this.prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
 		return this;
@@ -677,7 +677,7 @@ public class mmo {
 	public static String getSimpleName(LivingEntity target, boolean showOwner) {
 		String name = "";
 		if (target instanceof Player) {
-			if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
+			if (MMOCore.mmo.cfg.getBoolean("show_display_name", false)) {
 				name += ((Player) target).getName();
 			} else {
 				name += ((Player) target).getDisplayName();
@@ -686,7 +686,7 @@ public class mmo {
 			if (target instanceof Tameable) {
 				if (((Tameable) target).isTamed()) {
 					if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
-						if (mmoCore.mmo.cfg.getBoolean("show_display_name", false)) {
+						if (MMOCore.mmo.cfg.getBoolean("show_display_name", false)) {
 							name += ((Player) ((Tameable) target).getOwner()).getName() + "'s ";
 						} else {
 							name += ((Player) ((Tameable) target).getOwner()).getDisplayName() + "'s ";

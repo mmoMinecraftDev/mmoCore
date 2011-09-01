@@ -9,7 +9,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
  * 
  * @author Sebastian Mayr
  */
-public interface mmoPVPDamageEvent extends Cancellable {
+public interface MMOPVPDamageEvent extends Cancellable {
 
 	/**
 	 * Returns the original damage event.

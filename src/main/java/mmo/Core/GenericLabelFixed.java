@@ -27,15 +27,15 @@ public class GenericLabelFixed extends GenericLabel {
 
 	public GenericLabelFixed(String text) {
 		super(text);
-		super.setHeight(mmo.getStringHeight(text));
-		super.setWidth(mmo.getStringWidth(text));
+		super.setHeight(MMO.getStringHeight(text));
+		super.setWidth(MMO.getStringWidth(text));
 		super.setFixed(true);
 	}
 
 	@Override
 	public Label setText(String text) {
-		super.setHeight(mmo.getStringHeight(text));
-		super.setWidth(mmo.getStringWidth(text));
+		super.setHeight(MMO.getStringHeight(text));
+		super.setWidth(MMO.getStringWidth(text));
 		return super.setText(text);
 	}
 }
