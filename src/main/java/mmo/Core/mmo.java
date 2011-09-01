@@ -16,8 +16,6 @@
  */
 package mmo.Core;
 
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.minecraft.server.FontAllowedCharacters;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -810,6 +807,7 @@ public class mmo {
 			8, 7, 7, 8, 7, 8, 8, 8, 7, 8, 8, 7, 9, 9, 6, 7,
 			7, 7, 7, 7, 9, 6, 7, 8, 7, 6, 6, 9, 7, 6, 7, 1
 		};
+		final String allowedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~?Ã³ÚÔõÓÕþÛÙÞ´¯ý─┼╔µã¶÷‗¹¨ Í▄°úÏÎâßÝ¾·±Ð¬║┐«¼¢╝í½╗";
 		int length = 0;
 		for (String line : ChatColor.stripColor(text).split("\n")) {
 			int lineLength = 0;
@@ -819,7 +817,7 @@ public class mmo {
 					i++;
 					continue;
 				}
-				int index = FontAllowedCharacters.allowedCharacters.indexOf(ch);
+				int index = allowedCharacters.indexOf(ch);
 				if (index == -1) {
 					continue;
 				}
