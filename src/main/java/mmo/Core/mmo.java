@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.minecraft.server.FontAllowedCharacters;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -786,11 +787,45 @@ public class mmo {
 		return line.substring(endIndex).trim();
 	}
 
-	private static FontMetrics fm = new FontMetrics(new Font("Arial", Font.PLAIN, 8)){};
+	public static int getStringHeight(String text) {
+		return text.split("\n").length * 10;
+	}
+
 	public static int getStringWidth(String text) {
+		final int[] characterWidths = new int[]{
+			1, 9, 9, 8, 8, 8, 8, 7, 9, 8, 9, 9, 8, 9, 9, 9,
+			8, 8, 8, 8, 9, 9, 8, 9, 8, 8, 8, 8, 8, 9, 9, 9,
+			4, 2, 5, 6, 6, 6, 6, 3, 5, 5, 5, 6, 2, 6, 2, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 6, 5, 6,
+			7, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 4, 6, 6,
+			3, 6, 6, 6, 6, 6, 5, 6, 6, 2, 6, 5, 3, 6, 6, 6,
+			6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6, 5, 2, 5, 7, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 3, 6, 6,
+			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6,
+			6, 3, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 2, 6, 6,
+			8, 9, 9, 6, 6, 6, 8, 8, 6, 8, 8, 8, 8, 8, 6, 6,
+			9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+			9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 5, 9, 9,
+			8, 7, 7, 8, 7, 8, 8, 8, 7, 8, 8, 7, 9, 9, 6, 7,
+			7, 7, 7, 7, 9, 6, 7, 8, 7, 6, 6, 9, 7, 6, 7, 1
+		};
 		int length = 0;
 		for (String line : ChatColor.stripColor(text).split("\n")) {
-			length = Math.max(length, fm.stringWidth(line));
+			int lineLength = 0;
+			for (int i = 0; i < line.length(); i++) {
+				char ch = text.charAt(i);
+				if (ch == '\u00A7') {
+					i++;
+					continue;
+				}
+				int index = FontAllowedCharacters.allowedCharacters.indexOf(ch);
+				if (index == -1) {
+					continue;
+				}
+				lineLength += characterWidths[index + 32];
+				length = Math.max(length, lineLength);
+			}
 		}
 		return length;
 	}

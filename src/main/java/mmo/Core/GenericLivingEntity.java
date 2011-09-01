@@ -22,7 +22,6 @@ import org.getspout.spoutapi.gui.*;
 
 public class GenericLivingEntity extends GenericContainer {
 
-	private Container _bars;
 	private Container _space;
 	private Label _label;
 	private Gradient _health;
@@ -51,7 +50,7 @@ public class GenericLivingEntity extends GenericContainer {
 							.setTopColor(black)
 							.setBottomColor(black)
 							.setPriority(RenderPriority.Highest),
-					_bars = (Container) new GenericContainer(
+					new GenericContainer(
 						_health = (Gradient) new GenericGradient(),
 						_armor = (Gradient) new GenericGradient()
 					)		.setMargin(1)
@@ -219,8 +218,8 @@ public class GenericLivingEntity extends GenericContainer {
 	@Override
 	public Container updateLayout() {
 		super.updateLayout();
-		_armor.setWidth((_bars.getWidth() * armor) / 100).setDirty(true);
-		_health.setWidth((_bars.getWidth() * health) / 100).setDirty(true);
+		_armor.setWidth((_armor.getContainer().getWidth() * armor) / 100).setDirty(true);
+		_health.setWidth((_health.getContainer().getWidth() * health) / 100).setDirty(true);
 		return this;
 	}
 }
