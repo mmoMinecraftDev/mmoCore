@@ -44,12 +44,12 @@ public class MMOCore extends MMOPlugin {
 		pm = server.getPluginManager();
 		description = getDescription();
 
-		mmo = mmo.create(this);
+		mmo = MMO.create(this);
 
 		mmo.log("loading " + description.getFullName());
 
 		if (pm.isPluginEnabled("Spout")) {
-			mmo.hasSpout = true;
+			MMO.hasSpout = true;
 		}
 
 		// Default values
@@ -87,8 +87,8 @@ public class MMOCore extends MMOPlugin {
 		Player player = (Player) sender;
 		if ((player.isOp() || player.hasPermission("mmocore.set")) && command.getName().equalsIgnoreCase("mmoset")) {
 			MMO plugin;
-			if (args.length == 0 || (plugin = mmo.findPlugin(args[0])) == null) {
-				mmo.sendMessage(player, "Plugins: %s", mmo.listPlugins());
+			if (args.length == 0 || (plugin = MMO.findPlugin(args[0])) == null) {
+				mmo.sendMessage(player, "Plugins: %s", MMO.listPlugins());
 			} else {
 				Object old;
 				if (args.length == 1 || (old = plugin.cfg.getProperty(args[1])) == null) {
@@ -120,7 +120,7 @@ public class MMOCore extends MMOPlugin {
 			}
 			return true;
 		} else if ((player.isOp() || player.hasPermission("mmocore.update")) && command.getName().equalsIgnoreCase("mmoupdate")) {
-			mmo.sendMessage(player, "Updating %s...", mmo.listPlugins());
+			mmo.sendMessage(player, "Updating %s...", MMO.listPlugins());
 			mmo.log("Checking for updates...");
 			mmo.autoUpdate(true);
 			mmo.sendMessage(player, "...Finished");
