@@ -24,6 +24,8 @@ import java.util.ArrayList;
  */
 public class ArrayListString extends ArrayList<String> {
 
+	private static final long serialVersionUID = 6793276940676543571L;
+
 	/**
 	 * Returns true if this list contains the specified string.
 	 * @param o String whose presence in this list is to be tested
