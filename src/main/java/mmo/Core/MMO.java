@@ -646,7 +646,7 @@ public class MMO {
 			return ChatColor.YELLOW.toString();
 		} else {
 			if (target instanceof Monster) {
-				if (player != null && player.equals(((Creature) target).getTarget())) {
+				if (player != null && player.equals(((Monster) target).getTarget())) {
 					return ChatColor.RED.toString();
 				} else {
 					return ChatColor.YELLOW.toString();
@@ -656,7 +656,7 @@ public class MMO {
 			} else if (target instanceof Flying) {
 				return ChatColor.YELLOW.toString();
 			} else if (target instanceof Animals) {
-				if (player != null && player.equals(((Creature) target).getTarget())) {
+				if (player != null && player.equals(((Animals) target).getTarget())) {
 					return ChatColor.RED.toString();
 				} else if (target instanceof Tameable) {
 					Tameable pet = (Tameable) target;
