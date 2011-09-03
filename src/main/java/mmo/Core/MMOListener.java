@@ -27,16 +27,33 @@ public class MMOListener extends CustomEventListener implements Listener {
 
 	public void onMMOChat(MMOChatEvent event) {
 	}
-	
-	public void onMMOPVPDamage(MMOPVPDamageEvent evt) {
+
+	public void onMMOPVPDamage(MMODamageEvent evt) {
+	}
+
+	public void onMMOPVEDamage(MMODamageEvent evt) {
+	}
+
+	public void onMMOEVEDamage(MMODamageEvent evt) {
 	}
 
 	@Override
 	public void onCustomEvent(Event event) {
 		if (event instanceof MMOChatEvent) {
 			onMMOChat((MMOChatEvent) event);
-		} else if (event instanceof MMOPVPDamageEvent) {
-			onMMOPVPDamage((MMOPVPDamageEvent) event);
+		} else if (event instanceof MMODamageEvent) {
+			MMODamageEvent evt = (MMODamageEvent) event;
+			switch (evt.getDamageType()) {
+				case PVE:
+					onMMOPVEDamage(evt);
+					break;
+				case PVP:
+					onMMOPVPDamage(evt);
+					break;
+				case EVE:
+					onMMOEVEDamage(evt);
+					break;
+			}
 		}
 	}
 }
