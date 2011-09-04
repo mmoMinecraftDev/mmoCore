@@ -60,7 +60,7 @@
     <name>mmoCore</name>
     <artifactId>mmoCore</artifactId>
     <groupId>mmo.Core.MMOCore</groupId>
-    <url>http://forums.bukkit.org/threads/31054/</url>
+    <url>http://github.com/mmoMinecraftDev/mmoCore</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
