@@ -92,7 +92,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return 
 	 */
 	public GenericLivingEntity setEntity(String name, String prefix) {
-		Player player = MMO.server.getPlayer(name);
+		Player player = this.getPlugin().getServer().getPlayer(name);
 		if (player != null && player.isOnline()) {
 			return setEntity(player, prefix);
 		}

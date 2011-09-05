@@ -26,117 +26,30 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.util.config.Configuration;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.GenericContainer;
-import org.getspout.spoutapi.gui.WidgetAnchor;
 
 public class MMO {
 
 	/**
-	 * All opened mmo Objects
-	 */
-	protected static final HashMap<String, MMO> modules = new HashMap<String, MMO>();
-	/**
 	 * Quick checking of the various plugins...
 	 */
-	public static boolean hasSpout = false;
 	public static boolean mmoParty = false;
 	public static boolean mmoPet = false;
 	public static boolean mmoTarget = false;
 	public static boolean mmoFriends = false;
 	public static boolean mmoChat = false;
 	public static boolean mmoInfo = false;
-	/**
-	 * Spout
-	 */
-	public Plugin plugin;
-	public static Server server;
-	public static Logger log;
-	private String prefix;
-	private String title;
-	private PluginDescriptionFile description;
-	public Configuration cfg;
+
+	public static MMOCore plugin;
 
 	/**
 	 * Never want to manually create a new instance outside of mmo.create()
 	 */
 	private MMO() {
-	}
-
-	/**
-	 * Create a new mmo Object, or return one already created.
-	 * @param plugin The plugin to associate it with
-	 * @return The new mmo Object
-	 */
-	public static MMO create(Plugin plugin) {
-		MMO me = null;
-		String name = plugin.getDescription().getName();
-		synchronized (modules) {
-			me = modules.get(name);
-			if (me == null) {
-				me = new MMO();
-				modules.put(name, me);
-			}
-			me.plugin = plugin;
-			me.description = plugin.getDescription();
-			me.cfg = plugin.getConfiguration();
-			me.cfg.setHeader("#" + name + " Configuration");
-			MMO.server = plugin.getServer();
-			MMO.log = Logger.getLogger("Minecraft");
-			me.setPluginName(name);
-		}
-		return me;
-	}
-
-	/**
-	 * Return an already create mmo Object associated with a plugin.
-	 * @param name The name of the plugin
-	 * @return The mmo Object if it exists
-	 */
-	public static MMO findPlugin(String name) {
-		if (name != null) {
-			return modules.get(name);
-		}
-		return null;
-	}
-
-	/**
-	 * Get a list of installed plugin names
-	 * @return Installed plugins
-	 */
-	public static String listPlugins() {
-		String list = "";
-		for (String name : modules.keySet()) {
-			if (!list.equals("")) {
-				list += ", ";
-			}
-			list += name;
-		}
-		return list;
-	}
-
-	/**
-	 * Set the notification title.
-	 * @param title Title to use
-	 */
-	public final MMO setPluginName(String title) {
-		this.title = title;
-		this.prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
-		return this;
 	}
 
 	/**
@@ -150,16 +63,16 @@ public class MMO {
 	 * Automatically or manually update a plugin
 	 */
 	public void autoUpdate(boolean always) {
-		if (always || cfg.getBoolean("auto_update", true)) {
+		if (always || plugin.config_auto_update) {
 			boolean canUpdate = false;
 			try {
-				URL url = new URL("http://mmo.rycochet.net/" + description.getName() + ".yml");
+				URL url = new URL("http://mmo.rycochet.net/" + plugin.getDescription().getName() + ".yml");
 
 				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 				String str;
 				while ((str = in.readLine()) != null) {
 					if (str.startsWith("version: ")) {
-						String oldVersion[] = description.getVersion().replaceAll("[^0-9.]", "").split(".");
+						String oldVersion[] = plugin.getDescription().getVersion().replaceAll("[^0-9.]", "").split(".");
 						String newVersion[] = str.replaceAll("[^0-9.]", "").split(".");
 						int oldVer = new Integer(oldVersion[0]), oldRev = new Integer(oldVersion[1]);
 						int newVer = new Integer(newVersion[0]), newRev = new Integer(newVersion[1]);
@@ -180,9 +93,9 @@ public class MMO {
 							} catch (SecurityException e1) {
 							}
 						}
-						File newFile = new File(directory.getPath(), description.getName() + ".jar");
+						File newFile = new File(directory.getPath(), plugin.getDescription().getName() + ".jar");
 						if (newFile.canWrite()) {
-							url = new URL("http://mmo.rycochet.net/" + description.getName() + ".jar");
+							url = new URL("http://mmo.rycochet.net/" + plugin.getDescription().getName() + ".jar");
 							HttpURLConnection con = (HttpURLConnection) (url.openConnection());
 							ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
 							fos = new FileOutputStream(newFile);
@@ -202,76 +115,7 @@ public class MMO {
 				canUpdate = false;
 			}
 			if (canUpdate) {
-				log("Updated");
-			}
-		}
-	}
-
-	/**
-	 * Send a message to one person by name.
-	 * @param prefix Whether to show the plugin name
-	 * @param name The player to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(String name, String msg, Object... args) {
-		sendMessage(true, server.getPlayer(name), msg, args);
-	}
-
-	/**
-	 * Send a message to multiple people.
-	 * @param prefix Whether to show the plugin name
-	 * @param players The Players to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
-			sendMessage(true, player, msg, args);
-		}
-	}
-
-	/**
-	 * Send a message to one person.
-	 * @param prefix Whether to show the plugin name
-	 * @param player The Player to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(Player player, String msg, Object... args) {
-		sendMessage(true, player, msg, args);
-	}
-
-	/**
-	 * Send a message to one person by name.
-	 * @param name The player to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(boolean prefix, String name, String msg, Object... args) {
-		sendMessage(prefix, server.getPlayer(name), msg, args);
-	}
-
-	/**
-	 * Send a message to multiple people.
-	 * @param players The Players to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(boolean prefix, List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
-			sendMessage(prefix, player, msg, args);
-		}
-	}
-
-	/**
-	 * Send a message to one person.
-	 * @param player The Player to message
-	 * @param msg The message to send
-	 */
-	public void sendMessage(boolean prefix, Player player, String msg, Object... args) {
-		if (player != null) {
-			try {
-				for (String line : String.format(msg, args).split("\n")) {
-					player.sendMessage((prefix ? this.prefix : "") + line);
-				}
-			} catch (Exception e) {
-				// Bad format->Object type
+				plugin.log("Updated");
 			}
 		}
 	}
@@ -335,193 +179,6 @@ public class MMO {
 	}
 
 	/**
-	 * Pop up a Party "achievement" message
-	 * @param name The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 */
-	public void notify(String name, String msg, Object... args) {
-		this.notify(server.getPlayer(name), msg, Material.SIGN, args);
-	}
-
-	/**
-	 * Pop up a Party "achievement" message
-	 * @param name The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 * @param icon The material to use
-	 */
-	public void notify(String name, String msg, Material icon, Object... args) {
-		this.notify(server.getPlayer(name), msg, icon, args);
-	}
-
-	/**
-	 * Pop up a Party "achievement" message for multiple players
-	 * @param players The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 */
-	public void notify(List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
-			this.notify(player, msg, Material.SIGN, args);
-		}
-	}
-
-	/**
-	 * Pop up a Party "achievement" message for multiple players
-	 * @param players The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 */
-	public void notify(List<Player> players, String msg, Material icon, Object... args) {
-		for (Player player : players) {
-			this.notify(player, msg, icon, args);
-		}
-	}
-
-	/**
-	 * Pop up a Party "achievement" message
-	 * @param player The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 */
-	public void notify(Player player, String msg, Object... args) {
-		this.notify(player, msg, Material.SIGN, args);
-	}
-
-	/**
-	 * Pop up a Party "achievement" message
-	 * @param player The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 * @param icon The material to use
-	 */
-	public void notify(Player player, String msg, Material icon, Object... args) {
-		if (hasSpout && player != null) {
-			try {
-				SpoutManager.getPlayer(player).sendNotification(title, String.format(msg, args), icon);
-			} catch (Exception e) {
-				// Bad format->Object type
-			}
-		}
-	}
-
-	/**
-	 * Get the container for use by this plugin, anchor and position can be overridden by options.
-	 * @return 
-	 */
-	public GenericContainer getContainer() {
-		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
-		String anchorName = cfg.getString("ui.default.align", "TOP_LEFT");
-		int offsetX = cfg.getInt("ui.default.left", 0), offsetY = cfg.getInt("ui.default.top", 0);
-		int extra = mmoInfo ? 11 : 0; // If mmoInfo exists
-
-		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.TOP_LEFT;
-			offsetY += extra;
-		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.TOP_CENTER;
-			offsetX -= 213;
-			offsetY += extra;
-		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.TOP_RIGHT;
-			offsetX = -427 - offsetX;
-			offsetY += extra;
-		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.CENTER_LEFT;
-			offsetY -= 120;
-		} else if ("CENTER_CENTER".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.CENTER_CENTER;
-			offsetX -= 213;
-			offsetY -= 120;
-		} else if ("CENTER_RIGHT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.CENTER_RIGHT;
-			offsetX = -427 - offsetX;
-			offsetY -= 120;
-		} else if ("BOTTOM_LEFT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.BOTTOM_LEFT;
-			offsetY = -240 - offsetY;
-		} else if ("BOTTOM_CENTER".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.BOTTOM_CENTER;
-			offsetX -= 213;
-			offsetY = -240 - offsetY;
-		} else if ("BOTTOM_RIGHT".equalsIgnoreCase(anchorName)) {
-			anchor = WidgetAnchor.BOTTOM_RIGHT;
-			offsetX = -427 - offsetX;
-			offsetY = -240 - offsetY;
-		}
-		GenericContainer container = new GenericContainer();
-		container.setAlign(anchor).setAnchor(anchor).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240).setFixed(true);
-		return container;
-	}
-
-	public void updateUI(String data) {
-	}
-
-	/**
-	 * Spout-safe version of setGlobalTitle
-	 * @param target
-	 * @param title 
-	 */
-	public void setTitle(LivingEntity target, String title) {
-		if (hasSpout && target != null) {
-			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
-		}
-	}
-
-	/**
-	 * Spout-safe version of setPlayerTitle
-	 * @param player 
-	 * @param target
-	 * @param title 
-	 */
-	public void setTitle(Player player, LivingEntity target, String title) {
-		if (hasSpout && player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerTitle(SpoutManager.getPlayer(player), target, title);
-		}
-	}
-
-	/**
-	 * Spout-safe version of setGlobalCloak
-	 * @param target
-	 * @param url 
-	 */
-	public void setCloak(HumanEntity target, String url) {
-		if (hasSpout && target != null) {
-			SpoutManager.getAppearanceManager().setGlobalCloak(target, url);
-		}
-	}
-
-	/**
-	 * Spout-safe version of setPlayerCloak
-	 * @param player 
-	 * @param target
-	 * @param url 
-	 */
-	public void setCloak(Player player, HumanEntity target, String url) {
-		if (hasSpout && player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerCloak(SpoutManager.getPlayer(player), target, url);
-		}
-	}
-
-	/**
-	 * Spout-safe version of setGlobalCloak
-	 * @param target
-	 * @param url 
-	 */
-	public void setSkin(HumanEntity target, String url) {
-		if (hasSpout && target != null) {
-			SpoutManager.getAppearanceManager().setGlobalSkin(target, url);
-		}
-	}
-
-	/**
-	 * Spout-safe version of setPlayerCloak
-	 * @param player 
-	 * @param target
-	 * @param url 
-	 */
-	public void setSkin(Player player, HumanEntity target, String url) {
-		if (hasSpout && player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerSkin(SpoutManager.getPlayer(player), target, url);
-		}
-	}
-
-	/**
 	 * Get the percentage health of a Player.
 	 * @param player The Player we're interested in
 	 * @return The percentage of max health
@@ -560,7 +217,7 @@ public class MMO {
 		ArrayList<LivingEntity> pets = new ArrayList<LivingEntity>();
 		if (player != null && (!(player instanceof Player) || ((Player) player).isOnline())) {
 			String name = player.getName();
-			for (World world : server.getWorlds()) {
+			for (World world : Bukkit.getServer().getWorlds()) {
 				for (LivingEntity entity : world.getLivingEntities()) {
 					if (entity instanceof Tameable && ((Tameable) entity).isTamed() && ((Tameable) entity).getOwner() instanceof Player) {
 						if (name.equals(((Player) ((Tameable) entity).getOwner()).getName())) {
@@ -677,16 +334,18 @@ public class MMO {
 	public static String getSimpleName(LivingEntity target, boolean showOwner) {
 		String name = "";
 		if (target instanceof Player) {
-			if (MMOCore.mmo.cfg.getBoolean("show_display_name", false)) {
+			if (MMOCore.config_show_display_name) {
 				name += ((Player) target).getName();
 			} else {
 				name += ((Player) target).getDisplayName();
 			}
+		} else if (target instanceof HumanEntity) {
+			name += ((HumanEntity) target).getName();
 		} else {
 			if (target instanceof Tameable) {
 				if (((Tameable) target).isTamed()) {
 					if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
-						if (MMOCore.mmo.cfg.getBoolean("show_display_name", false)) {
+						if (MMOCore.config_show_display_name) {
 							name += ((Player) ((Tameable) target).getOwner()).getName() + "'s ";
 						} else {
 							name += ((Player) ((Tameable) target).getOwner()).getDisplayName() + "'s ";
@@ -748,14 +407,6 @@ public class MMO {
 		int left = Math.min(Math.max(0, (current + 9) / 10), 10); // 0 < current < 10
 		int right = 10 - left;
 		return prefix + bar.substring(0, left) + (current > 0 ? ChatColor.DARK_GRAY : ChatColor.BLACK) + bar.substring(0, right) + " ";
-	}
-
-	public void log(String text) {
-		log.log(Level.INFO, "[" + description.getName() + "] " + text);
-	}
-
-	public void log(String text, Object... args) {
-		log.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
 	}
 
 	/**
