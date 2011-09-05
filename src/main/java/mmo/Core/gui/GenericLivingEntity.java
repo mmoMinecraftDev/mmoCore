@@ -14,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package mmo.Core;
+package mmo.Core.gui;
 
+import mmo.Core.MMO;
+import mmo.Core.gui.GenericFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.*;

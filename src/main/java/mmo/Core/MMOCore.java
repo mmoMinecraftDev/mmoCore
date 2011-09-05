@@ -31,15 +31,15 @@ public class MMOCore extends MMOPlugin {
 	/**
 	 * Config options - all mmoCore options are used for other plugins...
 	 */
-	static String config_database_driver = "org.sqlite.JDBC";
-	static String config_database_url = "jdbc:sqlite:{DIR}{NAME}.db";
-	static String config_database_username = "root";
-	static String config_database_password = "";
-	static String config_database_isolation = "SERIALIZABLE";
-	static boolean config_database_logging = false;
-	static boolean config_database_rebuild = true;
-	static boolean config_show_display_name = false;
-	static boolean config_show_player_faces = true;
+	static public String config_database_driver = "org.sqlite.JDBC";
+	static public String config_database_url = "jdbc:sqlite:{DIR}{NAME}.db";
+	static public String config_database_username = "root";
+	static public String config_database_password = "";
+	static public String config_database_isolation = "SERIALIZABLE";
+	static public boolean config_database_logging = false;
+	static public boolean config_database_rebuild = true;
+	static public boolean config_show_display_name = false;
+	static public boolean config_show_player_faces = true;
 
 	@Override
 	public void onEnable() {

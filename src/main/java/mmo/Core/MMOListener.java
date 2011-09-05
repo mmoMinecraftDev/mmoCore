@@ -16,6 +16,8 @@
  */
 package mmo.Core;
 
+import mmo.Core.events.MMODamageEvent;
+import mmo.Core.events.MMOChatEvent;
 import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
