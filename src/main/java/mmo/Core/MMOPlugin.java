@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -40,16 +41,26 @@ import org.bukkit.Server;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.Event.Type;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
+import org.getspout.spoutapi.event.spout.SpoutListener;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public abstract class MMOPlugin extends JavaPlugin {
 
+	/**
+	 * mmoSupport() BitSet values
+	 */
+	public final int MMO_PLAYER = 1; // Calls onSpoutCraftPlayer() when someone joins or after onEnable
+//	public final int MMO_DATABASE = 1;
 	/**
 	 * Variables
 	 */
@@ -68,7 +79,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Global config options for every plugin
 	 */
 	boolean config_auto_update = false;
-	
+
 	@Override
 	public void onEnable() {
 		if (this instanceof MMOCore) {
@@ -90,6 +101,30 @@ public abstract class MMOPlugin extends JavaPlugin {
 		config_auto_update = cfg.getBoolean("auto_update", true);
 		loadConfiguration(cfg);
 		cfg.save();
+		BitSet support = mmoSupport(new BitSet());
+		if (hasSpout && support.get(MMO_PLAYER)) {
+			pm.registerEvent(Type.CUSTOM_EVENT,
+					  new SpoutListener() {
+
+						  @Override
+						  public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
+							  onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
+						  }
+					  }, Priority.Normal, this);
+			server.getScheduler().scheduleSyncDelayedTask(plugin,
+					  new Runnable() {
+
+						  @Override
+						  public void run() {
+							  for (Player player : server.getOnlinePlayers()) {
+								  SpoutPlayer splayer = SpoutManager.getPlayer(player);
+								  if (splayer.isSpoutCraftEnabled()) {
+									  onSpoutCraftPlayer(splayer);
+								  }
+							  }
+						  }
+					  });
+		}
 	}
 
 	@Override
@@ -102,6 +137,21 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param cfg 
 	 */
 	abstract public void loadConfiguration(Configuration cfg);
+
+	/**
+	 * Supply a bitfield of shortcuts for MMOPlugin to handle
+	 * @return 
+	 */
+	public BitSet mmoSupport(BitSet support) {
+		return support;
+	}
+
+	/**
+	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
+	 * @param player
+	 */
+	public void onSpoutCraftPlayer(SpoutPlayer player) {
+	}
 
 	/**
 	 * Send a message to the log
@@ -251,10 +301,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Get the container for use by this plugin, anchor and position can be overridden by options.
 	 * @return 
 	 */
-	public GenericContainer getContainer() {
+	public GenericContainer getContainer(String anchorName, int offsetX, int offsetY) {
 		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
-		String anchorName = cfg.getString("ui.default.align", "TOP_LEFT");
-		int offsetX = cfg.getInt("ui.default.left", 0), offsetY = cfg.getInt("ui.default.top", 0);
 		int extra = MMO.mmoInfo ? 11 : 0; // If mmoInfo exists
 
 		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
