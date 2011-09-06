@@ -30,46 +30,418 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.Event.Type;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
+import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
+import org.getspout.spoutapi.event.spout.SpoutListener;
+import org.getspout.spoutapi.gui.GenericContainer;
+import org.getspout.spoutapi.gui.WidgetAnchor;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public abstract class MMOPlugin extends JavaPlugin {
 
-	private MyDatabase database;
-	protected List<Class<?>> classes = new ArrayList<Class<?>>();
+	/**
+	 * mmoSupport() BitSet values
+	 */
+	public final int MMO_PLAYER = 1; // Calls onSpoutCraftPlayer() when someone joins or after onEnable
+//	public final int MMO_DATABASE = 1;
+	/**
+	 * Variables
+	 */
+	private MMOPluginDatabase database;
+	protected PluginDescriptionFile description;
+	protected Configuration cfg;
+	protected PluginManager pm;
+	protected Server server;
+	protected Logger logger;
+	protected String title;
+	protected String prefix;
+	protected static MMOCore mmoCore;
+	protected MMOPlugin plugin;
+	public static boolean hasSpout = false;
+	/**
+	 * Global config options for every plugin
+	 */
+	boolean config_auto_update = false;
+
+	@Override
+	public void onEnable() {
+		if (this instanceof MMOCore) {
+			mmoCore = (MMOCore) this;
+		}
+		plugin = this;
+		logger = Logger.getLogger("Minecraft");
+		description = getDescription();
+		server = getServer();
+		pm = server.getPluginManager();
+		title = description.getName().replace("^mmo", "");
+		prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
+		hasSpout = server.getPluginManager().isPluginEnabled("Spout");
+
+		log("Enabled " + description.getFullName());
+
+		cfg = plugin.getConfiguration();
+		cfg.setHeader("#" + title + " Configuration");
+		config_auto_update = cfg.getBoolean("auto_update", true);
+		loadConfiguration(cfg);
+		cfg.save();
+		BitSet support = mmoSupport(new BitSet());
+		if (hasSpout && support.get(MMO_PLAYER)) {
+			pm.registerEvent(Type.CUSTOM_EVENT,
+					  new SpoutListener() {
+
+						  @Override
+						  public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
+							  onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
+						  }
+					  }, Priority.Normal, this);
+			server.getScheduler().scheduleSyncDelayedTask(plugin,
+					  new Runnable() {
+
+						  @Override
+						  public void run() {
+							  for (Player player : server.getOnlinePlayers()) {
+								  SpoutPlayer splayer = SpoutManager.getPlayer(player);
+								  if (splayer.isSpoutCraftEnabled()) {
+									  onSpoutCraftPlayer(splayer);
+								  }
+							  }
+						  }
+					  });
+		}
+	}
+
+	@Override
+	public void onDisable() {
+		log("Disabled " + description.getFullName());
+	}
+
+	/**
+	 * Load the configuration - don't save or anything...
+	 * @param cfg 
+	 */
+	abstract public void loadConfiguration(Configuration cfg);
+
+	/**
+	 * Supply a bitfield of shortcuts for MMOPlugin to handle
+	 * @return 
+	 */
+	public BitSet mmoSupport(BitSet support) {
+		return support;
+	}
+
+	/**
+	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
+	 * @param player
+	 */
+	public void onSpoutCraftPlayer(SpoutPlayer player) {
+	}
+
+	/**
+	 * Send a message to the log
+	 * @param text A format style string
+	 * @param args
+	 */
+	public void log(String text, Object... args) {
+		logger.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
+	}
+
+	/**
+	 * Pop up a Party "achievement" message
+	 * @param name The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 */
+	public void notify(String name, String msg, Object... args) {
+		this.notify(server.getPlayer(name), msg, Material.SIGN, args);
+	}
+
+	/**
+	 * Pop up a Party "achievement" message
+	 * @param name The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 * @param icon The material to use
+	 */
+	public void notify(String name, String msg, Material icon, Object... args) {
+		this.notify(server.getPlayer(name), msg, icon, args);
+	}
+
+	/**
+	 * Pop up a Party "achievement" message for multiple players
+	 * @param players The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 */
+	public void notify(List<Player> players, String msg, Object... args) {
+		for (Player player : players) {
+			this.notify(player, msg, Material.SIGN, args);
+		}
+	}
+
+	/**
+	 * Pop up a Party "achievement" message for multiple players
+	 * @param players The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 */
+	public void notify(List<Player> players, String msg, Material icon, Object... args) {
+		for (Player player : players) {
+			this.notify(player, msg, icon, args);
+		}
+	}
+
+	/**
+	 * Pop up a Party "achievement" message
+	 * @param player The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 */
+	public void notify(Player player, String msg, Object... args) {
+		this.notify(player, msg, Material.SIGN, args);
+	}
+
+	/**
+	 * Pop up a Party "achievement" message
+	 * @param player The player to tell
+	 * @param msg The message to send (max 23 chars)
+	 * @param icon The material to use
+	 */
+	public void notify(Player player, String msg, Material icon, Object... args) {
+		if (hasSpout && player != null) {
+			try {
+				SpoutManager.getPlayer(player).sendNotification(title, String.format(msg, args), icon);
+			} catch (Exception e) {
+				// Bad format->Object type
+			}
+		}
+	}
+
+	/**
+	 * Send a message to one person by name.
+	 * @param prefix Whether to show the plugin name
+	 * @param name The player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(String name, String msg, Object... args) {
+		sendMessage(true, server.getPlayer(name), msg, args);
+	}
+
+	/**
+	 * Send a message to multiple people.
+	 * @param prefix Whether to show the plugin name
+	 * @param players The Players to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(List<Player> players, String msg, Object... args) {
+		for (Player player : players) {
+			sendMessage(true, player, msg, args);
+		}
+	}
+
+	/**
+	 * Send a message to one person.
+	 * @param prefix Whether to show the plugin name
+	 * @param player The Player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(Player player, String msg, Object... args) {
+		sendMessage(true, player, msg, args);
+	}
+
+	/**
+	 * Send a message to one person by name.
+	 * @param name The player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, String name, String msg, Object... args) {
+		sendMessage(prefix, server.getPlayer(name), msg, args);
+	}
+
+	/**
+	 * Send a message to multiple people.
+	 * @param players The Players to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, List<Player> players, String msg, Object... args) {
+		for (Player player : players) {
+			sendMessage(prefix, player, msg, args);
+		}
+	}
+
+	/**
+	 * Send a message to one person.
+	 * @param player The Player to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, Player player, String msg, Object... args) {
+		if (player != null) {
+			try {
+				for (String line : String.format(msg, args).split("\n")) {
+					player.sendMessage((prefix ? this.prefix : "") + line);
+				}
+			} catch (Exception e) {
+				// Bad format->Object type
+			}
+		}
+	}
+
+	/**
+	 * Get the container for use by this plugin, anchor and position can be overridden by options.
+	 * @return 
+	 */
+	public GenericContainer getContainer(String anchorName, int offsetX, int offsetY) {
+		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
+		int extra = MMO.mmoInfo ? 11 : 0; // If mmoInfo exists
+
+		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_LEFT;
+			offsetY += extra;
+		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_CENTER;
+			offsetX -= 213;
+			offsetY += extra;
+		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.TOP_RIGHT;
+			offsetX = -427 - offsetX;
+			offsetY += extra;
+		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_LEFT;
+			offsetY -= 120;
+		} else if ("CENTER_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_CENTER;
+			offsetX -= 213;
+			offsetY -= 120;
+		} else if ("CENTER_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.CENTER_RIGHT;
+			offsetX = -427 - offsetX;
+			offsetY -= 120;
+		} else if ("BOTTOM_LEFT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_LEFT;
+			offsetY = -240 - offsetY;
+		} else if ("BOTTOM_CENTER".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_CENTER;
+			offsetX -= 213;
+			offsetY = -240 - offsetY;
+		} else if ("BOTTOM_RIGHT".equalsIgnoreCase(anchorName)) {
+			anchor = WidgetAnchor.BOTTOM_RIGHT;
+			offsetX = -427 - offsetX;
+			offsetY = -240 - offsetY;
+		}
+		GenericContainer container = new GenericContainer();
+		container.setAlign(anchor).setAnchor(anchor).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240).setFixed(true);
+		return container;
+	}
+
+	/**
+	 * Spout-safe version of setGlobalTitle
+	 * @param target
+	 * @param title 
+	 */
+	public void setTitle(LivingEntity target, String title) {
+		if (hasSpout && target != null) {
+			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerTitle
+	 * @param player 
+	 * @param target
+	 * @param title 
+	 */
+	public void setTitle(Player player, LivingEntity target, String title) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerTitle(SpoutManager.getPlayer(player), target, title);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setGlobalCloak
+	 * @param target
+	 * @param url 
+	 */
+	public void setCloak(HumanEntity target, String url) {
+		if (hasSpout && target != null) {
+			SpoutManager.getAppearanceManager().setGlobalCloak(target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerCloak
+	 * @param player 
+	 * @param target
+	 * @param url 
+	 */
+	public void setCloak(Player player, HumanEntity target, String url) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerCloak(SpoutManager.getPlayer(player), target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setGlobalCloak
+	 * @param target
+	 * @param url 
+	 */
+	public void setSkin(HumanEntity target, String url) {
+		if (hasSpout && target != null) {
+			SpoutManager.getAppearanceManager().setGlobalSkin(target, url);
+		}
+	}
+
+	/**
+	 * Spout-safe version of setPlayerCloak
+	 * @param player 
+	 * @param target
+	 * @param url 
+	 */
+	public void setSkin(Player player, HumanEntity target, String url) {
+		if (hasSpout && player != null && target != null) {
+			SpoutManager.getAppearanceManager().setPlayerSkin(SpoutManager.getPlayer(player), target, url);
+		}
+	}
 
 	@Override
 	public EbeanServer getDatabase() {
 		if (database == null) {
-			database = new MyDatabase(this) {
-
-				@Override
-				protected java.util.List<Class<?>> getDatabaseClasses() {
-					return classes;
-				}
-			};
-			Configuration cfg = MMOCore.mmo.cfg;
+			database = new MMOPluginDatabase();
 			database.initializeDatabase(
-					  cfg.getString("database.driver", "org.sqlite.JDBC"),
-					  cfg.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db"),
-					  cfg.getString("database.username", "root"),
-					  cfg.getString("database.password", ""),
-					  cfg.getString("database.isolation", "SERIALIZABLE"),
-					  cfg.getBoolean("database.logging", false),
-					  cfg.getBoolean("database.rebuild", true));
-			cfg.setProperty("database.rebuild", false);
-			cfg.save();
+					  MMOCore.config_database_driver,
+					  MMOCore.config_database_url,
+					  MMOCore.config_database_username,
+					  MMOCore.config_database_password,
+					  MMOCore.config_database_isolation,
+					  MMOCore.config_database_logging,
+					  MMOCore.config_database_rebuild);
 		}
 		return database.getDatabase();
 	}
 
-	private static abstract class MyDatabase {
+	protected void beforeDropDatabase() {
+	}
 
-		private JavaPlugin javaPlugin;
+	protected void afterCreateDatabase() {
+	}
+
+	/*
+	 * MMOPluginDatabase by Lennard Fonteijn - http://www.lennardf1989.com/
+	 * http://forums.bukkit.org/threads/24987/
+	 * There may be alterations to more easily fit mmoMinecraft ;-)
+	 */
+	private class MMOPluginDatabase {
+
 		private ClassLoader classLoader;
 		private Level loggerLevel;
 		private boolean usingSQLite;
@@ -77,12 +449,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 		private EbeanServer ebeanServer;
 
 		/**
-		 * Create an instance of MyDatabase
+		 * Create an instance of MMOPluginDatabase
 		 * @param javaPlugin Plugin instancing this database
 		 */
-		public MyDatabase(JavaPlugin javaPlugin) {
-			//Store the JavaPlugin
-			this.javaPlugin = javaPlugin;
+		public MMOPluginDatabase() {
 			//Try to get the ClassLoader of the plugin using Reflection
 			try {
 				//Find the "getClassLoader" method and make it "public" instead of "protected"
@@ -90,7 +460,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 				method.setAccessible(true);
 
 				//Store the ClassLoader
-				this.classLoader = (ClassLoader) method.invoke(javaPlugin);
+				this.classLoader = (ClassLoader) method.invoke(plugin);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to retrieve the ClassLoader of the plugin using Reflection", ex);
 			}
@@ -140,7 +510,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 			sc.setRegister(false);
 			sc.setName(ds.getUrl().replaceAll("[^a-zA-Z0-9]", ""));
 			//Get all persistent classes
-			List<Class<?>> classes = getDatabaseClasses();
+			List<Class<?>> classes = plugin.getDatabaseClasses();
 			//Do a sanity check first
 			if (classes.isEmpty()) {
 				//Exception: There is no use in continuing to load this database
@@ -208,7 +578,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 			DdlGenerator gen = serv.getDdlGenerator();
 			//Check if the database already (partially) exists
 			boolean databaseExists = false;
-			List<Class<?>> classes = getDatabaseClasses();
+			List<Class<?>> classes = plugin.getDatabaseClasses();
 			for (int i = 0; i < classes.size(); i++) {
 				try {
 					//Do a simple query which only throws an exception if the table does not exist
@@ -251,8 +621,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 		}
 
 		private String replaceDatabaseString(String input) {
-			input = input.replaceAll("\\{DIR\\}", javaPlugin.getDataFolder().getPath().replaceAll("\\\\", "/") + "/");
-			input = input.replaceAll("\\{NAME\\}", javaPlugin.getDescription().getName().replaceAll("[^\\w_-]", ""));
+			input = input.replaceAll("\\{DIR\\}", plugin.getDataFolder().getPath().replaceAll("\\\\", "/") + "/");
+			input = input.replaceAll("\\{NAME\\}", plugin.getDescription().getName().replaceAll("[^\\w_-]", ""));
 			return input;
 		}
 
@@ -351,24 +721,17 @@ public abstract class MMOPlugin extends JavaPlugin {
 		}
 
 		/**
-		 * Get a list of classes which should be registered with the EbeanServer
-		 * 
-		 * @return List List of classes which should be registered with the EbeanServer
-		 */
-		protected List<Class<?>> getDatabaseClasses() {
-			return new ArrayList<Class<?>>();
-		}
-
-		/**
 		 * Method called before the loaded database is being dropped
 		 */
 		protected void beforeDropDatabase() {
+			plugin.beforeDropDatabase();
 		}
 
 		/**
 		 * Method called after the loaded database has been created
 		 */
 		protected void afterCreateDatabase() {
+			plugin.afterCreateDatabase();
 		}
 
 		/**

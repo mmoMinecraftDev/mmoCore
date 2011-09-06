@@ -16,9 +16,6 @@
  */
 package mmo.Core;
 
-import java.util.List;
-import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -27,45 +24,27 @@ import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginManager;
+import org.bukkit.util.config.Configuration;
 
 public class MMOCore extends MMOPlugin {
 
-	protected static Server server;
-	protected static PluginManager pm;
-	protected static PluginDescriptionFile description;
-	protected static MMO mmo;
-	protected String prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + "mmoParty" + ChatColor.GREEN + "] " + ChatColor.WHITE;
+	/**
+	 * Config options - all mmoCore options are used for other plugins...
+	 */
+	static public String config_database_driver = "org.sqlite.JDBC";
+	static public String config_database_url = "jdbc:sqlite:{DIR}{NAME}.db";
+	static public String config_database_username = "root";
+	static public String config_database_password = "";
+	static public String config_database_isolation = "SERIALIZABLE";
+	static public boolean config_database_logging = false;
+	static public boolean config_database_rebuild = true;
+	static public boolean config_show_display_name = false;
+	static public boolean config_show_player_faces = true;
 
 	@Override
 	public void onEnable() {
-		server = getServer();
-		pm = server.getPluginManager();
-		description = getDescription();
-
-		mmo = MMO.create(this);
-
-		mmo.log("loading " + description.getFullName());
-
-		if (pm.isPluginEnabled("Spout")) {
-			MMO.hasSpout = true;
-		}
-
-		// Default values
-		mmo.cfg.getBoolean("auto_update", true);
-		mmo.cfg.getBoolean("show_display_name", false);
-		mmo.cfg.getBoolean("show_player_faces", true);
-
-		mmo.cfg.getString("database.driver", "org.sqlite.JDBC");
-		mmo.cfg.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db");
-		mmo.cfg.getString("database.username", "root");
-		mmo.cfg.getString("database.password", "");
-		mmo.cfg.getString("database.isolation", "SERIALIZABLE");
-		mmo.cfg.getBoolean("database.logging", false);
-		mmo.cfg.getBoolean("database.rebuild", true);
-
-		mmo.cfg.save();
+		super.onEnable();
+		MMO.plugin = this;
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
 		pm.registerEvent(Type.PLAYER_JOIN, cpl, Priority.Monitor, this);
@@ -75,8 +54,22 @@ public class MMOCore extends MMOPlugin {
 
 	@Override
 	public void onDisable() {
-		mmo.log("Disabled " + description.getFullName());
-		mmo.autoUpdate();
+//		mmo.autoUpdate();
+		super.onDisable();
+	}
+
+	@Override
+	public void loadConfiguration(Configuration cfg) {
+		config_show_display_name = cfg.getBoolean("show_display_name", config_show_display_name);
+		config_show_player_faces = cfg.getBoolean("show_player_faces", config_show_player_faces);
+
+		config_database_driver = cfg.getString("database.driver", config_database_driver);
+		config_database_url = cfg.getString("database.url", config_database_url);
+		config_database_username = cfg.getString("database.username", config_database_username);
+		config_database_password = cfg.getString("database.password", config_database_password);
+		config_database_isolation = cfg.getString("database.isolation", config_database_isolation);
+		config_database_logging = cfg.getBoolean("database.logging", config_database_logging);
+		config_database_rebuild = cfg.getBoolean("database.rebuild", config_database_rebuild);
 	}
 
 	@Override
@@ -85,10 +78,11 @@ public class MMOCore extends MMOPlugin {
 			return false;
 		}
 		Player player = (Player) sender;
+/*
 		if ((player.isOp() || player.hasPermission("mmocore.set")) && command.getName().equalsIgnoreCase("mmoset")) {
 			MMO plugin;
 			if (args.length == 0 || (plugin = MMO.findPlugin(args[0])) == null) {
-				mmo.sendMessage(player, "Plugins: %s", MMO.listPlugins());
+				sendMessage(player, "Plugins: %s", MMO.listPlugins());
 			} else {
 				Object old;
 				if (args.length == 1 || (old = plugin.cfg.getProperty(args[1])) == null) {
@@ -99,7 +93,7 @@ public class MMOCore extends MMOPlugin {
 						}
 						keys += key;
 					}
-					mmo.sendMessage(player, "Settings: %s", keys);
+					sendMessage(player, "Settings: %s", keys);
 				} else {
 					if (args.length > 2) {
 						if (old instanceof Boolean) {
@@ -115,17 +109,18 @@ public class MMOCore extends MMOPlugin {
 						}
 						plugin.cfg.save();
 					}
-					mmo.sendMessage(player, "%s: %s", args[1], plugin.cfg.getProperty(args[1]).toString());
+					sendMessage(player, "%s: %s", args[1], plugin.cfg.getProperty(args[1]).toString());
 				}
 			}
 			return true;
 		} else if ((player.isOp() || player.hasPermission("mmocore.update")) && command.getName().equalsIgnoreCase("mmoupdate")) {
-			mmo.sendMessage(player, "Updating %s...", MMO.listPlugins());
-			mmo.log("Checking for updates...");
+			sendMessage(player, "Updating %s...", MMO.listPlugins());
+			log("Checking for updates...");
 			mmo.autoUpdate(true);
-			mmo.sendMessage(player, "...Finished");
+			sendMessage(player, "...Finished");
 			return true;
 		}
+*/
 		return false;
 	}
 

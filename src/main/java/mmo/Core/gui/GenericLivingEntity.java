@@ -14,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package mmo.Core;
+package mmo.Core.gui;
 
+import mmo.Core.MMO;
+import mmo.Core.gui.GenericFace;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.getspout.spoutapi.gui.*;
@@ -92,7 +94,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return 
 	 */
 	public GenericLivingEntity setEntity(String name, String prefix) {
-		Player player = MMO.server.getPlayer(name);
+		Player player = this.getPlugin().getServer().getPlayer(name);
 		if (player != null && player.isOnline()) {
 			return setEntity(player, prefix);
 		}
