@@ -1,5 +1,11 @@
-People who have directly helped:
+# mmoMinecraft/mmoCore
 
-FlayaN (for the creature images used in GenericLivingEntity)
+## What is mmoCore
+### Introduction
+mmoCore is the base upon all the mmo... plugins should be built. bla bla bla
+### Topic 2
 
-All the Spout devs, in particular Top_Cat for promptly fixing several bugs, and just coming up with the whole thing ;-)
+## Commiters and Helpers
+### Rycochet - Original Idea of creating a Framework of Plugins also leads this group.
+### FlayaN - Created Images used in GenericLivingEntity
+### SpoutDev Team - (In particular Top_Cat) for promple fixing several bugs and just coming up with the whole thing. ;-)
