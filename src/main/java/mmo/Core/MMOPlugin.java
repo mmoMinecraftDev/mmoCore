@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -111,19 +112,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 							  onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
 						  }
 					  }, Priority.Normal, this);
-			server.getScheduler().scheduleSyncDelayedTask(plugin,
-					  new Runnable() {
-
-						  @Override
-						  public void run() {
-							  for (Player player : server.getOnlinePlayers()) {
-								  SpoutPlayer splayer = SpoutManager.getPlayer(player);
-								  if (splayer.isSpoutCraftEnabled()) {
-									  onSpoutCraftPlayer(splayer);
-								  }
-							  }
-						  }
-					  });
 		}
 	}
 
@@ -244,8 +232,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param players The Players to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
+	public void sendMessage(List<CommandSender> players, String msg, Object... args) {
+		for (CommandSender player : players) {
 			sendMessage(true, player, msg, args);
 		}
 	}
@@ -256,7 +244,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param player The Player to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(Player player, String msg, Object... args) {
+	public void sendMessage(CommandSender player, String msg, Object... args) {
 		sendMessage(true, player, msg, args);
 	}
 
@@ -274,8 +262,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param players The Players to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(boolean prefix, List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
+	public void sendMessage(boolean prefix, List<CommandSender> players, String msg, Object... args) {
+		for (CommandSender player : players) {
 			sendMessage(prefix, player, msg, args);
 		}
 	}
@@ -285,7 +273,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param player The Player to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(boolean prefix, Player player, String msg, Object... args) {
+	public void sendMessage(boolean prefix, CommandSender player, String msg, Object... args) {
 		if (player != null) {
 			try {
 				for (String line : String.format(msg, args).split("\n")) {

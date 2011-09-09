@@ -462,19 +462,17 @@ public class MMO {
 		int length = 0;
 		for (String line : ChatColor.stripColor(text).split("\n")) {
 			int lineLength = 0;
-			for (int i = 0; i < line.length(); i++) {
-				char ch = text.charAt(i);
-				if (ch == '\u00A7') {
-					i++;
-					continue;
+			boolean skip = false;
+			for (char ch : line.toCharArray()) {
+				if (skip) {
+					skip = false;
+				} else if (ch == '\u00A7') {
+					skip = true;
+				} else if (allowedCharacters.indexOf(ch) != -1) {
+					lineLength += characterWidths[ch];
 				}
-				int index = allowedCharacters.indexOf(ch);
-				if (index == -1) {
-					continue;
-				}
-				lineLength += characterWidths[index + 32];
-				length = Math.max(length, lineLength);
 			}
+			length = Math.max(length, lineLength);
 		}
 		return length;
 	}
