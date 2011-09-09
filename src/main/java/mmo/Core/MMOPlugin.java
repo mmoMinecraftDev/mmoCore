@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -290,6 +291,23 @@ public abstract class MMOPlugin extends JavaPlugin {
 			try {
 				for (String line : String.format(msg, args).split("\n")) {
 					player.sendMessage((prefix ? this.prefix : "") + line);
+				}
+			} catch (Exception e) {
+				// Bad format->Object type
+			}
+		}
+	}
+
+	/**
+	 * Send a message to one command sender.
+	 * @param cs The CommandSender to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, CommandSender cs, String msg, Object... args) {
+		if (cs != null) {
+			try {
+				for (String line : String.format(msg, args).split("\n")) {
+					cs.sendMessage((prefix ? this.prefix : "") + line);
 				}
 			} catch (Exception e) {
 				// Bad format->Object type
