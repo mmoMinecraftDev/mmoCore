@@ -232,8 +232,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param players The Players to message
 	 * @param msg The message to send
 	 */
-	public void sendMessage(List<CommandSender> players, String msg, Object... args) {
-		for (CommandSender player : players) {
+	public void sendMessage(List<Player> players, String msg, Object... args) {
+		for (Player player : players) {
 			sendMessage(true, player, msg, args);
 		}
 	}
