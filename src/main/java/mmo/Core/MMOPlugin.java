@@ -286,6 +286,23 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
+	 * Send a message to one command sender.
+	 * @param cs The CommandSender to message
+	 * @param msg The message to send
+	 */
+	public void sendMessage(boolean prefix, CommandSender cs, String msg, Object... args) {
+		if (cs != null) {
+			try {
+				for (String line : String.format(msg, args).split("\n")) {
+					cs.sendMessage((prefix ? this.prefix : "") + line);
+				}
+			} catch (Exception e) {
+				// Bad format->Object type
+			}
+		}
+	}
+
+	/**
 	 * Get the container for use by this plugin, anchor and position can be overridden by options.
 	 * @return 
 	 */
