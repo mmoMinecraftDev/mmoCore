@@ -16,7 +16,6 @@
  */
 package mmo.Core.gui;
 
-import mmo.Core.MMOCore;
 import org.getspout.spoutapi.gui.GenericTexture;
 
 public final class GenericFace extends GenericTexture {
@@ -34,12 +33,8 @@ public final class GenericFace extends GenericTexture {
 	}
 
 	public GenericFace(String name, int size) {
-		if (MMOCore.config_show_player_faces) {
-			this.setWidth(size).setHeight(size).setFixed(true);
-			setName(name);
-		} else {
-			this.setVisible(false);
-		}
+		this.setWidth(size).setHeight(size).setFixed(true);
+		setName(name);
 	}
 
 	public String getName() {
@@ -47,18 +42,14 @@ public final class GenericFace extends GenericTexture {
 	}
 
 	public GenericFace setName(String name) {
-		if (MMOCore.config_show_player_faces) {
-			this.name = name == null ? "" : name;
-			super.setUrl(facePath + this.name + ".png");
-			super.setDirty(true);
-		}
+		this.name = name == null ? "" : name;
+		super.setUrl(facePath + this.name + ".png");
+		super.setDirty(true);
 		return this;
 	}
 
 	public GenericFace setSize(int size) {
-		if (MMOCore.config_show_player_faces) {
-			super.setWidth(size).setHeight(size);
-		}
+		super.setWidth(size).setHeight(size);
 		return this;
 	}
 }

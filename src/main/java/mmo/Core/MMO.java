@@ -44,80 +44,10 @@ public class MMO {
 	public static boolean mmoChat = false;
 	public static boolean mmoInfo = false;
 
-	public static MMOCore plugin;
-
 	/**
-	 * Never want to manually create a new instance outside of mmo.create()
+	 * Never want to manually create a new instance - we're static only
 	 */
 	private MMO() {
-	}
-
-	/**
-	 * Automatically update a plugin
-	 */
-	public void autoUpdate() {
-		autoUpdate(false);
-	}
-
-	/**
-	 * Automatically or manually update a plugin
-	 */
-	public void autoUpdate(boolean always) {
-		if (always || plugin.config_auto_update) {
-			boolean canUpdate = false;
-			try {
-				URL url = new URL("http://mmo.rycochet.net/" + plugin.getDescription().getName() + ".yml");
-
-				BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-				String str;
-				while ((str = in.readLine()) != null) {
-					if (str.startsWith("version: ")) {
-						String oldVersion[] = plugin.getDescription().getVersion().replaceAll("[^0-9.]", "").split(".");
-						String newVersion[] = str.replaceAll("[^0-9.]", "").split(".");
-						int oldVer = new Integer(oldVersion[0]), oldRev = new Integer(oldVersion[1]);
-						int newVer = new Integer(newVersion[0]), newRev = new Integer(newVersion[1]);
-						if (newVer > oldVer || (newVer == oldVer && newRev > oldRev)) {
-							canUpdate = true;
-							break;
-						}
-					}
-				}
-				in.close();
-				if (canUpdate) {
-					FileOutputStream fos = null;
-					try {
-						File directory = new File(Bukkit.getServer().getUpdateFolder());
-						if (!directory.exists()) {
-							try {
-								directory.mkdir();
-							} catch (SecurityException e1) {
-							}
-						}
-						File newFile = new File(directory.getPath(), plugin.getDescription().getName() + ".jar");
-						if (newFile.canWrite()) {
-							url = new URL("http://mmo.rycochet.net/" + plugin.getDescription().getName() + ".jar");
-							HttpURLConnection con = (HttpURLConnection) (url.openConnection());
-							ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
-							fos = new FileOutputStream(newFile);
-							fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-						}
-					} catch (Exception e) {
-					} finally {
-						if (fos != null) {
-							try {
-								fos.close();
-							} catch (IOException e) {
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				canUpdate = false;
-			}
-			if (canUpdate) {
-				plugin.log("Updated");
-			}
-		}
 	}
 
 	/**

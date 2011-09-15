@@ -76,10 +76,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	protected static MMOCore mmoCore;
 	protected MMOPlugin plugin;
 	public static boolean hasSpout = false;
-	/**
-	 * Global config options for every plugin
-	 */
-	boolean config_auto_update = false;
+	public int version = 0, revision = 0;
+	public boolean update = false; // If there's an update available
 
 	@Override
 	public void onEnable() {
@@ -94,12 +92,18 @@ public abstract class MMOPlugin extends JavaPlugin {
 		title = description.getName().replace("^mmo", "");
 		prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
 		hasSpout = server.getPluginManager().isPluginEnabled("Spout");
+		String oldVersion[] = description.getVersion().split("\\.");
+		if (oldVersion.length == 2) {
+			version = Integer.parseInt(oldVersion[0]);
+			revision = Integer.parseInt(oldVersion[1]);
+		} else {
+			log("Unable to determine version!");
+		}
 
 		log("Enabled " + description.getFullName());
 
 		cfg = plugin.getConfiguration();
 		cfg.setHeader("#" + title + " Configuration");
-		config_auto_update = cfg.getBoolean("auto_update", true);
 		loadConfiguration(cfg);
 		cfg.save();
 		BitSet support = mmoSupport(new BitSet());
@@ -290,7 +294,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @return 
 	 */
 	public GenericContainer getContainer(String anchorName, int offsetX, int offsetY) {
-		WidgetAnchor anchor = WidgetAnchor.TOP_LEFT;
+		WidgetAnchor anchor = WidgetAnchor.SCALE;
 		int extra = MMO.mmoInfo ? 11 : 0; // If mmoInfo exists
 
 		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
@@ -328,7 +332,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 			offsetY = -240 - offsetY;
 		}
 		GenericContainer container = new GenericContainer();
-		container.setAlign(anchor).setAnchor(anchor).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240).setFixed(true);
+		container.setAlign(anchor).setAnchor(anchor).setFixed(true).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240);
 		return container;
 	}
 
