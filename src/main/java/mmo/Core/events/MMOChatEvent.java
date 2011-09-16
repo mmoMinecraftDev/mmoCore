@@ -18,8 +18,9 @@ package mmo.Core.events;
 
 import java.util.HashSet;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
-public interface MMOChatEvent {
+public interface MMOChatEvent extends Cancellable {
 
 	/**
 	 * Check if a filter is supposed to be used
@@ -74,8 +75,6 @@ public interface MMOChatEvent {
 	 */
 	public Player getPlayer();
 
-	public boolean isCancelled();
-	public void setCancelled(boolean cancel);
 	public String getMessage();
 	public void setMessage(String message);
 	public HashSet<Player> getRecipients();

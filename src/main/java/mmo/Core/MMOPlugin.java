@@ -44,6 +44,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -51,6 +55,7 @@ import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
 import org.getspout.spoutapi.event.spout.SpoutListener;
+import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -61,7 +66,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * mmoSupport() BitSet values
 	 */
 	public final int MMO_PLAYER = 1; // Calls onSpoutCraftPlayer() when someone joins or after onEnable
-//	public final int MMO_DATABASE = 1;
+	public final int MMO_NO_CONFIG = 2; // No config file used for this plugin
 	/**
 	 * Variables
 	 */
@@ -102,20 +107,49 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 		log("Enabled " + description.getFullName());
 
-		cfg = plugin.getConfiguration();
-		cfg.setHeader("#" + title + " Configuration");
-		loadConfiguration(cfg);
-		cfg.save();
 		BitSet support = mmoSupport(new BitSet());
-		if (hasSpout && support.get(MMO_PLAYER)) {
-			pm.registerEvent(Type.CUSTOM_EVENT,
-					  new SpoutListener() {
 
-						  @Override
-						  public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
-							  onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
-						  }
-					  }, Priority.Normal, this);
+		if (!support.get(MMO_NO_CONFIG)) {
+			cfg = plugin.getConfiguration();
+			cfg.setHeader("#" + title + " Configuration");
+			loadConfiguration(cfg);
+			cfg.save();
+		}
+		if (hasSpout && support.get(MMO_PLAYER)) {
+
+			SpoutListener sl = new SpoutListener() {
+
+				@Override
+				public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
+					plugin.onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
+				}
+
+				@Override
+				public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
+					plugin.onNormalPlayer(event.getPlayer());
+				}
+			};
+			PlayerListener pl = new PlayerListener() {
+
+				@Override
+				public void onPlayerJoin(PlayerJoinEvent event) {
+					plugin.onPlayerJoin(event.getPlayer());
+				}
+
+				@Override
+				public void onPlayerQuit(PlayerQuitEvent event) {
+					plugin.onPlayerQuit(event.getPlayer());
+				}
+
+				@Override
+				public void onPlayerKick(PlayerKickEvent event) {
+					plugin.onPlayerQuit(event.getPlayer());
+				}
+			};
+			pm.registerEvent(Type.CUSTOM_EVENT, sl, Priority.Monitor, this);
+			pm.registerEvent(Type.PLAYER_JOIN, pl, Priority.Monitor, this);
+			pm.registerEvent(Type.PLAYER_QUIT, pl, Priority.Monitor, this);
+			pm.registerEvent(Type.PLAYER_KICK, pl, Priority.Monitor, this);
 		}
 	}
 
@@ -128,7 +162,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Load the configuration - don't save or anything...
 	 * @param cfg 
 	 */
-	abstract public void loadConfiguration(Configuration cfg);
+	public void loadConfiguration(Configuration cfg) {
+	}
 
 	/**
 	 * Supply a bitfield of shortcuts for MMOPlugin to handle
@@ -139,10 +174,31 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
+	 * Called when any player joins - need to return MMO_PLAYER from mmoSupport()
+	 * @param player 
+	 */
+	public void onPlayerJoin(Player player) {
+	}
+
+	/**
 	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
 	 * @param player
 	 */
 	public void onSpoutCraftPlayer(SpoutPlayer player) {
+	}
+
+	/**
+	 * Called for every *NON* Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
+	 * @param player
+	 */
+	public void onNormalPlayer(Player player) {
+	}
+
+	/**
+	 * Called when any player quits or is kicked - need to return MMO_PLAYER from mmoSupport()
+	 * @param player 
+	 */
+	public void onPlayerQuit(Player player) {
 	}
 
 	/**

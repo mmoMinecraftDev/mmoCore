@@ -16,7 +16,7 @@
  */
 package mmo.Core.util;
 
-import java.util.ArrayList;
+import mmo.Core.MMO;
 import org.bukkit.entity.Player;
 
 /**
@@ -71,56 +71,7 @@ public class util {
 	}
 
 	public static String[] reparseArgs(String[] args) {
-		String fullArgs = arrayCombine(args, " ");
-		char[] charArgs = fullArgs.toCharArray();
-		ArrayList<String> newArgs = new ArrayList<String>();
-
-		newArgs.clear();
-
-		if (charArgs.length >= 1) {
-			String toAdd = new String();
-			boolean isQuoted = false;
-			boolean isQuotedDual = false; //false = ', true = ";
-			for (int i = 0; i < charArgs.length; i++) {
-				if (isQuoted == true) {
-					if ((("\"".equals(Character.toString(charArgs[i]))) && (isQuotedDual == true)) || (("'".equals(Character.toString(charArgs[i]))) && (isQuotedDual == false))) {
-						isQuoted = false;
-						isQuotedDual = false;
-						newArgs.add(toAdd);
-						toAdd = "";
-					} else {
-						toAdd += Character.toString(charArgs[i]);
-					}
-				} else {
-					if (" ".equals(Character.toString(charArgs[i])) || "\t".equals(Character.toString(charArgs[i]))) {
-						newArgs.add(toAdd);
-						toAdd = "";
-					} else if ("\"".equals(Character.toString(charArgs[i])) || "'".equals(Character.toString(charArgs[i]))) {
-						isQuotedDual = ("'".equals(Character.toString(charArgs[i])) == true ? false : true);
-						if (i > 0) {
-							if (" ".equals(Character.toString(charArgs[i - 1]))) {
-								isQuoted = true;
-								toAdd = "";
-							}
-						} else {
-							isQuoted = true;
-							toAdd = "";
-						}
-					} else {
-						toAdd += Character.toString(charArgs[i]);
-					}
-				}
-			}
-			if (!"".equals(toAdd)) {
-				newArgs.add(toAdd);
-			}
-		}
-		String[] strArgs = new String[newArgs.size()];
-		for (int i = 0; i < newArgs.size(); i++) {
-			strArgs[i] = (String) newArgs.get(i);
-		}
-
-		return strArgs;
+		return MMO.smartSplit(arrayCombine(args, " "));
 	}
 
 	public static String[] arraySplit(String split, String delimiter) {

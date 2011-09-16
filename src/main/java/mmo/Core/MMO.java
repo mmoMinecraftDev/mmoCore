@@ -16,21 +16,16 @@
  */
 package mmo.Core;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.getspout.spoutapi.gui.GenericLabel;
 
 public class MMO {
 
@@ -365,45 +360,27 @@ public class MMO {
 		return line.substring(endIndex).trim();
 	}
 
+	@Deprecated
 	public static int getStringHeight(String text) {
-		return text.split("\n").length * 10;
+		return GenericLabel.getStringHeight(text);
 	}
 
+	@Deprecated
 	public static int getStringWidth(String text) {
-		final int[] characterWidths = new int[]{
-			1, 9, 9, 8, 8, 8, 8, 7, 9, 8, 9, 9, 8, 9, 9, 9,
-			8, 8, 8, 8, 9, 9, 8, 9, 8, 8, 8, 8, 8, 9, 9, 9,
-			4, 2, 5, 6, 6, 6, 6, 3, 5, 5, 5, 6, 2, 6, 2, 6,
-			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 2, 2, 5, 6, 5, 6,
-			7, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6,
-			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 4, 6, 6,
-			3, 6, 6, 6, 6, 6, 5, 6, 6, 2, 6, 5, 3, 6, 6, 6,
-			6, 6, 6, 6, 4, 6, 6, 6, 6, 6, 6, 5, 2, 5, 7, 6,
-			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 3, 6, 6,
-			6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6,
-			6, 3, 6, 6, 6, 6, 6, 6, 6, 7, 6, 6, 6, 2, 6, 6,
-			8, 9, 9, 6, 6, 6, 8, 8, 6, 8, 8, 8, 8, 8, 6, 6,
-			9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
-			9, 9, 9, 9, 9, 9, 9, 9, 9, 6, 9, 9, 9, 5, 9, 9,
-			8, 7, 7, 8, 7, 8, 8, 8, 7, 8, 8, 7, 9, 9, 6, 7,
-			7, 7, 7, 7, 9, 6, 7, 8, 7, 6, 6, 9, 7, 6, 7, 1
-		};
-		final String allowedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_'abcdefghijklmnopqrstuvwxyz{|}~?Ã³ÚÔõÓÕþÛÙÞ´¯ý─┼╔µã¶÷‗¹¨ Í▄°úÏÎâßÝ¾·±Ð¬║┐«¼¢╝í½╗";
-		int length = 0;
-		for (String line : ChatColor.stripColor(text).split("\n")) {
-			int lineLength = 0;
-			boolean skip = false;
-			for (char ch : line.toCharArray()) {
-				if (skip) {
-					skip = false;
-				} else if (ch == '\u00A7') {
-					skip = true;
-				} else if (allowedCharacters.indexOf(ch) != -1) {
-					lineLength += characterWidths[ch];
-				}
-			}
-			length = Math.max(length, lineLength);
+		return GenericLabel.getStringWidth(text);
+	}
+
+	/**
+	 * Split a String by spaces, but understand both single and double quotes
+	 * @param text
+	 * @return 
+	 */
+	public static String[] smartSplit(String text) {
+		ArrayList<String> list = new ArrayList<String>();
+		Matcher match = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'").matcher(text);
+		while (match.find()) {
+			list.add(match.group(1) != null ? match.group(1) : match.group(2) != null ? match.group(2) : match.group());
 		}
-		return length;
+		return list.toArray(new String[list.size()]);
 	}
 }
