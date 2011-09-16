@@ -56,6 +56,7 @@ import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
 import org.getspout.spoutapi.event.spout.SpoutListener;
 import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
+import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -349,21 +350,24 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Get the container for use by this plugin, anchor and position can be overridden by options.
 	 * @return 
 	 */
-	public GenericContainer getContainer(String anchorName, int offsetX, int offsetY) {
+	public Container getContainer(SpoutPlayer player, String anchorName, int offsetX, int offsetY) {
 		WidgetAnchor anchor = WidgetAnchor.SCALE;
-		int extra = MMO.mmoInfo ? 11 : 0; // If mmoInfo exists
+		int offsetTop = 0;
+		if (player != null && pm.isPluginEnabled("mmoInfo") && player.hasPermission("mmo.info.display")) {
+			offsetTop = 12;
+		}
 
 		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_LEFT;
-			offsetY += extra;
+			offsetY += offsetTop;
 		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_CENTER;
 			offsetX -= 213;
-			offsetY += extra;
+			offsetY += offsetTop;
 		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_RIGHT;
 			offsetX = -427 - offsetX;
-			offsetY += extra;
+			offsetY += offsetTop;
 		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.CENTER_LEFT;
 			offsetY -= 120;
@@ -387,8 +391,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 			offsetX = -427 - offsetX;
 			offsetY = -240 - offsetY;
 		}
-		GenericContainer container = new GenericContainer();
-		container.setAlign(anchor).setAnchor(anchor).setFixed(true).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240);
+		Container container = (Container) new GenericContainer().setAlign(anchor).setAnchor(anchor).setFixed(true).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240);
+		player.getMainScreen().attachWidget(this, container);
 		return container;
 	}
 
