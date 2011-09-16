@@ -44,6 +44,13 @@ public class util {
 		return On;
 	}
 
+	/**
+	 * Spout handles this internally
+	 * @param On
+	 * @return
+	 * @deprecated
+	 */
+	@Deprecated
 	public static String colorize(String On) {
 		return On.replaceAll("([^&])(&([a-fA-F0-9]))", "$1\u00A7$3").replace("&&", "&");
 	}

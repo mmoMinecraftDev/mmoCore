@@ -383,4 +383,18 @@ public class MMO {
 		}
 		return list.toArray(new String[list.size()]);
 	}
+
+	/**
+	 * Join an array into a string
+	 * @param array
+	 * @param delimiter
+	 * @return 
+	 */
+	public static String join(String[] array, String delimiter) {
+		String output = "";
+		for (String word : array) {
+			output += (output.isEmpty() ? "" : delimiter) + word;
+		}
+		return output;
+	}
 }
