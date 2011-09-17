@@ -101,6 +101,7 @@ public class MMOCore extends MMOPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (sender.hasPermission("mmocore.set") && command.getName().equalsIgnoreCase("mmoset")) {
+			args = MMO.smartSplit(args);
 			MMOPlugin mmo = null;
 			String list = "";
 			for (Plugin p : Arrays.asList(pm.getPlugins())) {

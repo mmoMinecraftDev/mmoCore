@@ -15,12 +15,12 @@ commands:
   mmoupdate:
     description: Update all mmoMinecraft plugins
     permission: mmocore.update
-    usage: /mmoupate
+    usage: /mmoupdate [force]
 
 permissions:
   mmocore.*:
     description: Access to mmoCore commands
-    default: false
+    default: op
     children:
       mmocore.set: true
       mmocore.update: true

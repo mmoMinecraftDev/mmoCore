@@ -18,6 +18,7 @@ package mmo.Core;
 
 import mmo.Core.events.MMODamageEvent;
 import mmo.Core.events.MMOChatEvent;
+import mmo.Core.events.MMOHUDEvent;
 import mmo.Core.events.MMOInfoEvent;
 import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
@@ -43,12 +44,17 @@ public class MMOListener extends CustomEventListener implements Listener {
 	public void onMMOInfo(MMOInfoEvent event) {
 	}
 
+	public void onMMOHUD(MMOHUDEvent event) {
+	}
+
 	@Override
 	public void onCustomEvent(Event event) {
 		if (event instanceof MMOChatEvent) {
 			onMMOChat((MMOChatEvent) event);
 		} else if (event instanceof MMOInfoEvent) {
 			onMMOInfo((MMOInfoEvent) event);
+		} else if (event instanceof MMOHUDEvent) {
+			onMMOHUD((MMOHUDEvent) event);
 		} else if (event instanceof MMODamageEvent) {
 			switch (((MMODamageEvent) event).getDamageType()) {
 				case PVE:

@@ -24,17 +24,27 @@ import com.avaje.ebean.config.dbplatform.SQLitePlatform;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
 import com.avaje.ebeaninternal.server.lib.sql.TransactionIsolation;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import mmo.Core.events.MMOHUDEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -42,6 +52,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -68,6 +79,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 */
 	public final int MMO_PLAYER = 1; // Calls onSpoutCraftPlayer() when someone joins or after onEnable
 	public final int MMO_NO_CONFIG = 2; // No config file used for this plugin
+	public final int MMO_AUTO_EXTRACT = 3; // Has *.png files inside the plugin.jar
 	/**
 	 * Variables
 	 */
@@ -79,7 +91,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	protected Logger logger;
 	protected String title;
 	protected String prefix;
-	protected static MMOCore mmoCore;
+	protected static MMOPlugin mmoCore;
 	protected MMOPlugin plugin;
 	public static boolean hasSpout = false;
 	public int version = 0, revision = 0;
@@ -116,41 +128,72 @@ public abstract class MMOPlugin extends JavaPlugin {
 			loadConfiguration(cfg);
 			cfg.save();
 		}
-		if (hasSpout && support.get(MMO_PLAYER)) {
+		if (hasSpout) {
+			if (support.get(MMO_PLAYER)) {
 
-			SpoutListener sl = new SpoutListener() {
+				SpoutListener sl = new SpoutListener() {
 
-				@Override
-				public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
-					plugin.onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
+					@Override
+					public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
+						plugin.onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
+					}
+
+					@Override
+					public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
+						plugin.onNormalPlayer(event.getPlayer());
+					}
+				};
+				PlayerListener pl = new PlayerListener() {
+
+					@Override
+					public void onPlayerJoin(PlayerJoinEvent event) {
+						plugin.onPlayerJoin(event.getPlayer());
+					}
+
+					@Override
+					public void onPlayerQuit(PlayerQuitEvent event) {
+						plugin.onPlayerQuit(event.getPlayer());
+					}
+
+					@Override
+					public void onPlayerKick(PlayerKickEvent event) {
+						plugin.onPlayerQuit(event.getPlayer());
+					}
+				};
+				pm.registerEvent(Type.CUSTOM_EVENT, sl, Priority.Monitor, this);
+				pm.registerEvent(Type.PLAYER_JOIN, pl, Priority.Monitor, this);
+				pm.registerEvent(Type.PLAYER_QUIT, pl, Priority.Monitor, this);
+				pm.registerEvent(Type.PLAYER_KICK, pl, Priority.Monitor, this);
+			}
+			if (support.get(MMO_AUTO_EXTRACT)) {
+				try {
+					boolean found = false;
+					JarFile jar = new JarFile(getFile());
+					Enumeration entries = jar.entries();
+					while (entries.hasMoreElements()) {
+						JarEntry file = (JarEntry) entries.nextElement();
+						String name = file.getName();
+						if (name.matches(".*\\.png$|^config.yml$")) {
+							if (!found) {
+								new File(getDataFolder() + File.separator).mkdir();
+								found = true;
+							}
+							File f = new File(getDataFolder() + File.separator + name);
+							if (!f.exists()) {
+								InputStream is = jar.getInputStream(file);
+								FileOutputStream fos = new FileOutputStream(f);
+								while (is.available() > 0) {
+									fos.write(is.read());
+								}
+								fos.close();
+								is.close();
+							}
+							SpoutManager.getFileManager().addToCache(plugin, f);
+						}
+					}
+				} catch (Exception e) {
 				}
-
-				@Override
-				public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
-					plugin.onNormalPlayer(event.getPlayer());
-				}
-			};
-			PlayerListener pl = new PlayerListener() {
-
-				@Override
-				public void onPlayerJoin(PlayerJoinEvent event) {
-					plugin.onPlayerJoin(event.getPlayer());
-				}
-
-				@Override
-				public void onPlayerQuit(PlayerQuitEvent event) {
-					plugin.onPlayerQuit(event.getPlayer());
-				}
-
-				@Override
-				public void onPlayerKick(PlayerKickEvent event) {
-					plugin.onPlayerQuit(event.getPlayer());
-				}
-			};
-			pm.registerEvent(Type.CUSTOM_EVENT, sl, Priority.Monitor, this);
-			pm.registerEvent(Type.PLAYER_JOIN, pl, Priority.Monitor, this);
-			pm.registerEvent(Type.PLAYER_QUIT, pl, Priority.Monitor, this);
-			pm.registerEvent(Type.PLAYER_KICK, pl, Priority.Monitor, this);
+			}
 		}
 	}
 
@@ -209,6 +252,15 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 */
 	public void log(String text, Object... args) {
 		logger.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
+	}
+
+	/**
+	 * Return the fill pathname for an auto-extracted file
+	 * @param name
+	 * @return 
+	 */
+	public String getResource(String name) {
+		return this.getDataFolder() + File.separator + name;
 	}
 
 	/**
@@ -352,22 +404,14 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 */
 	public Container getContainer(SpoutPlayer player, String anchorName, int offsetX, int offsetY) {
 		WidgetAnchor anchor = WidgetAnchor.SCALE;
-		int offsetTop = 0;
-		if (player != null && pm.isPluginEnabled("mmoInfo") && player.hasPermission("mmo.info.display")) {
-			offsetTop = 12;
-		}
-
 		if ("TOP_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_LEFT;
-			offsetY += offsetTop;
 		} else if ("TOP_CENTER".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_CENTER;
 			offsetX -= 213;
-			offsetY += offsetTop;
 		} else if ("TOP_RIGHT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.TOP_RIGHT;
 			offsetX = -427 - offsetX;
-			offsetY += offsetTop;
 		} else if ("CENTER_LEFT".equalsIgnoreCase(anchorName)) {
 			anchor = WidgetAnchor.CENTER_LEFT;
 			offsetY -= 120;
@@ -391,7 +435,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 			offsetX = -427 - offsetX;
 			offsetY = -240 - offsetY;
 		}
-		Container container = (Container) new GenericContainer().setAlign(anchor).setAnchor(anchor).setFixed(true).setX(offsetX).setY(offsetY).setWidth(427).setHeight(240);
+		MMOHUDEventEvent event = new MMOHUDEventEvent(player, plugin, anchor, offsetX, offsetY);
+		pm.callEvent(event);
+		Container container = (Container) new GenericContainer().setAlign(event.anchor).setAnchor(event.anchor).setFixed(true).setX(event.offsetX).setY(event.offsetY).setWidth(427).setHeight(240);
 		player.getMainScreen().attachWidget(this, container);
 		return container;
 	}
@@ -485,6 +531,61 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	protected void afterCreateDatabase() {
+	}
+
+	/**
+	 * Used to alter the HUD item locations
+	 */
+	private class MMOHUDEventEvent extends Event implements MMOHUDEvent {
+
+		Player player;
+		MMOPlugin plugin;
+		WidgetAnchor anchor;
+		int offsetX, offsetY;
+
+		public MMOHUDEventEvent(Player player, MMOPlugin plugin, WidgetAnchor anchor, int offsetX, int offsetY) {
+			super("mmoHUDEvent");
+			this.player = player;
+			this.plugin = plugin;
+			this.anchor = anchor;
+			this.offsetX = offsetX;
+			this.offsetY = offsetY;
+		}
+
+		@Override
+		public Player getPlayer() {
+			return player;
+		}
+
+		@Override
+		public MMOPlugin getPlugin() {
+			return plugin;
+		}
+
+		@Override
+		public WidgetAnchor getAnchor() {
+			return anchor;
+		}
+
+		@Override
+		public int getOffsetX() {
+			return offsetX;
+		}
+
+		@Override
+		public void setOffsetX(int offsetX) {
+			this.offsetX = offsetX;
+		}
+
+		@Override
+		public int getOffsetY() {
+			return offsetY;
+		}
+
+		@Override
+		public void setOffsetY(int offsetY) {
+			this.offsetY = offsetY;
+		}
 	}
 
 	/*

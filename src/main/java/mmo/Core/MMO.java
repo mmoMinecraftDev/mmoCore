@@ -385,6 +385,15 @@ public class MMO {
 	}
 
 	/**
+	 * Re-split args by spaces, but understand both single and double quotes
+	 * @param args
+	 * @return 
+	 */
+	public static String[] smartSplit(String[] args) {
+		return smartSplit(join(args, " "));
+	}
+
+	/**
 	 * Join an array into a string
 	 * @param array
 	 * @param delimiter

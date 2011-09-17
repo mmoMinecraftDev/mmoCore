@@ -16,18 +16,46 @@
  */
 package mmo.Core.events;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.plugin.Plugin;
 import org.getspout.spoutapi.gui.Widget;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public interface MMOInfoEvent extends Cancellable {
-	public Player getPlayer();
+	/**
+	 * The player who owns this Info bar
+	 * @return 
+	 */
+	public SpoutPlayer getPlayer();
 
+	/**
+	 * Check if this token matches us (not including curly braces)
+	 * @param token
+	 * @return 
+	 */
 	public boolean isToken(String token);
 
+	/**
+	 * Get the optional args for our token
+	 * @return 
+	 */
 	public String[] getArgs();
 
-	public void setWidget(Widget widget);
+	/**
+	 * Set the widget we want displayed
+	 * @param plugin
+	 * @param widget 
+	 */
+	public void setWidget(Plugin plugin, Widget widget);
 
+	/**
+	 * Get the widget we have set
+	 * @return 
+	 */
 	public Widget getWidget();
+
+	/**
+	 * Set the path of the icon we want to display, FileManager cache permitted
+	 */
+	public void setIcon(String icon);
 }
