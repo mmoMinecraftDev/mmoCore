@@ -133,9 +133,12 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 		if (!support.get(MMO_NO_CONFIG)) {
 			cfg = new Configuration(new File(mmoCore.getDataFolder() + File.separator + description.getName() + ".yml"));
-			cfg.setHeader("#" + title + " Configuration");
+			cfg.load();
 			loadConfiguration(cfg);
-			cfg.save();
+			if (!cfg.getKeys().isEmpty()) {
+				cfg.setHeader("#" + title + " Configuration");
+				cfg.save();
+			}
 		}
 		if (hasSpout) {
 			if (support.get(MMO_PLAYER)) {
