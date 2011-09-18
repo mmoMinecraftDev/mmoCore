@@ -24,13 +24,10 @@ import com.avaje.ebean.config.dbplatform.SQLitePlatform;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
 import com.avaje.ebeaninternal.server.lib.sql.TransactionIsolation;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -53,20 +50,11 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
-import org.getspout.spoutapi.event.spout.SpoutListener;
-import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
 import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
@@ -118,52 +106,40 @@ public abstract class MMOPlugin extends JavaPlugin {
 			log("Unable to determine version!");
 		}
 
+		/**
+		 * Move mmoPlugin/* to mmoCore/*
+		 */
+		if (getDataFolder().exists()) {
+			try {
+				for (File from : getDataFolder().listFiles()) {
+					String name = from.getName();
+					boolean isConfig = false;
+					if (name.equalsIgnoreCase("config.yml")) {
+						isConfig = true;
+						name = description.getName() + ".yml";
+					}
+					if ((isConfig || this != mmoCore) && !from.renameTo(new File(mmoCore.getDataFolder(), name))) {
+						log("Unable to move file: " + from.getName());
+					}
+				}
+				getDataFolder().delete();
+			} catch (Exception e) {
+			}
+		}
+
 		log("Enabled " + description.getFullName());
 
 		BitSet support = mmoSupport(new BitSet());
 
 		if (!support.get(MMO_NO_CONFIG)) {
-			cfg = plugin.getConfiguration();
+			cfg = new Configuration(new File(mmoCore.getDataFolder() + File.separator + description.getName() + ".yml"));
 			cfg.setHeader("#" + title + " Configuration");
 			loadConfiguration(cfg);
 			cfg.save();
 		}
 		if (hasSpout) {
 			if (support.get(MMO_PLAYER)) {
-
-				SpoutListener sl = new SpoutListener() {
-
-					@Override
-					public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
-						plugin.onSpoutCraftPlayer(SpoutManager.getPlayer(event.getPlayer()));
-					}
-
-					@Override
-					public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
-						plugin.onNormalPlayer(event.getPlayer());
-					}
-				};
-				PlayerListener pl = new PlayerListener() {
-
-					@Override
-					public void onPlayerJoin(PlayerJoinEvent event) {
-						plugin.onPlayerJoin(event.getPlayer());
-					}
-
-					@Override
-					public void onPlayerQuit(PlayerQuitEvent event) {
-						plugin.onPlayerQuit(event.getPlayer());
-					}
-
-					@Override
-					public void onPlayerKick(PlayerKickEvent event) {
-						plugin.onPlayerQuit(event.getPlayer());
-					}
-				};
-				pm.registerEvent(Type.CUSTOM_EVENT, sl, Priority.Monitor, this);
-				pm.registerEvent(Type.PLAYER_JOIN, pl, Priority.Monitor, this);
-				pm.registerEvent(Type.PLAYER_QUIT, pl, Priority.Monitor, this);
-				pm.registerEvent(Type.PLAYER_KICK, pl, Priority.Monitor, this);
+				MMOCore.support_mmo_player.add(this);
 			}
 			if (support.get(MMO_AUTO_EXTRACT)) {
 				try {
@@ -175,10 +151,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 						String name = file.getName();
 						if (name.matches(".*\\.png$|^config.yml$")) {
 							if (!found) {
-								new File(getDataFolder() + File.separator).mkdir();
+								new File(mmoCore.getDataFolder() + File.separator + description.getName() + File.separator).mkdir();
 								found = true;
 							}
-							File f = new File(getDataFolder() + File.separator + name);
+							File f = new File(mmoCore.getDataFolder() + File.separator + description.getName() + File.separator + name);
 							if (!f.exists()) {
 								InputStream is = jar.getInputStream(file);
 								FileOutputStream fos = new FileOutputStream(f);
@@ -774,7 +750,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 		}
 
 		private String replaceDatabaseString(String input) {
-			input = input.replaceAll("\\{DIR\\}", plugin.getDataFolder().getPath().replaceAll("\\\\", "/") + "/");
+			input = input.replaceAll("\\{DIR\\}", mmoCore.getDataFolder().getPath().replaceAll("\\\\", "/") + "/");
 			input = input.replaceAll("\\{NAME\\}", plugin.getDescription().getName().replaceAll("[^\\w_-]", ""));
 			return input;
 		}

@@ -25,23 +25,38 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
+import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
+import org.getspout.spoutapi.event.spout.SpoutListener;
+import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
 import org.getspout.spoutapi.gui.Widget;
+import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class MMOCore extends MMOPlugin {
 
+	/**
+	 * List of plugins that want to react on various Player events
+	 */
+	static protected List<MMOPlugin> support_mmo_player = new ArrayList<MMOPlugin>();
+	/**
+	 * Task to check for mmoMinecraft updates
+	 */
 	private int updateTask;
 	/**
 	 * Config options - all mmoCore options are used for other plugins...
@@ -64,9 +79,13 @@ public class MMOCore extends MMOPlugin {
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
 		pm.registerEvent(Type.PLAYER_JOIN, cpl, Priority.Monitor, this);
+		pm.registerEvent(Type.PLAYER_QUIT, cpl, Priority.Monitor, this);
+		pm.registerEvent(Type.PLAYER_KICK, cpl, Priority.Monitor, this);
 		pm.registerEvent(Type.PLAYER_RESPAWN, cpl, Priority.Monitor, this);
 
-			updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this,
+		pm.registerEvent(Type.CUSTOM_EVENT, new mmoCoreSpoutListener(), Priority.Monitor, this);
+
+		updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this,
 				  new Runnable() {
 
 					  @Override
@@ -165,7 +184,8 @@ public class MMOCore extends MMOPlugin {
 
 		@Override
 		public void onPlayerJoin(PlayerJoinEvent event) {
-			if (event.getPlayer().hasPermission("mmocore.update")) {
+			Player player = event.getPlayer();
+			if (player.hasPermission("mmocore.update")) {
 				String list = "";
 				for (Plugin p : Arrays.asList(pm.getPlugins())) {
 					if (p instanceof MMOPlugin && ((MMOPlugin) p).update) {
@@ -173,8 +193,27 @@ public class MMOCore extends MMOPlugin {
 					}
 				}
 				if (!list.isEmpty()) {
-					sendMessage(event.getPlayer(), "Updates: %s", list);
+					sendMessage(player, "Updates: %s", list);
 				}
+			}
+			for (MMOPlugin plugin : support_mmo_player) {
+				plugin.onPlayerJoin(player);
+			}
+		}
+
+		@Override
+		public void onPlayerQuit(PlayerQuitEvent event) {
+			Player player = event.getPlayer();
+			for (MMOPlugin plugin : support_mmo_player) {
+				plugin.onPlayerQuit(player);
+			}
+		}
+
+		@Override
+		public void onPlayerKick(PlayerKickEvent event) {
+			Player player = event.getPlayer();
+			for (MMOPlugin plugin : support_mmo_player) {
+				plugin.onPlayerQuit(player);
 			}
 		}
 
@@ -186,6 +225,25 @@ public class MMOCore extends MMOPlugin {
 						widget.setDirty(true);
 					}
 				}
+			}
+		}
+	}
+
+	public class mmoCoreSpoutListener extends SpoutListener {
+
+		@Override
+		public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
+			SpoutPlayer player = event.getPlayer();
+			for (MMOPlugin plugin : support_mmo_player) {
+				plugin.onSpoutCraftPlayer(player);
+			}
+		}
+
+		@Override
+		public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
+			Player player = event.getPlayer();
+			for (MMOPlugin plugin : support_mmo_player) {
+				plugin.onNormalPlayer(player);
 			}
 		}
 	}
