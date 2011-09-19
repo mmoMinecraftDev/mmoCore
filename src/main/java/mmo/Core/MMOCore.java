@@ -67,7 +67,7 @@ public class MMOCore extends MMOPlugin {
 	static public String config_database_password = "";
 	static public String config_database_isolation = "SERIALIZABLE";
 	static public boolean config_database_logging = false;
-	static public boolean config_database_rebuild = true;
+	static public boolean config_database_rebuild = false;
 	static public boolean config_show_display_name = false;
 	static public boolean config_show_player_faces = true;
 	static public int config_update_hours = 24;
@@ -115,6 +115,7 @@ public class MMOCore extends MMOPlugin {
 		config_database_isolation = cfg.getString("database.isolation", config_database_isolation);
 		config_database_logging = cfg.getBoolean("database.logging", config_database_logging);
 		config_database_rebuild = cfg.getBoolean("database.rebuild", config_database_rebuild);
+		cfg.setProperty("database.rebuild", false);
 	}
 
 	@Override
