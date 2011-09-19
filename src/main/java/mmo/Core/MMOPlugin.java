@@ -17,25 +17,11 @@
 package mmo.Core;
 
 import com.avaje.ebean.EbeanServer;
-import com.avaje.ebean.EbeanServerFactory;
-import com.avaje.ebean.config.DataSourceConfig;
-import com.avaje.ebean.config.ServerConfig;
-import com.avaje.ebean.config.dbplatform.SQLitePlatform;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
-import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
-import com.avaje.ebeaninternal.server.lib.sql.TransactionIsolation;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -71,7 +57,12 @@ public abstract class MMOPlugin extends JavaPlugin {
 	public final int MMO_AUTO_EXTRACT = 3; // Has *.png files inside the plugin.jar
 	public final int MMO_DATABASE = 4; // We have a database
 	/**
-	 * Variables
+	 * Static global variables
+	 */
+	static public boolean hasSpout = false;
+	static public boolean singleFolder = false;
+	/**
+	 * Private and protected variables
 	 */
 	private MyDatabase database;
 	protected PluginDescriptionFile description;
@@ -83,7 +74,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 	protected String prefix;
 	protected static MMOPlugin mmoCore;
 	protected MMOPlugin plugin;
-	public static boolean hasSpout = false;
+	/**
+	 * Public variables
+	 */
 	public int version = 0, revision = 0;
 	public boolean update = false; // If there's an update available
 
@@ -108,19 +101,20 @@ public abstract class MMOPlugin extends JavaPlugin {
 			log("Unable to determine version!");
 		}
 
+		if (!singleFolder && new File("plugins/mmoMinecraft").exists()) {
+			singleFolder = true;
+		}
 		/**
-		 * Move mmoPlugin/* to mmoCore/*
+		 * Move plugins/mmoPlugin/* to plugins/mmoMinecraft/*
 		 */
-		if (getDataFolder().exists()) {
+		if (singleFolder && super.getDataFolder().exists()) {
 			try {
-				for (File from : getDataFolder().listFiles()) {
+				for (File from : super.getDataFolder().listFiles()) {
 					String name = from.getName();
-					boolean isConfig = false;
 					if (name.equalsIgnoreCase("config.yml")) {
-						isConfig = true;
 						name = description.getName() + ".yml";
 					}
-					if ((isConfig || this != mmoCore) && !from.renameTo(new File(mmoCore.getDataFolder(), name))) {
+					if (!from.renameTo(new File(getDataFolder(), name))) {
 						log("Unable to move file: " + from.getName());
 					}
 				}
@@ -134,7 +128,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 		BitSet support = mmoSupport(new BitSet());
 
 		if (!support.get(MMO_NO_CONFIG)) {
-			cfg = new Configuration(new File(mmoCore.getDataFolder() + File.separator + description.getName() + ".yml"));
+			cfg = new Configuration(new File(getDataFolder(), description.getName() + ".yml"));
 			cfg.load();
 			loadConfiguration(cfg);
 			if (!cfg.getKeys().isEmpty()) {
@@ -159,10 +153,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 						String name = file.getName();
 						if (name.matches(".*\\.png$|^config.yml$")) {
 							if (!found) {
-								new File(mmoCore.getDataFolder() + File.separator + description.getName() + File.separator).mkdir();
+								new File(getDataFolder(), description.getName()).mkdir();
 								found = true;
 							}
-							File f = new File(mmoCore.getDataFolder() + File.separator + description.getName() + File.separator + name);
+							File f = new File(getDataFolder(), description.getName() + File.separator + name);
 							if (!f.exists()) {
 								InputStream is = jar.getInputStream(file);
 								FileOutputStream fos = new FileOutputStream(f);
@@ -184,6 +178,14 @@ public abstract class MMOPlugin extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		log("Disabled " + description.getFullName());
+	}
+
+	@Override
+	public File getDataFolder() {
+		if (singleFolder) {
+			return new File("plugins/mmoMinecraft");
+		}
+		return super.getDataFolder();
 	}
 
 	/**
@@ -244,7 +246,11 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @return 
 	 */
 	public String getResource(String name) {
-		return this.getDataFolder() + File.separator + name;
+		String path = getDataFolder() + File.separator;
+		if (singleFolder) {
+			path += description.getName() + File.separator;
+		}
+		return path + name;
 	}
 
 	/**
@@ -507,7 +513,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 			};
 			database.initializeDatabase(
 					  MMOCore.config_database_driver,
-					  MMOCore.config_database_url.replaceAll("\\{DIR\\}", mmoCore.getDataFolder().getPath().replaceAll("\\\\", "/") + "/"),
+					  MMOCore.config_database_url,
 					  MMOCore.config_database_username,
 					  MMOCore.config_database_password,
 					  MMOCore.config_database_isolation,
