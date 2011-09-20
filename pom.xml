@@ -46,6 +46,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<url>https://github.com/mmoMinecraftDev/${project.name}</url>
 	</scm>
 
+    <!-- Continuous integration -->
+	<ciManagement>
+		<system>jenkins</system>
+		<url>http://ci.mmo.me.uk</url>
+	</ciManagement>
+
 	<!-- Repository locations -->
 	<repositories>
 		<repository>
