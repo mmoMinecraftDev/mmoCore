@@ -28,6 +28,8 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import mmo.Core.util.MyDatabase;
+import mmo.CoreAPI.MMOHUDEvent;
+import mmo.CoreAPI.MMOListener;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -101,15 +103,15 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 		// Cache the various event APIs
 		if (title.equals("Chat")) {
-			MMO.mmoChatAPI = true;
+			MMOListener.mmoChatAPI = true;
 		} else if (title.equals("Damage")) {
-			MMO.mmoDamageAPI = true;
+			MMOListener.mmoDamageAPI = true;
 		} else if (title.equals("Info")) {
-			MMO.mmoInfoAPI = true;
+			MMOListener.mmoInfoAPI = true;
 		} else if (title.equals("Party")) {
-			MMO.mmoPartyAPI = true;
+			MMOListener.mmoPartyAPI = true;
 		} else if (title.equals("Skill")) {
-			MMO.mmoSkillAPI = true;
+			MMOListener.mmoSkillAPI = true;
 		}
 
 		if (!singleFolder && new File("plugins/mmoMinecraft").exists()) {
@@ -190,15 +192,15 @@ public abstract class MMOPlugin extends JavaPlugin {
 	public void onDisable() {
 		// Cache the various event APIs
 		if (title.equals("Chat")) {
-			MMO.mmoChatAPI = false;
+			MMOListener.mmoChatAPI = false;
 		} else if (title.equals("Damage")) {
-			MMO.mmoDamageAPI = false;
+			MMOListener.mmoDamageAPI = false;
 		} else if (title.equals("Info")) {
-			MMO.mmoInfoAPI = false;
+			MMOListener.mmoInfoAPI = false;
 		} else if (title.equals("Party")) {
-			MMO.mmoPartyAPI = false;
+			MMOListener.mmoPartyAPI = false;
 		} else if (title.equals("Skill")) {
-			MMO.mmoSkillAPI = false;
+			MMOListener.mmoSkillAPI = false;
 		}
 
 		log("Disabled " + description.getFullName());

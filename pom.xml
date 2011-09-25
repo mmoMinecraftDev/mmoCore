@@ -97,6 +97,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		</dependency>
 		<!-- Event APIs -->
 		<dependency>
+			<groupId>mmo.CoreAPI</groupId>
+			<artifactId>mmoCoreAPI</artifactId>
+			<version>dev</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>mmo.ChatAPI</groupId>
 			<artifactId>mmoChatAPI</artifactId>
 			<version>dev</version>
@@ -144,6 +150,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.2</version>
+			</plugin>
+			<!-- JAR dependency addition plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>mmo.CoreAPI</include>
+								</includes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<!-- Javadoc creation plugin -->
 			<plugin>

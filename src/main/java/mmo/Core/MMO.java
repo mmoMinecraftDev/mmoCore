@@ -29,15 +29,6 @@ import org.getspout.spoutapi.gui.GenericLabel;
 public class MMO {
 
 	/**
-	 * Quick checking of the various plugin APIs...
-	 */
-	public static boolean mmoChatAPI = false;
-	public static boolean mmoDamageAPI = false;
-	public static boolean mmoInfoAPI = false;
-	public static boolean mmoPartyAPI = false;
-	public static boolean mmoSkillAPI = false;
-
-	/**
 	 * Never want to manually create a new instance - we're static only
 	 */
 	private MMO() {
