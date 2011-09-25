@@ -149,7 +149,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 				cfg.save();
 			}
 		}
-		if (support.get(MMO_DATABASE)) {
+		if (support.get(MMO_DATABASE) && !getDatabaseClasses().isEmpty()) {
 			getDatabase();
 		}
 		if (hasSpout) {
