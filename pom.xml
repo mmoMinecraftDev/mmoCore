@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- Project information -->
-	<groupId>mmo.Core.MMOCore</groupId>
+	<groupId>mmo.Core</groupId>
 	<artifactId>mmoCore</artifactId>
 	<name>mmoCore</name>
 	<version>dev</version>
@@ -94,6 +94,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<artifactId>bukkit</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>provided</scope>
+		</dependency>
+		<!-- Event APIs -->
+		<dependency>
+			<groupId>mmo.ChatAPI</groupId>
+			<artifactId>mmoChatAPI</artifactId>
+			<version>dev</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>mmo.DamageAPI</groupId>
+			<artifactId>mmoDamageAPI</artifactId>
+			<version>dev</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>mmo.InfoAPI</groupId>
+			<artifactId>mmoInfoAPI</artifactId>
+			<version>dev</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>mmo.SkillsAPI</groupId>
+			<artifactId>mmoSkillsAPI</artifactId>
+			<version>dev</version>
+			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 

@@ -27,7 +27,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import mmo.Core.events.MMOHUDEvent;
 import mmo.Core.util.MyDatabase;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -36,7 +35,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,6 +97,19 @@ public abstract class MMOPlugin extends JavaPlugin {
 			revision = Integer.parseInt(oldVersion[1]);
 		} else {
 			log("Unable to determine version!");
+		}
+
+		// Cache the various event APIs
+		if (title.equals("Chat")) {
+			MMO.mmoChatAPI = true;
+		} else if (title.equals("Damage")) {
+			MMO.mmoDamageAPI = true;
+		} else if (title.equals("Info")) {
+			MMO.mmoInfoAPI = true;
+		} else if (title.equals("Party")) {
+			MMO.mmoPartyAPI = true;
+		} else if (title.equals("Skill")) {
+			MMO.mmoSkillAPI = true;
 		}
 
 		if (!singleFolder && new File("plugins/mmoMinecraft").exists()) {
@@ -177,6 +188,19 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		// Cache the various event APIs
+		if (title.equals("Chat")) {
+			MMO.mmoChatAPI = false;
+		} else if (title.equals("Damage")) {
+			MMO.mmoDamageAPI = false;
+		} else if (title.equals("Info")) {
+			MMO.mmoInfoAPI = false;
+		} else if (title.equals("Party")) {
+			MMO.mmoPartyAPI = false;
+		} else if (title.equals("Skill")) {
+			MMO.mmoSkillAPI = false;
+		}
+
 		log("Disabled " + description.getFullName());
 	}
 
@@ -425,9 +449,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 			offsetX = -427 - offsetX;
 			offsetY = -240 - offsetY;
 		}
-		MMOHUDEventEvent event = new MMOHUDEventEvent(player, plugin, anchor, offsetX, offsetY);
+		MMOHUDEvent event = new MMOHUDEvent(player, plugin, anchor, offsetX, offsetY);
 		pm.callEvent(event);
-		Container container = (Container) new GenericContainer().setAlign(event.anchor).setAnchor(event.anchor).setFixed(true).setX(event.offsetX).setY(event.offsetY).setWidth(427).setHeight(240);
+		Container container = (Container) new GenericContainer().setAlign(event.getAnchor()).setAnchor(event.getAnchor()).setFixed(true).setX(event.getOffsetX()).setY(event.getOffsetY()).setWidth(427).setHeight(240);
 		player.getMainScreen().attachWidget(this, container);
 		return container;
 	}
@@ -527,60 +551,5 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	protected void afterCreateDatabase() {
-	}
-
-	/**
-	 * Used to alter the HUD item locations
-	 */
-	private class MMOHUDEventEvent extends Event implements MMOHUDEvent {
-
-		Player player;
-		MMOPlugin plugin;
-		WidgetAnchor anchor;
-		int offsetX, offsetY;
-
-		public MMOHUDEventEvent(Player player, MMOPlugin plugin, WidgetAnchor anchor, int offsetX, int offsetY) {
-			super("mmoHUDEvent");
-			this.player = player;
-			this.plugin = plugin;
-			this.anchor = anchor;
-			this.offsetX = offsetX;
-			this.offsetY = offsetY;
-		}
-
-		@Override
-		public Player getPlayer() {
-			return player;
-		}
-
-		@Override
-		public MMOPlugin getPlugin() {
-			return plugin;
-		}
-
-		@Override
-		public WidgetAnchor getAnchor() {
-			return anchor;
-		}
-
-		@Override
-		public int getOffsetX() {
-			return offsetX;
-		}
-
-		@Override
-		public void setOffsetX(int offsetX) {
-			this.offsetX = offsetX;
-		}
-
-		@Override
-		public int getOffsetY() {
-			return offsetY;
-		}
-
-		@Override
-		public void setOffsetY(int offsetY) {
-			this.offsetY = offsetY;
-		}
 	}
 }
