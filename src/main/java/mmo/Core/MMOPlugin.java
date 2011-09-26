@@ -16,6 +16,7 @@
  */
 package mmo.Core;
 
+import mmo.Core.util.EnumBitSet;
 import com.avaje.ebean.EbeanServer;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +30,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import mmo.Core.util.MyDatabase;
 import mmo.CoreAPI.MMOHUDEvent;
-import mmo.CoreAPI.MMOListener;
+import mmo.CoreAPI.MMOMinecraft;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -49,17 +50,32 @@ import org.getspout.spoutapi.player.SpoutPlayer;
 
 public abstract class MMOPlugin extends JavaPlugin {
 
+	public enum Support {
+
+		/**
+		 * Use onPlayerJoin, onPlayerQuit, onSpoutCraftPlayer and onNormalPlayer plugin methods.
+		 */
+		MMO_PLAYER,
+		/**
+		 * No config file used for this plugin
+		 */
+		MMO_NO_CONFIG,
+		/**
+		 * Auto-extract *.png files inside the plugin.jar
+		 */
+		MMO_AUTO_EXTRACT,
+		/**
+		 * Use a database (also needs getDatabaseClasses() to return a list of classes)
+		 */
+		MMO_DATABASE
+	}
 	/**
-	 * mmoSupport() BitSet values
-	 */
-	public final int MMO_PLAYER = 1; // Calls onSpoutCraftPlayer() when someone joins or after onEnable
-	public final int MMO_NO_CONFIG = 2; // No config file used for this plugin
-	public final int MMO_AUTO_EXTRACT = 3; // Has *.png files inside the plugin.jar
-	public final int MMO_DATABASE = 4; // We have a database
-	/**
-	 * Static global variables
+	 * Spout is loaded and enabled
 	 */
 	static public boolean hasSpout = false;
+	/**
+	 * There is a plugins/mmoMinecraft folder that we need to store all files in
+	 */
 	static public boolean singleFolder = false;
 	/**
 	 * Private and protected variables
@@ -92,7 +108,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 		pm = server.getPluginManager();
 		title = description.getName().replace("^mmo", "");
 		prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
-		hasSpout = server.getPluginManager().isPluginEnabled("Spout");
 		String oldVersion[] = description.getVersion().split("\\.");
 		if (oldVersion.length == 2) {
 			version = Integer.parseInt(oldVersion[0]);
@@ -101,25 +116,18 @@ public abstract class MMOPlugin extends JavaPlugin {
 			log("Unable to determine version!");
 		}
 
-		// Cache the various event APIs
-		if (title.equals("Chat")) {
-			MMOListener.mmoChatAPI = true;
-		} else if (title.equals("Damage")) {
-			MMOListener.mmoDamageAPI = true;
-		} else if (title.equals("Info")) {
-			MMOListener.mmoInfoAPI = true;
-		} else if (title.equals("Party")) {
-			MMOListener.mmoPartyAPI = true;
-		} else if (title.equals("Skill")) {
-			MMOListener.mmoSkillAPI = true;
-		}
+		// Cache that we exist if we provide an API
+		MMOMinecraft.enablePlugin(description.getName());
 
+		// Shortcut booleans to make life easier
+		if (!hasSpout) {
+			hasSpout = server.getPluginManager().isPluginEnabled("Spout");
+		}
 		if (!singleFolder && new File("plugins/mmoMinecraft").exists()) {
 			singleFolder = true;
 		}
-		/**
-		 * Move plugins/mmoPlugin/* to plugins/mmoMinecraft/*
-		 */
+
+		// Move plugins/mmoPlugin/* to plugins/mmoMinecraft/*
 		if (singleFolder && super.getDataFolder().exists()) {
 			try {
 				for (File from : super.getDataFolder().listFiles()) {
@@ -136,11 +144,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 			}
 		}
 
-		log("Enabled " + description.getFullName());
+		EnumBitSet support = mmoSupport(new EnumBitSet());
 
-		BitSet support = mmoSupport(new BitSet());
-
-		if (!support.get(MMO_NO_CONFIG)) {
+		// Don't try to load and save the config if the plugin doesn't use it
+		if (!support.get(Support.MMO_NO_CONFIG)) {
 			cfg = new Configuration(new File(getDataFolder(), description.getName() + ".yml"));
 			cfg.load();
 			loadConfiguration(cfg);
@@ -149,59 +156,52 @@ public abstract class MMOPlugin extends JavaPlugin {
 				cfg.save();
 			}
 		}
-		if (support.get(MMO_DATABASE) && !getDatabaseClasses().isEmpty()) {
+		// Load the database handler if needed
+		if (support.get(Support.MMO_DATABASE) && !getDatabaseClasses().isEmpty()) {
 			getDatabase();
 		}
-		if (hasSpout) {
-			if (support.get(MMO_PLAYER)) {
-				MMOCore.support_mmo_player.add(this);
-			}
-			if (support.get(MMO_AUTO_EXTRACT)) {
-				try {
-					boolean found = false;
-					JarFile jar = new JarFile(getFile());
-					Enumeration entries = jar.entries();
-					while (entries.hasMoreElements()) {
-						JarEntry file = (JarEntry) entries.nextElement();
-						String name = file.getName();
-						if (name.matches(".*\\.png$|^config.yml$")) {
-							if (!found) {
-								new File(getDataFolder(), description.getName()).mkdir();
-								found = true;
-							}
-							File f = new File(getDataFolder(), description.getName() + File.separator + name);
-							if (!f.exists()) {
-								InputStream is = jar.getInputStream(file);
-								FileOutputStream fos = new FileOutputStream(f);
-								while (is.available() > 0) {
-									fos.write(is.read());
-								}
-								fos.close();
-								is.close();
-							}
-							SpoutManager.getFileManager().addToCache(plugin, f);
+		// Use our own global onPlayerXYZ plugin methods
+		if (hasSpout && support.get(Support.MMO_PLAYER)) {
+			MMOCore.support_mmo_player.add(this);
+		}
+		// Auto-extract resource files from within our plugin.jar
+		if (support.get(Support.MMO_AUTO_EXTRACT)) {
+			try {
+				boolean found = false;
+				JarFile jar = new JarFile(getFile());
+				Enumeration entries = jar.entries();
+				while (entries.hasMoreElements()) {
+					JarEntry file = (JarEntry) entries.nextElement();
+					String name = file.getName();
+					if (name.matches(".*\\.png$|^config.yml$")) {
+						if (!found) {
+							new File(getDataFolder(), description.getName()).mkdir();
+							found = true;
 						}
+						File f = new File(getDataFolder(), description.getName() + File.separator + name);
+						if (!f.exists()) {
+							InputStream is = jar.getInputStream(file);
+							FileOutputStream fos = new FileOutputStream(f);
+							while (is.available() > 0) {
+								fos.write(is.read());
+							}
+							fos.close();
+							is.close();
+						}
+						SpoutManager.getFileManager().addToCache(plugin, f);
 					}
-				} catch (Exception e) {
 				}
+			} catch (Exception e) {
 			}
 		}
+		// Done everything important, up to the individual plugin now...
+		log("Enabled " + description.getFullName());
 	}
 
 	@Override
 	public void onDisable() {
 		// Cache the various event APIs
-		if (title.equals("Chat")) {
-			MMOListener.mmoChatAPI = false;
-		} else if (title.equals("Damage")) {
-			MMOListener.mmoDamageAPI = false;
-		} else if (title.equals("Info")) {
-			MMOListener.mmoInfoAPI = false;
-		} else if (title.equals("Party")) {
-			MMOListener.mmoPartyAPI = false;
-		} else if (title.equals("Skill")) {
-			MMOListener.mmoSkillAPI = false;
-		}
+		MMOMinecraft.disablePlugin(description.getName());
 
 		log("Disabled " + description.getFullName());
 	}
@@ -225,7 +225,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Supply a bitfield of shortcuts for MMOPlugin to handle
 	 * @return 
 	 */
-	public BitSet mmoSupport(BitSet support) {
+	public EnumBitSet mmoSupport(EnumBitSet support) {
 		return support;
 	}
 
@@ -538,13 +538,13 @@ public abstract class MMOPlugin extends JavaPlugin {
 				}
 			};
 			database.initializeDatabase(
-					  MMOCore.config_database_driver,
-					  MMOCore.config_database_url,
-					  MMOCore.config_database_username,
-					  MMOCore.config_database_password,
-					  MMOCore.config_database_isolation,
-					  MMOCore.config_database_logging,
-					  MMOCore.config_database_rebuild);
+					MMOCore.config_database_driver,
+					MMOCore.config_database_url,
+					MMOCore.config_database_username,
+					MMOCore.config_database_password,
+					MMOCore.config_database_isolation,
+					MMOCore.config_database_logging,
+					MMOCore.config_database_rebuild);
 		}
 		return database.getDatabase();
 	}
