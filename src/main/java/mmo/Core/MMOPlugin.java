@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.util.MyDatabase;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -166,8 +167,18 @@ public abstract class MMOPlugin extends JavaPlugin {
 			getDatabase();
 		}
 		// Use our own global onPlayerXYZ plugin methods
-		if (hasSpout && support.get(Support.MMO_PLAYER)) {
+		if (support.get(Support.MMO_PLAYER)) {
 			MMOCore.support_mmo_player.add(this);
+			server.getScheduler().scheduleSyncDelayedTask(plugin,
+					new Runnable() {
+
+						@Override
+						public void run() {
+							for (Player player : Bukkit.getOnlinePlayers()) {
+								onPlayerJoin(player);
+							}
+						}
+					});
 		}
 		// Auto-extract resource files from within our plugin.jar
 		if (support.get(Support.MMO_AUTO_EXTRACT)) {

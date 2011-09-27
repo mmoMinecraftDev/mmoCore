@@ -85,7 +85,7 @@ public class MMOCore extends MMOPlugin {
 
 		pm.registerEvent(Type.CUSTOM_EVENT, new mmoCoreSpoutListener(), Priority.Monitor, this);
 
-		updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this,
+		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this,
 				  new Runnable() {
 
 					  @Override
