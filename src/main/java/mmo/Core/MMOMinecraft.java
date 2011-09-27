@@ -62,18 +62,9 @@ public class MMOMinecraft {
 	 * @param plugin the plugin being enabled
 	 * @param api an instance of the plugin API class
 	 */
-	static public void setAPI(Plugin plugin, Object api) {
-		String name = plugin.getDescription().getName();
-		if ("mmoChat".equals(name)) {
+	static public void addAPI(Object api) {
+		if (api instanceof Chat) {
 			mmoChatAPI = (Chat) api;
-		} else if ("mmoDamage".equals(name)) {
-			mmoDamage = true;
-		} else if ("mmoInfo".equals(name)) {
-			mmoInfo = true;
-		} else if ("mmoParty".equals(name)) {
-			mmoParty = true;
-		} else if ("mmoSkill".equals(name)) {
-			mmoSkill = true;
 		}
 	}
 
