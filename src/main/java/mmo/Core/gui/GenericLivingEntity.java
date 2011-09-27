@@ -33,18 +33,20 @@ public class GenericLivingEntity extends GenericContainer {
 	private int armor = 100;
 	private int def_width = 80;
 	private int def_height = 14;
+	private int old_health_width = -1;
+	private int old_armor_width = -1;
 	String face = "~";
 	String label = "";
 
 	public GenericLivingEntity() {
 		super();
-		Color black = new Color(0, 0, 0, 0.75f);
+		Color color = new Color(0, 0, 0, 0.75f);
 
 		this.addChildren( 
 			_bar = (Container) new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
 				new GenericGradient()
-						.setTopColor(black)
-						.setBottomColor(black)
+						.setTopColor(color)
+						.setBottomColor(color)
 						.setPriority(RenderPriority.Highest),
 				new GenericContainer(
 					_health = (Gradient) new GenericGradient(),
@@ -68,24 +70,26 @@ public class GenericLivingEntity extends GenericContainer {
 //				.setMaxWidth(def_width * 2)
 				.setMaxHeight(def_height + 1);
 
-		this.setHealthColor(new Color(1f, 0, 0, 0.75f));
-		this.setArmorColor(new Color(0.75f, 0.75f, 0.75f, 0.75f));
+		color = new Color(1f, 0, 0, 0.75f);
+		_health.setTopColor(color).setBottomColor(color);
+		color = new Color(0.75f, 0.75f, 0.75f, 0.75f);
+		_armor.setTopColor(color).setBottomColor(color);
 	}
 
 	/**
 	 * Set the display from a possibly offline player
-	 * @param name
-	 * @return 
+	 * @param name the target
+	 * @return this
 	 */
 	public GenericLivingEntity setEntity(String name) {
 		return setEntity(name, "");
 	}
 
 	/**
-	 * Set the display from a possibly offline player
-	 * @param name
-	 * @param prefix Place before the name
-	 * @return 
+	 * Set the display from a possibly offline player.
+	 * @param name the target
+	 * @param prefix a string to show before the name
+	 * @return this
 	 */
 	public GenericLivingEntity setEntity(String name, String prefix) {
 		Player player = this.getPlugin().getServer().getPlayer(name);
@@ -100,19 +104,19 @@ public class GenericLivingEntity extends GenericContainer {
 	}
 
 	/**
-	 * Set the display from a player or living entity
-	 * @param entity
-	 * @return 
+	 * Set the display from a player or living entity.
+	 * @param entity the target
+	 * @return this
 	 */
 	public GenericLivingEntity setEntity(LivingEntity entity) {
 		return setEntity(entity, "");
 	}
 
 	/**
-	 * Set the display from a player or living entity
-	 * @param entity
-	 * @param prefix Place before the name
-	 * @return 
+	 * Set the display from a player or living entity.
+	 * @param entity the target
+	 * @param prefix a string to show before the name
+	 * @return this
 	 */
 	public GenericLivingEntity setEntity(LivingEntity entity, String prefix) {
 		if (entity != null && entity instanceof LivingEntity) {
@@ -130,9 +134,9 @@ public class GenericLivingEntity extends GenericContainer {
 	}
 
 	/**
-	 * Set the targets of this entity - either actual targets, or pets etc
-	 * @param targets
-	 * @return 
+	 * Set the targets of this entity - either actual targets, or pets etc.
+	 * @param targets a list of targets
+	 * @return this
 	 */
 	public GenericLivingEntity setTargets(LivingEntity... targets) {
 		Widget[] widgets = this.getChildren();
@@ -161,6 +165,11 @@ public class GenericLivingEntity extends GenericContainer {
 		return this;
 	}
 	
+	/**
+	 * Set the health to display.
+	 * @param health percentage
+	 * @return this
+	 */
 	public GenericLivingEntity setHealth(int health) {
 		if (this.health != health) {
 			this.health = health;
@@ -169,11 +178,21 @@ public class GenericLivingEntity extends GenericContainer {
 		return this;
 	}
 
+	/**
+	 * Set the health colour to use.
+	 * @param color the solid colour for the health bar
+	 * @return this
+	 */
 	public GenericLivingEntity setHealthColor(Color color) {
 		_health.setTopColor(color).setBottomColor(color);
 		return this;
 	}
 
+	/**
+	 * Set the armor to display.
+	 * @param armor percentage
+	 * @return this
+	 */
 	public GenericLivingEntity setArmor(int armor) {
 		if (this.armor != armor) {
 			this.armor = armor;
@@ -182,21 +201,36 @@ public class GenericLivingEntity extends GenericContainer {
 		return this;
 	}
 
+	/**
+	 * Set the armor colour to use.
+	 * @param color the solid colour for the health bar
+	 * @return this
+	 */
 	public GenericLivingEntity setArmorColor(Color color) {
 		_armor.setTopColor(color).setBottomColor(color);
 		return this;
 	}
 
+	/**
+	 * Set the label to use.
+	 * @param label the string to display
+	 * @return this
+	 */
 	public GenericLivingEntity setLabel(String label) {
 		if (!this.label.equals(label)) {
 			this.label = label;
 			_label.setText(label).setDirty(true);
-//			_bar.setMaxWidth(_label.getContainer().getMinWidth());
 			updateLayout();
 		}
 		return this;
 	}
 
+	/**
+	 * Set the name of the face to use beside the label.
+	 * This uses GenericFace to display.
+	 * @param name the name of the player or mob
+	 * @return this
+	 */
 	public GenericLivingEntity setFace(String name) {
 		if (!this.face.equals(name)) {
 			this.face = name;
@@ -208,7 +242,11 @@ public class GenericLivingEntity extends GenericContainer {
 
 	@Override
 	public Container updateLayout() {
+		_armor.setWidth(old_armor_width); // cache for bandwidth
+		_health.setWidth(old_health_width); // cache for bandwidth
 		super.updateLayout();
+		old_armor_width = _armor.getWidth(); // cache for bandwidth
+		old_health_width = _health.getWidth(); // cache for bandwidth
 		_armor.setWidth((_armor.getContainer().getWidth() * armor) / 100).setDirty(true);
 		_health.setWidth((_health.getContainer().getWidth() * health) / 100).setDirty(true);
 		return this;

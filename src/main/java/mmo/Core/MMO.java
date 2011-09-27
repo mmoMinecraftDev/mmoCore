@@ -24,7 +24,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
-import org.getspout.spoutapi.gui.GenericLabel;
 
 public class MMO {
 
@@ -109,8 +108,8 @@ public class MMO {
 
 	/**
 	 * Get the percentage armour of a Player.
-	 * @param player The Player we're interested in
-	 * @return The percentage of max armour
+	 * @param player the Player we're interested in
+	 * @return the percentage of max armour
 	 */
 	public static int getArmor(Entity player) {
 		if (player != null && player instanceof Player) {
@@ -127,6 +126,11 @@ public class MMO {
 		return 0;
 	}
 
+	/**
+	 * Get a list of pets belonging to a target.
+	 * @param player the player we're interested in
+	 * @return a list of their pets
+	 */
 	public static LivingEntity[] getPets(HumanEntity player) {
 		ArrayList<LivingEntity> pets = new ArrayList<LivingEntity>();
 		if (player != null && (!(player instanceof Player) || ((Player) player).isOnline())) {
@@ -148,8 +152,8 @@ public class MMO {
 
 	/**
 	 * Get the name of a LivingEntity target in colour.
-	 * @param target The target to name
-	 * @return The name to use
+	 * @param target the target to name
+	 * @return the name to use
 	 */
 	public static String getName(LivingEntity target) {
 		return getName(null, target);
@@ -157,9 +161,9 @@ public class MMO {
 
 	/**
 	 * Get the name of a LivingEntity target from a player's point of view.
-	 * @param player The player viewing the target
-	 * @param target The target to name
-	 * @return The name to use
+	 * @param player the player viewing the target
+	 * @param target the target to name
+	 * @return the name to use
 	 */
 	public static String getName(Player player, LivingEntity target) {
 		String name;
@@ -205,9 +209,9 @@ public class MMO {
 
 	/**
 	 * Get the colour of a LivingEntity target from a player's point of view.
-	 * @param player The player viewing the target
-	 * @param target The target to name
-	 * @return The name to use
+	 * @param player the player viewing the target
+	 * @param target the target to name
+	 * @return the colour to use
 	 */
 	public static String getColor(Player player, LivingEntity target) {
 		if (target instanceof Player) {
@@ -245,6 +249,12 @@ public class MMO {
 		}
 	}
 
+	/**
+	 * Get a simple name for a living entity.
+	 * @param target the target we want named
+	 * @param showOwner if we prefix a pet's name with the owner's name
+	 * @return the full name
+	 */
 	public static String getSimpleName(LivingEntity target, boolean showOwner) {
 		String name = "";
 		if (target instanceof Player) {
@@ -308,14 +318,31 @@ public class MMO {
 		return name;
 	}
 
+	/**
+	 * Get a coloured name for a player.
+	 * @param name the player name
+	 * @return a string including colour
+	 */
 	public static String name(String name) {
 		return name(name, true);
 	}
 
+	/**
+	 * Get a coloured name for a player.
+	 * @param name the player name
+	 * @param online is they are currently online
+	 * @return a string including colour
+	 */
 	public static String name(String name, boolean online) {
 		return (online ? ChatColor.YELLOW : ChatColor.GRAY) + name + ChatColor.WHITE;
 	}
 
+	/**
+	 * Get a string health bar etc.
+	 * @param prefix a string to output before the bar
+	 * @param current between 0 and 10
+	 * @return a string with the bar in it
+	 */
 	public static String makeBar(ChatColor prefix, int current) {
 		String bar = "||||||||||";
 		int left = Math.min(Math.max(0, (current + 9) / 10), 10); // 0 < current < 10
@@ -324,9 +351,9 @@ public class MMO {
 	}
 
 	/**
-	 * Return the first word of a line
-	 * @param line
-	 * @return 
+	 * Return the first word of a line.
+	 * @param line a string of text
+	 * @return the first word
 	 */
 	public static String firstWord(String line) {
 		int endIndex = line.indexOf(" ");
@@ -337,9 +364,9 @@ public class MMO {
 	}
 
 	/**
-	 * Return a line with the first word removed
-	 * @param line
-	 * @return 
+	 * Return a line with the first word removed.
+	 * @param line a string of text
+	 * @return everything except the first word
 	 */
 	public static String removeFirstWord(String line) {
 		int endIndex = line.indexOf(" ");
@@ -349,20 +376,10 @@ public class MMO {
 		return line.substring(endIndex).trim();
 	}
 
-	@Deprecated
-	public static int getStringHeight(String text) {
-		return GenericLabel.getStringHeight(text);
-	}
-
-	@Deprecated
-	public static int getStringWidth(String text) {
-		return GenericLabel.getStringWidth(text);
-	}
-
 	/**
 	 * Split a String by spaces, but understand both single and double quotes
-	 * @param text
-	 * @return 
+	 * @param text a string to split
+	 * @return a list of args
 	 */
 	public static String[] smartSplit(String text) {
 		ArrayList<String> list = new ArrayList<String>();
@@ -375,8 +392,8 @@ public class MMO {
 
 	/**
 	 * Re-split args by spaces, but understand both single and double quotes
-	 * @param args
-	 * @return 
+	 * @param args an array of args
+	 * @return a list of args
 	 */
 	public static String[] smartSplit(String[] args) {
 		return smartSplit(join(args, " "));
@@ -384,9 +401,9 @@ public class MMO {
 
 	/**
 	 * Join an array into a string
-	 * @param array
-	 * @param delimiter
-	 * @return 
+	 * @param array an array of strings
+	 * @param delimiter the string to place between each word
+	 * @return the final string
 	 */
 	public static String join(String[] array, String delimiter) {
 		String output = "";

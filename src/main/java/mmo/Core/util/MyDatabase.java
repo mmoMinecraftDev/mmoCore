@@ -26,6 +26,12 @@ import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
 import com.avaje.ebeaninternal.server.lib.sql.TransactionIsolation;
 
+/**
+ * MyDatabase by Lennard Fonteijn - http://www.lennardf1989.com/
+ * http://forums.bukkit.org/threads/24987/
+ * Slightly modified version of https://github.com/LennardF1989/BukkitEx/blob/master/src/main/java/com/lennardf1989/bukkitex/MyDatabase.java
+ * @author Robin
+ */
 public abstract class MyDatabase {
 
 	private JavaPlugin javaPlugin;

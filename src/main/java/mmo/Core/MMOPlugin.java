@@ -21,16 +21,14 @@ import com.avaje.ebean.EbeanServer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.util.MyDatabase;
-import mmo.CoreAPI.MMOHUDEvent;
-import mmo.CoreAPI.MMOMinecraft;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -91,10 +89,17 @@ public abstract class MMOPlugin extends JavaPlugin {
 	protected static MMOPlugin mmoCore;
 	protected MMOPlugin plugin;
 	/**
-	 * Public variables
+	 * Version of this plugin
 	 */
-	public int version = 0, revision = 0;
-	public boolean update = false; // If there's an update available
+	public int version = 0;
+	/**
+	 * Revision of this plugin
+	 */
+	public int revision = 0;
+	/**
+	 * If there's an update available
+	 */
+	public boolean update = false;
 
 	@Override
 	public void onEnable() {
@@ -116,8 +121,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 			log("Unable to determine version!");
 		}
 
-		// Cache that we exist if we provide an API
-		MMOMinecraft.enablePlugin(description.getName());
+		// Cache that we exist if we provide an event
+		MMOMinecraft.enablePlugin(this);
 
 		// Shortcut booleans to make life easier
 		if (!hasSpout) {
@@ -201,7 +206,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		// Cache the various event APIs
-		MMOMinecraft.disablePlugin(description.getName());
+		MMOMinecraft.disablePlugin(this);
 
 		log("Disabled " + description.getFullName());
 	}
@@ -216,60 +221,60 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Load the configuration - don't save or anything...
-	 * @param cfg 
+	 * @param cfg load from here only
 	 */
 	public void loadConfiguration(Configuration cfg) {
 	}
 
 	/**
-	 * Supply a bitfield of shortcuts for MMOPlugin to handle
-	 * @return 
+	 * Supply a bitset of shortcuts for MMOPlugin to handle
+	 * @return the bitset provided with bits set
 	 */
 	public EnumBitSet mmoSupport(EnumBitSet support) {
 		return support;
 	}
 
 	/**
-	 * Called when any player joins - need to return MMO_PLAYER from mmoSupport()
+	 * Called when any player joins - need to return MMO_PLAYER from mmoSupport.
 	 * @param player 
 	 */
 	public void onPlayerJoin(Player player) {
 	}
 
 	/**
-	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
+	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport.
 	 * @param player
 	 */
 	public void onSpoutCraftPlayer(SpoutPlayer player) {
 	}
 
 	/**
-	 * Called for every *NON* Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport()
+	 * Called for every *NON* Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport.
 	 * @param player
 	 */
 	public void onNormalPlayer(Player player) {
 	}
 
 	/**
-	 * Called when any player quits or is kicked - need to return MMO_PLAYER from mmoSupport()
+	 * Called when any player quits or is kicked - need to return MMO_PLAYER from mmoSupport.
 	 * @param player 
 	 */
 	public void onPlayerQuit(Player player) {
 	}
 
 	/**
-	 * Send a message to the log
-	 * @param text A format style string
-	 * @param args
+	 * Send a message to the log.
+	 * @param text a format style string
+	 * @param args any args for the format
 	 */
 	public void log(String text, Object... args) {
 		logger.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
 	}
 
 	/**
-	 * Return the fill pathname for an auto-extracted file
-	 * @param name
-	 * @return 
+	 * Return the fill pathname for an auto-extracted file.
+	 * @param name the filename
+	 * @return the pathname
 	 */
 	public String getResource(String name) {
 		String path = getDataFolder() + File.separator;
@@ -280,28 +285,31 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Pop up a Party "achievement" message
-	 * @param name The player to tell
-	 * @param msg The message to send (max 23 chars)
+	 * Pop up an "achievement" message.
+	 * @param name the player to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param args any args for the format string
 	 */
 	public void notify(String name, String msg, Object... args) {
 		this.notify(server.getPlayer(name), msg, Material.SIGN, args);
 	}
 
 	/**
-	 * Pop up a Party "achievement" message
-	 * @param name The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 * @param icon The material to use
+	 * Pop up an "achievement" message.
+	 * @param name the player to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param icon the material to use
+	 * @param args any args for the format string
 	 */
 	public void notify(String name, String msg, Material icon, Object... args) {
 		this.notify(server.getPlayer(name), msg, icon, args);
 	}
 
 	/**
-	 * Pop up a Party "achievement" message for multiple players
-	 * @param players The player to tell
-	 * @param msg The message to send (max 23 chars)
+	 * Pop up an "achievement" message for multiple players.
+	 * @param players the players to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param args any args for the format string
 	 */
 	public void notify(List<Player> players, String msg, Object... args) {
 		for (Player player : players) {
@@ -310,9 +318,11 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Pop up a Party "achievement" message for multiple players
-	 * @param players The player to tell
-	 * @param msg The message to send (max 23 chars)
+	 * Pop up an "achievement" message for multiple players.
+	 * @param players the players to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param icon the material to use
+	 * @param args any args for the format string
 	 */
 	public void notify(List<Player> players, String msg, Material icon, Object... args) {
 		for (Player player : players) {
@@ -321,19 +331,21 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Pop up a Party "achievement" message
-	 * @param player The player to tell
-	 * @param msg The message to send (max 23 chars)
+	 * Pop up an "achievement" message.
+	 * @param player the player to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param args any args for the format string
 	 */
 	public void notify(Player player, String msg, Object... args) {
 		this.notify(player, msg, Material.SIGN, args);
 	}
 
 	/**
-	 * Pop up a Party "achievement" message
-	 * @param player The player to tell
-	 * @param msg The message to send (max 23 chars)
-	 * @param icon The material to use
+	 * Pop up an "achievement" message.
+	 * @param player the player to tell
+	 * @param msg a formatted message to send (max 23 chars)
+	 * @param icon the material to use
+	 * @param args any args for the format string
 	 */
 	public void notify(Player player, String msg, Material icon, Object... args) {
 		if (hasSpout && player != null) {
@@ -347,9 +359,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to one person by name.
-	 * @param prefix Whether to show the plugin name
-	 * @param name The player to message
-	 * @param msg The message to send
+	 * @param name the player to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(String name, String msg, Object... args) {
 		sendMessage(true, server.getPlayer(name), msg, args);
@@ -357,9 +369,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to multiple people.
-	 * @param prefix Whether to show the plugin name
-	 * @param players The Players to message
-	 * @param msg The message to send
+	 * @param players the Players to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(List<Player> players, String msg, Object... args) {
 		for (Player player : players) {
@@ -369,9 +381,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to one person.
-	 * @param prefix Whether to show the plugin name
-	 * @param player The Player to message
-	 * @param msg The message to send
+	 * @param player the Player to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(CommandSender player, String msg, Object... args) {
 		sendMessage(true, player, msg, args);
@@ -379,8 +391,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to one person by name.
-	 * @param name The player to message
-	 * @param msg The message to send
+	 * @param prefix whether to show the plugin name
+	 * @param name the player to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(boolean prefix, String name, String msg, Object... args) {
 		sendMessage(prefix, server.getPlayer(name), msg, args);
@@ -388,8 +402,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to multiple people.
-	 * @param players The Players to message
-	 * @param msg The message to send
+	 * @param prefix whether to show the plugin name
+	 * @param players the Players to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(boolean prefix, List<CommandSender> players, String msg, Object... args) {
 		for (CommandSender player : players) {
@@ -399,8 +415,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to one person.
-	 * @param player The Player to message
-	 * @param msg The message to send
+	 * @param prefix whether to show the plugin name
+	 * @param player the Player to message
+	 * @param msg the formatted message to send
+	 * @param args any args for the format string
 	 */
 	public void sendMessage(boolean prefix, CommandSender player, String msg, Object... args) {
 		if (player != null) {
@@ -415,8 +433,12 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Get the container for use by this plugin, anchor and position can be overridden by options.
-	 * @return 
+	 * Get the container for use by this plugin, anchor and position can be overridden by MMOHUDEvent.
+	 * @param player the player this is for
+	 * @param anchorName the name of the WidgetAnchor
+	 * @param offsetX the horizontal offset to use
+	 * @param offsetY the vertical offset to use
+	 * @return the Container
 	 */
 	public Container getContainer(SpoutPlayer player, String anchorName, int offsetX, int offsetY) {
 		WidgetAnchor anchor = WidgetAnchor.SCALE;
@@ -459,9 +481,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setGlobalTitle
-	 * @param target
-	 * @param title 
+	 * Spout-safe version of setGlobalTitle.
+	 * @param target the entity to target
+	 * @param title the title to show
 	 */
 	public void setTitle(LivingEntity target, String title) {
 		if (hasSpout && target != null) {
@@ -470,10 +492,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setPlayerTitle
-	 * @param player 
-	 * @param target
-	 * @param title 
+	 * Spout-safe version of setPlayerTitle.
+	 * @param player the player seeing the target
+	 * @param target the entity to target
+	 * @param title the title to show
 	 */
 	public void setTitle(Player player, LivingEntity target, String title) {
 		if (hasSpout && player != null && target != null) {
@@ -482,9 +504,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setGlobalCloak
-	 * @param target
-	 * @param url 
+	 * Spout-safe version of setGlobalCloak.
+	 * @param target the entity to target
+	 * @param url the cloak to show
 	 */
 	public void setCloak(HumanEntity target, String url) {
 		if (hasSpout && target != null) {
@@ -493,10 +515,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setPlayerCloak
-	 * @param player 
-	 * @param target
-	 * @param url 
+	 * Spout-safe version of setPlayerCloak.
+	 * @param player the player seeing the target
+	 * @param target the entity to target
+	 * @param url the cloak to show
 	 */
 	public void setCloak(Player player, HumanEntity target, String url) {
 		if (hasSpout && player != null && target != null) {
@@ -505,9 +527,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setGlobalCloak
-	 * @param target
-	 * @param url 
+	 * Spout-safe version of setGlobalCloak.
+	 * @param target the entity to target
+	 * @param url the cloak to show
 	 */
 	public void setSkin(HumanEntity target, String url) {
 		if (hasSpout && target != null) {
@@ -516,10 +538,10 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Spout-safe version of setPlayerCloak
-	 * @param player 
-	 * @param target
-	 * @param url 
+	 * Spout-safe version of setPlayerCloak.
+	 * @param player the player seeing the target
+	 * @param target the entity to target
+	 * @param url the cloak to show
 	 */
 	public void setSkin(Player player, HumanEntity target, String url) {
 		if (hasSpout && player != null && target != null) {
