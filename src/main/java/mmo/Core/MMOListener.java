@@ -23,31 +23,58 @@ import mmo.Core.InfoAPI.MMOInfoEvent;
 import mmo.Core.SkillAPI.MMOSkillEvent;
 import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
-import org.bukkit.event.Listener;
 
-public class MMOListener extends CustomEventListener implements Listener {
+public class MMOListener extends CustomEventListener {
 
 	public MMOListener() {
 	}
 
+	/**
+	 * Called on a chat message (requires mmoChat).
+	 * @param event the event
+	 */
 	public void onMMOChat(MMOChatEvent event) {
 	}
 
+	/**
+	 * Called on Player vs Player damage (requires mmoDamage).
+	 * @param event 
+	 */
 	public void onMMOPVPDamage(MMODamageEvent event) {
 	}
 
+	/**
+	 * Called on Player vs Environment damage (requires mmoDamage).
+	 * @param event the event
+	 */
 	public void onMMOPVEDamage(MMODamageEvent event) {
 	}
 
+	/**
+	 * Called on Environment vs Environment damage (requires mmoDamage).
+	 * @param event 
+	 */
 	public void onMMOEVEDamage(MMODamageEvent event) {
 	}
 
+	/**
+	 * Called on an info bar being created (requires mmoInfo).
+	 * @param event the event
+	 */
 	public void onMMOInfo(MMOInfoEvent event) {
 	}
 
+	/**
+	 * Called on a HUD container being created.
+	 * @param event the event
+	 */
 	public void onMMOHUD(MMOHUDEvent event) {
 	}
 
+	/**
+	 * Called on a skill being used (requires mmoSkills).
+	 * @param event the event
+	 */
 	public void onMMOSkill(MMOSkillEvent event) {
 	}
 

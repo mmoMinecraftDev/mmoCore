@@ -21,17 +21,31 @@ import org.bukkit.plugin.Plugin;
 
 public class MMOMinecraft {
 	/**
-	 * Quick checking of the various plugin APIs...
+	 * Does mmoChat exist - quicker than isPluginEnabled.
 	 */
 	public static boolean mmoChat = false;
+	/**
+	 * Does mmoDamage exist - quicker than isPluginEnabled.
+	 */
 	public static boolean mmoDamage = false;
+	/**
+	 * Does mmoInfo exist - quicker than isPluginEnabled.
+	 */
 	public static boolean mmoInfo = false;
+	/**
+	 * Does mmoParty exist - quicker than isPluginEnabled.
+	 */
 	public static boolean mmoParty = false;
+	/**
+	 * Does mmoSkill exist - quicker than isPluginEnabled.
+	 */
 	public static boolean mmoSkill = false;
+
 	/**
 	 * The various plugin APIs themselves
 	 */
 	private static Chat mmoChatAPI = null;
+
 	/**
 	 * Static class only
 	 */

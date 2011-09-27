@@ -49,17 +49,7 @@ public class MMO {
 	 * @return A ChatColor containing string
 	 */
 	public static String color(int num, int max, String text) {
-		String output = "";
-		if (num >= (max * 0.75)) {
-			output += ChatColor.GREEN;
-		} else if (num >= (max * 0.5)) {
-			output += ChatColor.AQUA;
-		} else if (num >= (max * 0.25)) {
-			output += ChatColor.YELLOW;
-		} else {
-			output += ChatColor.RED;
-		}
-		return output + text;
+		return color(num, max) + text;
 	}
 
 	/**
