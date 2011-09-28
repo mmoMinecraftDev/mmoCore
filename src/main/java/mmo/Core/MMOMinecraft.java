@@ -17,9 +17,11 @@
 package mmo.Core;
 
 import mmo.Core.ChatAPI.Chat;
+import mmo.Core.PartyAPI.Party;
 import org.bukkit.plugin.Plugin;
 
 public class MMOMinecraft {
+
 	/**
 	 * Does mmoChat exist - quicker than isPluginEnabled.
 	 */
@@ -40,11 +42,14 @@ public class MMOMinecraft {
 	 * Does mmoSkill exist - quicker than isPluginEnabled.
 	 */
 	public static boolean mmoSkill = false;
-
 	/**
-	 * The various plugin APIs themselves
+	 * mmoChat API
 	 */
 	private static Chat mmoChatAPI = null;
+	/**
+	 * mmoParty API
+	 */
+	private static Party mmoPartyAPI = null;
 
 	/**
 	 * Static class only
@@ -73,12 +78,13 @@ public class MMOMinecraft {
 
 	/**
 	 * Keep note of plugins that provide an API for quick boolean check of their existence.
-	 * @param plugin the plugin being enabled
 	 * @param api an instance of the plugin API class
 	 */
 	static public void addAPI(Object api) {
 		if (api instanceof Chat) {
 			mmoChatAPI = (Chat) api;
+		} else if (api instanceof Party) {
+			mmoPartyAPI = (Party) api;
 		}
 	}
 
@@ -108,5 +114,13 @@ public class MMOMinecraft {
 	 */
 	static public Chat getChat() {
 		return mmoChatAPI;
+	}
+
+	/**
+	 * Get the mmoParty API.
+	 * @return an instance of Party
+	 */
+	static public Party getParty() {
+		return mmoPartyAPI;
 	}
 }

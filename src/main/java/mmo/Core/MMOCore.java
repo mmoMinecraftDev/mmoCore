@@ -37,8 +37,10 @@ import org.bukkit.event.Event.Type;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
@@ -82,17 +84,18 @@ public class MMOCore extends MMOPlugin {
 		pm.registerEvent(Type.PLAYER_QUIT, cpl, Priority.Monitor, this);
 		pm.registerEvent(Type.PLAYER_KICK, cpl, Priority.Monitor, this);
 		pm.registerEvent(Type.PLAYER_RESPAWN, cpl, Priority.Monitor, this);
+		pm.registerEvent(Type.PLAYER_PORTAL, cpl, Priority.Monitor, this);
 
 		pm.registerEvent(Type.CUSTOM_EVENT, new mmoCoreSpoutListener(), Priority.Monitor, this);
 
 		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this,
-				  new Runnable() {
+				new Runnable() {
 
-					  @Override
-					  public void run() {
-						  checkVersion();
-					  }
-				  }, 20 * 60 * 60 * config_update_hours, 20 * 60 * 60 * config_update_hours);
+					@Override
+					public void run() {
+						checkVersion();
+					}
+				}, 20 * 60 * 60 * config_update_hours, 20 * 60 * 60 * config_update_hours);
 	}
 
 	@Override
@@ -181,6 +184,16 @@ public class MMOCore extends MMOPlugin {
 		return false;
 	}
 
+	public void redrawAll(SpoutPlayer player) {
+		if (hasSpout && player.isSpoutCraftEnabled()) {
+			for (Widget widget : player.getMainScreen().getAttachedWidgets()) {
+				if (widget.getPlugin() instanceof MMOPlugin) {
+					widget.setDirty(true);
+				}
+			}
+		}
+	}
+
 	public class mmoCorePlayerListener extends PlayerListener {
 
 		@Override
@@ -220,12 +233,23 @@ public class MMOCore extends MMOPlugin {
 
 		@Override
 		public void onPlayerRespawn(PlayerRespawnEvent event) {
-			if (hasSpout && SpoutManager.getPlayer(event.getPlayer()).isSpoutCraftEnabled()) {
-				for (Widget widget : SpoutManager.getPlayer(event.getPlayer()).getMainScreen().getAttachedWidgets()) {
-					if (widget.getPlugin() instanceof MMOPlugin) {
-						widget.setDirty(true);
-					}
-				}
+			if (hasSpout) {
+				redrawAll(SpoutManager.getPlayer(event.getPlayer()));
+			}
+		}
+
+		@Override
+		public void onPlayerPortal(PlayerPortalEvent event) {
+			if (hasSpout) {
+				final SpoutPlayer player = SpoutManager.getPlayer(event.getPlayer());
+				getServer().getScheduler().scheduleSyncDelayedTask(plugin,
+						new Runnable() {
+
+							@Override
+							public void run() {
+								redrawAll(SpoutManager.getPlayer(player));
+							}
+						});
 			}
 		}
 	}
