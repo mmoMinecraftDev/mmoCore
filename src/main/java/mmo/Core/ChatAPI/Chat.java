@@ -54,6 +54,34 @@ public interface Chat {
 	public boolean setChannel(Player player, String channel);
 
 	/**
+	 * Checks the permissions nodes for read access to a channel.
+	 * Checks permission nodes in order:
+	 * "mmo.chat.channel.see"
+	 * "mmo.chat.*.see"
+	 * "mmo.chat.channel"
+	 * "mmo.chat.*"
+	 * If no node is found then access is true.
+	 * @param player the Player we are checking
+	 * @param channel the channel to check
+	 * @return if we can see it
+	 */
+	public boolean seeChannel(Player player, String channel);
+
+	/**
+	 * Checks the permissions nodes for write access to a channel.
+	 * Checks permission nodes in order:
+	 * "mmo.chat.channel.use"
+	 * "mmo.chat.*.use"
+	 * "mmo.chat.channel"
+	 * "mmo.chat.*"
+	 * If no node is found then access is true.
+	 * @param player the Player we are checking
+	 * @param channel the channel to check
+	 * @return if we can use it
+	 */
+	public boolean useChannel(Player player, String channel);
+
+	/**
 	 * Find the proper capitalisation of a channel name.
 	 * @param channel the name of the channel
 	 * @return the real name of the channel or null
