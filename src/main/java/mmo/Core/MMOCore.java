@@ -40,7 +40,6 @@ import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
@@ -275,7 +274,7 @@ public class MMOCore extends MMOPlugin {
 
 	public void checkVersion() {
 		try {
-			URL url = new URL("http://mmo.rycochet.net/versions.txt");
+			URL url = new URL("http://files.mmo.me.uk/versions.txt");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String str;
 			while ((str = in.readLine()) != null) { // mmoPlugin:0.1:descrption
