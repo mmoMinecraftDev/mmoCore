@@ -112,7 +112,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 		description = getDescription();
 		server = getServer();
 		pm = server.getPluginManager();
-		title = description.getName().replace("^mmo", "");
+		title = description.getName().replaceAll("^mmo", "");
 		prefix = ChatColor.GREEN + "[" + ChatColor.AQUA + title + ChatColor.GREEN + "] " + ChatColor.WHITE;
 		String oldVersion[] = description.getVersion().split("\\.");
 		if (oldVersion.length == 2) {

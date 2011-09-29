@@ -30,6 +30,15 @@ public interface MMOChatEvent extends Cancellable {
 	public boolean hasFilter(String filter);
 
 	/**
+	 * Get the args supplied for the filter.
+	 * This string array is smart-split, so spaces within quotes will be
+	 * a single arg.
+	 * @param filter the name of the filter
+	 * @return if it should be used
+	 */
+	public String[] getArgs(String filter);
+
+	/**
 	 * Set the message for a single player
 	 * @param player the Player getting a custom message
 	 * @param message the custom message
@@ -57,12 +66,20 @@ public interface MMOChatEvent extends Cancellable {
 
 	/**
 	 * Set the default format string for all players.
+	 * "%1$s" = Channel name.
+	 * "%2$s" = From name.
+	 * "%3$s" = To name.
+	 * "%4$s" = Message.
 	 * @param format the default format for all players
 	 */
 	public void setFormat(String format);
 
 	/**
 	 * Set the format string for a single player.
+	 * "%1$s" = Channel name.
+	 * "%2$s" = From name.
+	 * "%3$s" = To name.
+	 * "%4$s" = Message.
 	 * @param player the Player getting a custom format string
 	 * @param format the format string for that player
 	 */
@@ -70,6 +87,10 @@ public interface MMOChatEvent extends Cancellable {
 
 	/**
 	 * Get the default format string for all players.
+	 * "%1$s" = Channel name.
+	 * "%2$s" = From name.
+	 * "%3$s" = To name.
+	 * "%4$s" = Message.
 	 * @return the default format string
 	 */
 	public String getFormat();
@@ -87,7 +108,9 @@ public interface MMOChatEvent extends Cancellable {
 	public Player getPlayer();
 
 	/**
-	 * Get a list of all players that can currently see the message
+	 * Get the list of all players that can currently see the message.
+	 * This list should be edited via .remove or .retainAll to remove people
+	 * when they shouldn't see the output of this event.
 	 * @return a list of players
 	 */
 	public Set<Player> getRecipients();

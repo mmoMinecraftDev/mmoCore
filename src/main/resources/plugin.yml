@@ -14,6 +14,7 @@ commands:
     usage: /mmoset <plugin> <path.to.option> <value>
   mmoupdate:
     description: Update all mmoMinecraft plugins
+    aliases: [mmoupdate2]
     permission: mmocore.update
     usage: /mmoupdate [force]
 
