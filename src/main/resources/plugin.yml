@@ -1,6 +1,6 @@
 name: mmoCore
 main: mmo.Core.MMOCore
-version: 1.6
+version: 1.7
 website: http://forums.bukkit.org/threads/31054/
 author: Rycochet <rycochet@rycochet.com>
 softdepend: [Spout]
