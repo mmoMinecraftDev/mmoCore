@@ -17,6 +17,7 @@
 package mmo.Core;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
@@ -367,7 +368,7 @@ public class MMO {
 	}
 
 	/**
-	 * Split a String by spaces, but understand both single and double quotes
+	 * Split a String by spaces, but understand both single and double quotes.
 	 * @param text a string to split
 	 * @return a list of args
 	 */
@@ -381,7 +382,7 @@ public class MMO {
 	}
 
 	/**
-	 * Re-split args by spaces, but understand both single and double quotes
+	 * Re-split args by spaces, but understand both single and double quotes.
 	 * @param args an array of args
 	 * @return a list of args
 	 */
@@ -390,12 +391,44 @@ public class MMO {
 	}
 
 	/**
-	 * Join an array into a string
+	 * Join an array into a string with space delimiters.
+	 * @param array an array of strings
+	 * @return the final string
+	 */
+	public static String join(String[] array) {
+		return join(array, " ");
+	}
+
+	/**
+	 * Join an array into a string.
 	 * @param array an array of strings
 	 * @param delimiter the string to place between each word
 	 * @return the final string
 	 */
 	public static String join(String[] array, String delimiter) {
+		String output = "";
+		for (String word : array) {
+			output += (output.isEmpty() ? "" : delimiter) + word;
+		}
+		return output;
+	}
+
+	/**
+	 * Join an array into a string with space delimiters.
+	 * @param array an array of strings
+	 * @return the final string
+	 */
+	public static String join(List<String> array) {
+		return join(array, " ");
+	}
+
+	/**
+	 * Join a list into a string.
+	 * @param array a list of strings
+	 * @param delimiter the string to place between each word
+	 * @return the final string
+	 */
+	public static String join(List<String> array, String delimiter) {
 		String output = "";
 		for (String word : array) {
 			output += (output.isEmpty() ? "" : delimiter) + word;
