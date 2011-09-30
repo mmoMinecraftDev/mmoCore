@@ -13,59 +13,75 @@ import java.util.HashMap;
 public class MMOi18n {
 
 	private HashMap<String, HashMap<String, String>> languageMap = new HashMap<String, HashMap<String, String>>();
-	private String defaultLanguage = "EN";
-	private String selectedLanguage = "EN";
+	private String defaultLanguage = "";
+	private String selectedLanguage = "";
 
-	public MMOi18n() {
-		addLanguage(defaultLanguage);
-	}
-
-	public boolean languageExists(String languageName) {
-		return languageMap.containsKey(languageName);
-	}
-
-	public boolean addLanguage(String languageName) {
-		if (languageExists(languageName) == false) {
-			languageMap.put(languageName, new HashMap<String, String>());
-			return true;
+	public boolean languageExists(String languageName) throws Exception {
+		if (languageName.matches("[a-z]{2}(?:-[A-Z]{2})?") == true) {
+			return languageMap.containsKey(languageName);
+		} else {
+			throw new Exception("Given language name is not ISO-639-2");
 		}
-		return false;
 	}
 
-	public boolean setDefaultLanguage(String languageName) {
-		if (languageExists(languageName)) {
-			defaultLanguage = languageName;
-			return true;
+	public boolean addLanguage(String languageName) throws Exception {
+		if (languageName.matches("[a-z]{2}(?:-[A-Z]{2})?") == true) {
+			if (languageExists(languageName) == false) {
+				languageMap.put(languageName, new HashMap<String, String>());
+				return true;
+			}
+			return false;
+		} else {
+			throw new Exception("Given language name is not ISO-639-2");
 		}
-		return false;
 	}
 
-	public boolean setLanguage(String languageName) {
-		if (languageExists(languageName)) {
-			selectedLanguage = languageName;
-			return true;
+	public boolean setDefaultLanguage(String languageName) throws Exception {
+		if (languageName.matches("[a-z]{2}(?:-[A-Z]{2})?") == true) {
+			if (languageExists(languageName)) {
+				defaultLanguage = languageName;
+				return true;
+			}
+			return false;
+		} else {
+			throw new Exception("Given language name is not ISO-639-2");
 		}
-		selectedLanguage = defaultLanguage;
-		return false;
 	}
 
-	public boolean removeLanguage(String languageName) {
-		if (languageExists(languageName)) {
-			languageMap.remove(languageName);
-			return true;
+	public boolean setLanguage(String languageName) throws Exception {
+		if (languageName.matches("[a-z]{2}(?:-[A-Z]{2})?") == true) {
+			if (languageExists(languageName)) {
+				selectedLanguage = languageName;
+				return true;
+			}
+			selectedLanguage = defaultLanguage;
+			return false;
+		} else {
+			throw new Exception("Given language name is not ISO-639-2");
 		}
-		return false;
 	}
 
-	private HashMap<String, String> getLanguageTable(String languageName) {
+	public boolean removeLanguage(String languageName) throws Exception {
+		if (languageName.matches("[a-z]{2}(?:-[A-Z]{2})?") == true) {
+			if (languageExists(languageName)) {
+				languageMap.remove(languageName);
+				return true;
+			}
+			return false;
+		} else {
+			throw new Exception("Given language name is not ISO-639-2");
+		}
+	}
+
+	private HashMap<String, String> getLanguageTable(String languageName) throws Exception {
 		if (languageExists(languageName)) {
 			return languageMap.get(languageName);
 		} else {
 			return null;
 		}
 	}
-	
-	public boolean addString(String ID, String to) {
+
+	public boolean addString(String ID, String to) throws Exception {
 		if (languageExists(selectedLanguage)) {
 			HashMap<String, String> langTable = getLanguageTable(selectedLanguage);
 			langTable.put(ID, to);
@@ -73,8 +89,8 @@ public class MMOi18n {
 		}
 		return false;
 	}
-	
-	public String getString(String ID) {
+
+	public String getString(String ID) throws Exception {
 		if (languageExists(selectedLanguage)) {
 			HashMap<String, String> langTable = getLanguageTable(selectedLanguage);
 			if (langTable.containsKey(ID)) {
@@ -88,8 +104,8 @@ public class MMOi18n {
 		}
 		return "STRING NOT IN DEFAULT I18N.";
 	}
-	
-	public boolean removeString(String ID) {
+
+	public boolean removeString(String ID) throws Exception {
 		if (languageExists(selectedLanguage)) {
 			HashMap<String, String> langTable = getLanguageTable(selectedLanguage);
 			if (langTable.containsKey(ID)) {

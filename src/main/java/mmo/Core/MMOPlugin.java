@@ -27,6 +27,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.ZipEntry;
 import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.util.MyDatabase;
 import org.bukkit.Bukkit;
@@ -219,12 +220,29 @@ public abstract class MMOPlugin extends JavaPlugin {
 		if (support.get(Support.MMO_I18N)) {
 			try {
 				i18n = new MMOi18n();
-				i18n.setDefaultLanguage("EN");
-				i18n.setLanguage("EN");
+
+				// Get the plugin's Zip handle
+				JarFile pluginJar = pluginJar = new JarFile(this.getFile());
+
+				// i18n: Extract main configuration
+				File i18nMain = new File(this.getDataFolder() + "/i18n.yml");
+				if (i18nMain.exists()) {
+					Configuration i18nCfg = new Configuration(i18nMain);
+					
+					//Add load from web code here
+					//Add check for old version here
+					//Add more stuff
+					
+					i18nCfg = null;
+				} else {
+					logger.log(Level.WARNING, "MMOPlugin->i18n Loader: "+this.description.getName()+" has no i18n.yml");
+				}
+				
+				i18nMain = null;
 			} catch (Exception e) {
 			}
 		}
-		
+
 		// Done everything important, up to the individual plugin now...
 		log("Enabled " + description.getFullName());
 	}
