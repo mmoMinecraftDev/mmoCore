@@ -66,7 +66,11 @@ public abstract class MMOPlugin extends JavaPlugin {
 		/**
 		 * Use a database (also needs getDatabaseClasses() to return a list of classes)
 		 */
-		MMO_DATABASE
+		MMO_DATABASE,
+		/**
+		 * Attach a i18n lookup table to the plugin
+		 */
+		MMO_I18N
 	}
 	/**
 	 * Spout is loaded and enabled
@@ -89,6 +93,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	protected String prefix;
 	protected static MMOPlugin mmoCore;
 	protected MMOPlugin plugin;
+	protected MMOi18n i18n;
 	/**
 	 * Version of this plugin
 	 */
@@ -210,6 +215,16 @@ public abstract class MMOPlugin extends JavaPlugin {
 			} catch (Exception e) {
 			}
 		}
+		// Create i18n Table if needed
+		if (support.get(Support.MMO_I18N)) {
+			try {
+				i18n = new MMOi18n();
+				i18n.setDefaultLanguage("EN");
+				i18n.setLanguage("EN");
+			} catch (Exception e) {
+			}
+		}
+		
 		// Done everything important, up to the individual plugin now...
 		log("Enabled " + description.getFullName());
 	}
