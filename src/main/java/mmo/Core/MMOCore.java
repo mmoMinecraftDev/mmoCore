@@ -40,6 +40,7 @@ import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
@@ -84,6 +85,7 @@ public class MMOCore extends MMOPlugin {
 		pm.registerEvent(Type.PLAYER_KICK, cpl, Priority.Monitor, this);
 		pm.registerEvent(Type.PLAYER_RESPAWN, cpl, Priority.Monitor, this);
 		pm.registerEvent(Type.PLAYER_PORTAL, cpl, Priority.Monitor, this);
+		pm.registerEvent(Type.PLAYER_TELEPORT, cpl, Priority.Monitor, this);
 
 		pm.registerEvent(Type.CUSTOM_EVENT, new mmoCoreSpoutListener(), Priority.Monitor, this);
 
@@ -183,11 +185,14 @@ public class MMOCore extends MMOPlugin {
 		return false;
 	}
 
-	public void redrawAll(SpoutPlayer player) {
-		if (hasSpout && player.isSpoutCraftEnabled()) {
-			for (Widget widget : player.getMainScreen().getAttachedWidgets()) {
-				if (widget.getPlugin() instanceof MMOPlugin) {
-					widget.setDirty(true);
+	public void redrawAll(Player player) {
+		if (hasSpout) {
+			SpoutPlayer splayer = SpoutManager.getPlayer(player);
+			if (splayer.isSpoutCraftEnabled()) {
+				for (Widget widget : splayer.getMainScreen().getAttachedWidgets()) {
+					if (widget.getPlugin() instanceof MMOPlugin) {
+						widget.setDirty(true);
+					}
 				}
 			}
 		}
@@ -232,23 +237,18 @@ public class MMOCore extends MMOPlugin {
 
 		@Override
 		public void onPlayerRespawn(PlayerRespawnEvent event) {
-			if (hasSpout) {
-				redrawAll(SpoutManager.getPlayer(event.getPlayer()));
-			}
+			redrawAll(event.getPlayer());
 		}
 
 		@Override
 		public void onPlayerPortal(PlayerPortalEvent event) {
-			if (hasSpout) {
-				final SpoutPlayer player = SpoutManager.getPlayer(event.getPlayer());
-				getServer().getScheduler().scheduleSyncDelayedTask(plugin,
-						new Runnable() {
+			redrawAll(event.getPlayer());
+		}
 
-							@Override
-							public void run() {
-								redrawAll(SpoutManager.getPlayer(player));
-							}
-						});
+		@Override
+		public void onPlayerTeleport(PlayerTeleportEvent event) {
+			if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+				redrawAll(event.getPlayer());
 			}
 		}
 	}
