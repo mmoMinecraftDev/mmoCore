@@ -188,56 +188,31 @@ public abstract class MMOPlugin extends JavaPlugin {
 		}
 		// Auto-extract resource files from within our plugin.jar
 		if (support.get(Support.MMO_AUTO_EXTRACT)) {
-			try {
-				boolean found = false;
-				JarFile jar = new JarFile(getFile());
-				Enumeration entries = jar.entries();
-				while (entries.hasMoreElements()) {
-					JarEntry file = (JarEntry) entries.nextElement();
-					String name = file.getName();
-					if (name.matches(".*\\.png$|^config.yml$")) {
-						if (!found) {
-							new File(getDataFolder(), description.getName()).mkdir();
-							found = true;
-						}
-						File f = new File(getDataFolder(), description.getName() + File.separator + name);
-						if (!f.exists()) {
-							InputStream is = jar.getInputStream(file);
-							FileOutputStream fos = new FileOutputStream(f);
-							while (is.available() > 0) {
-								fos.write(is.read());
-							}
-							fos.close();
-							is.close();
-						}
-						SpoutManager.getFileManager().addToCache(plugin, f);
-					}
-				}
-			} catch (Exception e) {
-			}
+			extractFile("^config.yml$");
+			extractFile("\\.(png|jpg|ogg|midi|wav|zip)$", true);
 		}
 		// Create i18n Table if needed
 		if (support.get(Support.MMO_I18N)) {
 			try {
 				i18n = new MMOi18n();
 
-				// Get the plugin's Zip handle
-				JarFile pluginJar = pluginJar = new JarFile(this.getFile());
-
+				// Extract any built-in translations
+				extractFile("^(i18n|lang-[a-z]{2}(-[A-Z]{2})?).yml$");
+				
 				// i18n: Extract main configuration
 				File i18nMain = new File(this.getDataFolder() + "/i18n.yml");
 				if (i18nMain.exists()) {
 					Configuration i18nCfg = new Configuration(i18nMain);
-					
+
 					//Add load from web code here
 					//Add check for old version here
 					//Add more stuff
-					
+
 					i18nCfg = null;
 				} else {
-					logger.log(Level.WARNING, "MMOPlugin->i18n Loader: "+this.description.getName()+" has no i18n.yml");
+					log(Level.WARNING, "Warning: No i18n.yml");
 				}
-				
+
 				i18nMain = null;
 			} catch (Exception e) {
 			}
@@ -245,6 +220,62 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 		// Done everything important, up to the individual plugin now...
 		log("Enabled " + description.getFullName());
+	}
+
+	/**
+	 * Extract files from the plugin jar.
+	 * @param regex a pattern of files to extract
+	 * @return if any files were extracted
+	 */
+	public boolean extractFile(String regex) {
+		return extractFile(regex, false);
+	}
+
+	/**
+	 * Extract files from the plugin jar and optionally cache them on the client.
+	 * @param regex a pattern of files to extract
+	 * @param cache if any files found should be added to the Spout cache
+	 * @return if any files were extracted
+	 */
+	public boolean extractFile(String regex, boolean cache) {
+		boolean found = false;
+		try {
+			boolean folder = false;
+			JarFile jar = new JarFile(getFile());
+			Enumeration entries = jar.entries();
+			while (entries.hasMoreElements()) {
+				JarEntry jarentry = (JarEntry) entries.nextElement();
+				String name = jarentry.getName();
+				if (name.matches(regex)) {
+					if (!folder) {
+						new File(getDataFolder(), description.getName()).mkdir();
+						folder = true;
+					}
+					if (singleFolder && name.equals("config.yml")) {
+						name = description.getName() + ".yml";
+					}
+					try {
+						File file = new File(getDataFolder(), description.getName() + File.separator + name);
+						if (!file.exists()) {
+							InputStream is = jar.getInputStream(jarentry);
+							FileOutputStream fos = new FileOutputStream(file);
+							while (is.available() > 0) {
+								fos.write(is.read());
+							}
+							fos.close();
+							is.close();
+							found = true;
+						}
+						if (hasSpout && cache && name.matches("\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
+							SpoutManager.getFileManager().addToCache(plugin, file);
+						}
+					} catch (Exception e) {
+					}
+				}
+			}
+		} catch (Exception e) {
+		}
+		return found;
 	}
 
 	@Override
@@ -312,7 +343,16 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param args any args for the format
 	 */
 	public void log(String text, Object... args) {
-		logger.log(Level.INFO, "[" + description.getName() + "] " + String.format(text, args));
+		log(Level.INFO, text, args);
+	}
+
+	/**
+	 * Send a message to the log.
+	 * @param text a format style string
+	 * @param args any args for the format
+	 */
+	public void log(Level level, String text, Object... args) {
+		logger.log(level, "[" + description.getName() + "] " + String.format(text, args));
 	}
 
 	/**
