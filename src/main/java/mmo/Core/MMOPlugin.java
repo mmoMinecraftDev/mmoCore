@@ -27,7 +27,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
 import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.util.MyDatabase;
 import org.bukkit.Bukkit;
@@ -84,7 +83,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	/**
 	 * Private and protected variables
 	 */
-	private MyDatabase database;
+	private MyDatabase mydatabase;
 	protected PluginDescriptionFile description;
 	protected Configuration cfg;
 	protected PluginManager pm;
@@ -635,15 +634,15 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	@Override
 	public EbeanServer getDatabase() {
-		if (database == null) {
-			database = new MyDatabase(this) {
+		if (mydatabase == null) {
+			mydatabase = new MyDatabase(this) {
 
 				@Override
 				protected List<Class<?>> getDatabaseClasses() {
 					return plugin.getDatabaseClasses();
 				}
 			};
-			database.initializeDatabase(
+			mydatabase.initializeDatabase(
 					MMOCore.config_database_driver,
 					MMOCore.config_database_url,
 					MMOCore.config_database_username,
@@ -652,7 +651,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 					MMOCore.config_database_logging,
 					MMOCore.config_database_rebuild);
 		}
-		return database.getDatabase();
+		return mydatabase.getDatabase();
 	}
 
 	protected void beforeDropDatabase() {
