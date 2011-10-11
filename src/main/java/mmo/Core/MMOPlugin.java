@@ -198,7 +198,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 				// Extract any built-in translations
 				extractFile("^(i18n|lang-[a-z]{2}(-[A-Z]{2})?).yml$");
-				
+
 				// i18n: Extract main configuration
 				File i18nMain = new File(this.getDataFolder() + "/i18n.yml");
 				if (i18nMain.exists()) {
@@ -207,6 +207,8 @@ public abstract class MMOPlugin extends JavaPlugin {
 					//Add load from web code here
 					//Add check for old version here
 					//Add more stuff
+					/* The keys used to translate (and hence show in the config files) are the real
+					 * strings with "[. ]" replaced with "_" (for use as YAML nodes). */
 
 					i18nCfg = null;
 				} else {
