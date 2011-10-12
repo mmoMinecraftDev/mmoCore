@@ -361,7 +361,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param name the filename
 	 * @return the pathname
 	 */
-	public String getResource(String name) {
+	public String getPath(String name) {
 		String path = getDataFolder() + File.separator;
 		if (singleFolder) {
 			path += description.getName() + File.separator;
