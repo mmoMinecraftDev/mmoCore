@@ -225,13 +225,6 @@ public class MMOCore extends MMOPlugin {
 		return false;
 	}
 
-	@Override
-	public List<Class<?>> getDatabaseClasses() {
-		List<Class<?>> list = new ArrayList<Class<?>>();
-		list.add(CoreDB.class);
-		return list;
-	}
-
 	public void redrawAll(Player player) {
 		if (hasSpout) {
 			SpoutPlayer splayer = SpoutManager.getPlayer(player);
