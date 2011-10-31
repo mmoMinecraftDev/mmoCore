@@ -20,6 +20,9 @@ import mmo.Core.ChatAPI.Chat;
 import mmo.Core.PartyAPI.Party;
 import org.bukkit.plugin.Plugin;
 
+/**
+ * MMOMinecraft provides access to the various APIs within mmoMinecraft.
+ */
 public class MMOMinecraft {
 
 	/**
@@ -103,6 +106,7 @@ public class MMOMinecraft {
 			mmoInfo = false;
 		} else if ("mmoParty".equals(name)) {
 			mmoParty = false;
+			mmoPartyAPI = null;
 		} else if ("mmoSkill".equals(name)) {
 			mmoSkill = false;
 		}
@@ -123,4 +127,5 @@ public class MMOMinecraft {
 	static public Party getParty() {
 		return mmoPartyAPI;
 	}
+
 }

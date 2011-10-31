@@ -16,21 +16,28 @@
  */
 package mmo.Core;
 
-import mmo.Core.util.EnumBitSet;
-import com.avaje.ebean.EbeanServer;
+import java.io.IOException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import mmo.Core.CoreAPI.MMOHUDEvent;
-import mmo.Core.util.MyDatabase;
+import mmo.Core.SQLibrary.*;
+import mmo.Core.util.EnumBitSet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
@@ -60,11 +67,11 @@ public abstract class MMOPlugin extends JavaPlugin {
 		 */
 		MMO_NO_CONFIG,
 		/**
-		 * Auto-extract *.png files inside the plugin.jar
+		 * Auto-extract supported files inside the plugin.jar
 		 */
 		MMO_AUTO_EXTRACT,
 		/**
-		 * Use a database (also needs getDatabaseClasses() to return a list of classes)
+		 * Uses a custom table in the database, include "table.sql" files in the jar with all create and default values.
 		 */
 		MMO_DATABASE,
 		/**
@@ -83,12 +90,12 @@ public abstract class MMOPlugin extends JavaPlugin {
 	/**
 	 * Private and protected variables
 	 */
-	private MyDatabase mydatabase;
+	static protected DatabaseHandler database = null;
+	protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected PluginDescriptionFile description;
 	protected Configuration cfg;
 	protected PluginManager pm;
 	protected Server server;
-	protected Logger logger;
 	protected String title;
 	protected String prefix;
 	protected static MMOPlugin mmoCore;
@@ -113,7 +120,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 			mmoCore = (MMOCore) this;
 		}
 		plugin = this;
-		logger = Logger.getLogger("Minecraft");
 		description = getDescription();
 		server = getServer();
 		pm = server.getPluginManager();
@@ -150,7 +156,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 						log("Unable to move file: " + from.getName());
 					}
 				}
-				getDataFolder().delete();
+				super.getDataFolder().delete();
 			} catch (Exception e) {
 			}
 		}
@@ -159,7 +165,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 		// Don't try to load and save the config if the plugin doesn't use it
 		if (!support.get(Support.MMO_NO_CONFIG)) {
-			cfg = new Configuration(new File(getDataFolder(), description.getName() + ".yml"));
+			cfg = new Configuration(new File("plugins/mmoMinecraft", description.getName() + ".yml"));
 			cfg.load();
 			loadConfiguration(cfg);
 			if (!cfg.getKeys().isEmpty()) {
@@ -167,9 +173,46 @@ public abstract class MMOPlugin extends JavaPlugin {
 				cfg.save();
 			}
 		}
-		// Load the database handler if needed
-		if (support.get(Support.MMO_DATABASE) && !getDatabaseClasses().isEmpty()) {
-			getDatabase();
+		// Do we want a custom database table
+		if (support.get(Support.MMO_DATABASE)) {
+			// Must be after CONFIG as mmoCore sets up the database there
+			// Need to extract sql files from the jar, and then auto-apply them if needed
+			// Maybe go with table.sql as the filename...
+			try {
+				JarFile jar = new JarFile(getFile());
+				for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
+					JarEntry entry = (JarEntry) entries.nextElement();
+					String name = entry.getName();
+					if (name.matches(".+\\.sql$")) {
+						String table = name.substring(0, name.length() - 4);
+						if (!database.checkTable(table)) {
+							try {
+								StringBuilder sql = new StringBuilder();
+								InputStream is = jar.getInputStream(entry);
+								Scanner scanner = new Scanner(is);
+								while (scanner.hasNextLine()) {
+									String line = scanner.nextLine().trim();
+									if (!line.isEmpty() && !line.startsWith("--")) {
+										sql.append(line).append(" ");
+									}
+								}
+								scanner.close();
+								is.close();
+								database.query(sql.toString());
+								if (database.checkTable(table)) {
+									log("Created table: %s", table);
+								} else {
+									log("ERROR: Unable to create table '%s'", table);
+								}
+							} catch (IOException e) {
+								log("ERROR: Unable to create table '%s': %s", table, e.getMessage());
+							}
+						}
+					}
+				}
+				jar.close();
+			} catch (IOException e) {
+			}
 		}
 		// Use our own global onPlayerXYZ plugin methods
 		if (support.get(Support.MMO_PLAYER)) {
@@ -188,7 +231,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 		// Auto-extract resource files from within our plugin.jar
 		if (support.get(Support.MMO_AUTO_EXTRACT)) {
 			extractFile("^config.yml$");
-			extractFile("\\.(png|jpg|ogg|midi|wav|zip)$", true);
+			extractFile(".*\\.(png|jpg|ogg|midi|wav|zip)$", true);
 		}
 		// Create i18n Table if needed
 		if (support.get(Support.MMO_I18N)) {
@@ -199,7 +242,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 				extractFile("^(i18n|lang-[a-z]{2}(-[A-Z]{2})?).yml$");
 
 				// i18n: Extract main configuration
-				File i18nMain = new File(this.getDataFolder() + "/i18n.yml");
+				File i18nMain = new File(this.getDataFolder(), "i18n.yml");
 				if (i18nMain.exists()) {
 					Configuration i18nCfg = new Configuration(i18nMain);
 
@@ -241,24 +284,24 @@ public abstract class MMOPlugin extends JavaPlugin {
 	public boolean extractFile(String regex, boolean cache) {
 		boolean found = false;
 		try {
-			boolean folder = false;
 			JarFile jar = new JarFile(getFile());
-			Enumeration entries = jar.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry jarentry = (JarEntry) entries.nextElement();
-				String name = jarentry.getName();
+			for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
+				JarEntry entry = (JarEntry) entries.nextElement();
+				String name = entry.getName();
 				if (name.matches(regex)) {
-					if (!folder) {
-						new File(getDataFolder(), description.getName()).mkdir();
-						folder = true;
-					}
-					if (singleFolder && name.equals("config.yml")) {
-						name = description.getName() + ".yml";
+					if (!getDataFolder().exists()) {
+						getDataFolder().mkdir();
 					}
 					try {
-						File file = new File(getDataFolder(), description.getName() + File.separator + name);
+						File file;
+						if (singleFolder && name.equals("config.yml")) {
+							name = description.getName() + ".yml";
+							file = new File("plugins/mmoMinecraft", name);
+						} else {
+							file = new File(getDataFolder(), name);
+						}
 						if (!file.exists()) {
-							InputStream is = jar.getInputStream(jarentry);
+							InputStream is = jar.getInputStream(entry);
 							FileOutputStream fos = new FileOutputStream(file);
 							while (is.available() > 0) {
 								fos.write(is.read());
@@ -267,7 +310,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 							is.close();
 							found = true;
 						}
-						if (hasSpout && cache && name.matches("\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
+						if (hasSpout && cache && name.matches(".*\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
 							SpoutManager.getFileManager().addToCache(plugin, file);
 						}
 					} catch (Exception e) {
@@ -290,7 +333,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	@Override
 	public File getDataFolder() {
 		if (singleFolder) {
-			return new File("plugins/mmoMinecraft");
+			return new File("plugins/mmoMinecraft", description.getName());
 		}
 		return super.getDataFolder();
 	}
@@ -353,7 +396,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param args any args for the format
 	 */
 	public void log(Level level, String text, Object... args) {
-		logger.log(level, "[" + description.getName() + "] " + String.format(text, args));
+		logger.log(level, String.format("[" + description.getName() + "] " + text, args));
 	}
 
 	/**
@@ -371,73 +414,32 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Pop up an "achievement" message.
-	 * @param name the player to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param args any args for the format string
-	 */
-	public void notify(String name, String msg, Object... args) {
-		this.notify(server.getPlayer(name), msg, Material.SIGN, args);
-	}
-
-	/**
-	 * Pop up an "achievement" message.
-	 * @param name the player to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param icon the material to use
-	 * @param args any args for the format string
-	 */
-	public void notify(String name, String msg, Material icon, Object... args) {
-		this.notify(server.getPlayer(name), msg, icon, args);
-	}
-
-	/**
-	 * Pop up an "achievement" message for multiple players.
-	 * @param players the players to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param args any args for the format string
-	 */
-	public void notify(List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
-			this.notify(player, msg, Material.SIGN, args);
-		}
-	}
-
-	/**
-	 * Pop up an "achievement" message for multiple players.
-	 * @param players the players to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param icon the material to use
-	 * @param args any args for the format string
-	 */
-	public void notify(List<Player> players, String msg, Material icon, Object... args) {
-		for (Player player : players) {
-			this.notify(player, msg, icon, args);
-		}
-	}
-
-	/**
-	 * Pop up an "achievement" message.
 	 * @param player the player to tell
 	 * @param msg a formatted message to send (max 23 chars)
 	 * @param args any args for the format string
 	 */
-	public void notify(Player player, String msg, Object... args) {
+	public <T> void notify(T player, String msg, Object... args) {
 		this.notify(player, msg, Material.SIGN, args);
 	}
 
 	/**
 	 * Pop up an "achievement" message.
-	 * @param player the player to tell
+	 * @param player the Player, player name, or List of Players or player names to tell
 	 * @param msg a formatted message to send (max 23 chars)
 	 * @param icon the material to use
 	 * @param args any args for the format string
 	 */
-	public void notify(Player player, String msg, Material icon, Object... args) {
+	public <T> void notify(T player, String msg, Material icon, Object... args) {
 		if (hasSpout && player != null) {
-			try {
-				SpoutManager.getPlayer(player).sendNotification(title, String.format(msg, args), icon);
-			} catch (Exception e) {
-				// Bad format->Object type
+			if (player instanceof List) {
+				for (Object entry : (List) player) {
+					this.notify(entry, msg, icon, args);
+				}
+			} else {
+				try {
+					SpoutManager.getPlayer(MMO.playerFromName(player)).sendNotification(title, String.format(msg, args), icon);
+				} catch (Exception e) {
+				}
 			}
 		}
 	}
@@ -634,31 +636,241 @@ public abstract class MMOPlugin extends JavaPlugin {
 		}
 	}
 
-	@Override
-	public EbeanServer getDatabase() {
-		if (mydatabase == null) {
-			mydatabase = new MyDatabase(this) {
+	/**
+	 * Sends a query to the SQL database.
+	 * This uses a prepared statement to ensure the safety of the arguments.
+	 * @param query the SQL query to send to the database
+	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * @return the table of results from the query
+	 * @throws NullPointerException if database is uninitialised
+	 * @see DatabaseHandler
+	 */
+	public Map<String,Object> query(String query, Object... vars) {
+		return database.query(query, vars);
+	}
 
-				@Override
-				protected List<Class<?>> getDatabaseClasses() {
-					return plugin.getDatabaseClasses();
-				}
-			};
-			mydatabase.initializeDatabase(
-					MMOCore.config_database_driver,
-					MMOCore.config_database_url,
-					MMOCore.config_database_username,
-					MMOCore.config_database_password,
-					MMOCore.config_database_isolation,
-					MMOCore.config_database_logging,
-					MMOCore.config_database_rebuild);
+	/**
+	 * Creates a prepared query for the database.
+	 * @param query the SQL query to prepare to send to the database
+	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * @return the prepared statement
+	 * @throws NullPointerException if database is uninitialised
+	 * @see DatabaseHandler
+	 */
+	public PreparedStatement prepare(String query, Object... vars) {
+		return database.prepare(query, vars);
+	}
+
+	/**
+	 * Get a value for a specific path.
+	 * @param player the Player (or player name) this data relates to
+	 * @param key a unique id (per plugin per player)
+	 * @return the value stored
+	 */
+	public <T> String getData(T player, String key) {
+		Map<String,Object> result = query("SELECT value FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), MMO.nameFromPlayer(player), key);
+		return (String) result.get("value");
+	}
+
+	/**
+	 * Set the value for a specific path.
+	 * @param player the Player (or player name) this data relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set it to
+	 */
+	public <T> void setData(T player, String key, String value) {
+		query("REPLACE INTO mmoMinecraft ('plugin', 'player', 'key', 'value') VALUES (?, ?, ?, ?)", description.getName(), MMO.nameFromPlayer(player), key, value);
+	}
+
+	/**
+	 * Delete a database object.
+	 * @param player the Player (or player name) this data relates to
+	 * @param key a unique id (per plugin per player)
+	 */
+	public <T> void deleteData(T player, String key) {
+		database.query("DELETE FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), MMO.nameFromPlayer(player), key);
+	}
+
+	/**
+	 * Set a string in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setString(T player, String key, String value) {
+		setData(player, key, value);
+	}
+
+	/**
+	 * Get a string from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> String getString(T player, String key, String def) {
+		String result = getData(player, key);
+		if (result != null) {
+			return result;
 		}
-		return mydatabase.getDatabase();
+		return def;
 	}
 
-	protected void beforeDropDatabase() {
+	/**
+	 * Set a list of strings in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setStringList(T player, String key, List<String> value) {
+		setData(player, key, MMO.join(value, ","));
 	}
 
-	protected void afterCreateDatabase() {
+	/**
+	 * Get a list of strings from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> List<String> getStringList(T player, String key, List<String> def) {
+		String result = getData(player, key);
+		if (result != null) {
+			return Arrays.asList(result.split(","));
+		}
+		return def;
 	}
+
+	/**
+	 * Set an integer in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setInt(T player, String key, int value) {
+		setData(player, key, "" + value);
+	}
+
+	/**
+	 * Get an integer from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> int getInt(T player, String key, int def) {
+		String result = getData(player, key);
+		if (result != null) {
+			return Integer.parseInt(result);
+		}
+		return def;
+	}
+
+	/**
+	 * Set a double in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setDouble(T player, String key, double value) {
+		setData(player, key, "" + value);
+	}
+
+	/**
+	 * Get a double from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> double getDouble(T player, String key, double def) {
+		String result = getData(player, key);
+		if (result != null) {
+			return Double.parseDouble(result);
+		}
+		return def;
+	}
+
+	/**
+	 * Set a boolean in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setBoolean(T player, String key, boolean value) {
+		setData(player, key, value ? "true" : "false");
+	}
+
+	/**
+	 * Get a boolean from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> boolean getBoolean(T player, String key, boolean def) {
+		String result = getData(player, key);
+		if (result != null) {
+			return result.equals("true") ? true : false;
+		}
+		return def;
+	}
+
+	/**
+	 * Set a Location in the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param value the value to set
+	 */
+	public <T> void setLocation(T player, String key, Location value) {
+		setData(player, key, value.getWorld().getName() + "," + value.getX() + "," + value.getY() + "," + value.getZ() + "," + value.getPitch() + "," + value.getYaw());
+	}
+
+	/**
+	 * Get a Location from the shared database.
+	 * @param player the Player (or player name) this relates to
+	 * @param key a unique id (per plugin per player)
+	 * @param def the default value if not found
+	 * @return the data
+	 */
+	public <T> Location getLocation(T player, String key, Location def) {
+		String result = getData(player, key);
+		if (result != null) {
+			List<String> values = Arrays.asList(result.split(","));
+			if (values.size() == 6) {
+				try {
+					return new Location(
+							Bukkit.getWorld(values.get(0)),
+							Double.parseDouble(values.get(1)),
+							Double.parseDouble(values.get(2)),
+							Double.parseDouble(values.get(3)),
+							Float.parseFloat(values.get(4)),
+							Float.parseFloat(values.get(5)));
+				} catch (Exception e) {
+				}
+			}
+		}
+		return def;
+	}
+	/**
+	 * Will add custom commands to plugins without needing the plugin.yml entry
+	 * 
+	@Deprecated
+	private void addCommand(String command) {
+	Class<? extends Server> c = this.getServer().getClass();
+	try {
+	Field f = c.getDeclaredField("commandMap");
+	f.setAccessible(true);
+	SimpleCommandMap scm = (SimpleCommandMap) f.get(c);
+	} catch (SecurityException e) {
+	e.printStackTrace();
+	} catch (NoSuchFieldException e) {
+	e.printStackTrace();
+	} catch (IllegalArgumentException e) {
+	e.printStackTrace();
+	} catch (IllegalAccessException e) {
+	e.printStackTrace();
+	}
+	}
+	 */
 }

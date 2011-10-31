@@ -28,6 +28,10 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import mmo.Core.SQLibrary.HSQLDB;
+import mmo.Core.SQLibrary.MySQL;
+import mmo.Core.SQLibrary.SQLite;
+import mmo.Core.util.EnumBitSet;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -63,17 +67,27 @@ public class MMOCore extends MMOPlugin {
 	/**
 	 * Config options - all mmoCore options are used for other plugins...
 	 */
-	static public String config_database_driver = "org.sqlite.JDBC";
-	static public String config_database_url = "jdbc:sqlite:{DIR}{NAME}.db";
-	static public String config_database_username = "root";
-	static public String config_database_password = "";
-	static public String config_database_isolation = "SERIALIZABLE";
-	static public boolean config_database_logging = false;
-	static public boolean config_database_rebuild = false;
+	static public String config_database_type = "sqlite";
+	static public String config_database_mysql_hostname = "localhost";
+	static public String config_database_mysql_port = "3306";
+	static public String config_database_mysql_database = "minecraft";
+	static public String config_database_mysql_username = "root";
+	static public String config_database_mysql_password = "";
+	static public String config_database_hsqldb_hostname = "localhost";
+	static public String config_database_hsqldb_port = "9001";
+	static public String config_database_hsqldb_database = "minecraft";
+	static public String config_database_hsqldb_username = "sa";
+	static public String config_database_hsqldb_password = "";
 	static public boolean config_show_display_name = false;
 	static public boolean config_show_player_faces = true;
 	static public int config_update_hours = 24;
 	static public boolean config_update_download = false;
+
+	@Override
+	public EnumBitSet mmoSupport(EnumBitSet support) {
+		support.set(Support.MMO_DATABASE);
+		return support;
+	}
 
 	@Override
 	public void onEnable() {
@@ -111,15 +125,41 @@ public class MMOCore extends MMOPlugin {
 		config_show_player_faces = cfg.getBoolean("show_player_faces", config_show_player_faces);
 		config_update_hours = cfg.getInt("update_hours", config_update_hours);
 		config_update_download = cfg.getBoolean("update_download", config_update_download);
+		config_database_type = cfg.getString("database.type", config_database_type);
+		config_database_mysql_hostname = cfg.getString("database.mysql.hostname", config_database_mysql_hostname);
+		config_database_mysql_port = cfg.getString("database.mysql.port", config_database_mysql_port);
+		config_database_mysql_database = cfg.getString("database.mysql.database", config_database_mysql_database);
+		config_database_mysql_username = cfg.getString("database.mysql.username", config_database_mysql_username);
+		config_database_mysql_password = cfg.getString("database.mysql.password", config_database_mysql_password);
+		config_database_hsqldb_hostname = cfg.getString("database.hsqldb.hostname", config_database_hsqldb_hostname);
+		config_database_hsqldb_port = cfg.getString("database.hsqldb.port", config_database_hsqldb_port);
+		config_database_hsqldb_database = cfg.getString("database.hsqldb.database", config_database_hsqldb_database);
+		config_database_hsqldb_username = cfg.getString("database.hsqldb.username", config_database_hsqldb_username);
+		config_database_hsqldb_password = cfg.getString("database.hsqldb.password", config_database_hsqldb_password);
 
-		config_database_driver = cfg.getString("database.driver", config_database_driver);
-		config_database_url = cfg.getString("database.url", config_database_url);
-		config_database_username = cfg.getString("database.username", config_database_username);
-		config_database_password = cfg.getString("database.password", config_database_password);
-		config_database_isolation = cfg.getString("database.isolation", config_database_isolation);
-		config_database_logging = cfg.getBoolean("database.logging", config_database_logging);
-		config_database_rebuild = cfg.getBoolean("database.rebuild", config_database_rebuild);
-		cfg.setProperty("database.rebuild", false);
+		if (database != null) {
+			database.close();
+			database = null;
+		}
+		if (SQLite.type.equalsIgnoreCase(MMOCore.config_database_type)) {
+			database = new SQLite(null, new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), "mmoMinecraft.db"));
+		} else if (MySQL.type.equalsIgnoreCase(MMOCore.config_database_type)) {
+			database = new MySQL(null,
+					MMOCore.config_database_mysql_hostname,
+					MMOCore.config_database_mysql_port,
+					MMOCore.config_database_mysql_database,
+					MMOCore.config_database_mysql_username,
+					MMOCore.config_database_mysql_password);
+		} else if (HSQLDB.type.equalsIgnoreCase(MMOCore.config_database_type)) {
+			database = new HSQLDB(null,
+					MMOCore.config_database_hsqldb_hostname,
+					MMOCore.config_database_hsqldb_port,
+					MMOCore.config_database_hsqldb_database,
+					MMOCore.config_database_hsqldb_username,
+					MMOCore.config_database_hsqldb_password);
+		} else {
+			log("Unknown database type: " + MMOCore.config_database_type);
+		}
 	}
 
 	@Override
@@ -183,6 +223,13 @@ public class MMOCore extends MMOPlugin {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public List<Class<?>> getDatabaseClasses() {
+		List<Class<?>> list = new ArrayList<Class<?>>();
+		list.add(CoreDB.class);
+		return list;
 	}
 
 	public void redrawAll(Player player) {

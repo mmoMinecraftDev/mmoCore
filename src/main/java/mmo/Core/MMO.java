@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.bind.TypeConstraintException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -434,5 +435,37 @@ public class MMO {
 			output += (output.isEmpty() ? "" : delimiter) + word;
 		}
 		return output;
+	}
+
+	/**
+	 * Return a player name from a Player or string.
+	 * @param <T> a Player or String
+	 * @param player the player to find
+	 * @return the player name
+	 */
+	public static <T> String nameFromPlayer(T player) {
+		if (player instanceof Player) {
+			return ((Player )player).getName();
+		} else if (player instanceof String) {
+			return (String) player;
+		} else {
+			throw new TypeConstraintException("'player' must be Player or String");
+		}
+	}
+
+	/**
+	 * Return a Player from a Player or string.
+	 * @param <T> a Player or String
+	 * @param player the player to find
+	 * @return the player name
+	 */
+	public static <T> Player playerFromName(T player) {
+		if (player instanceof Player) {
+			return (Player) player;
+		} else if (player instanceof String) {
+			return Bukkit.getPlayerExact((String) player);
+		} else {
+			throw new TypeConstraintException("'player' must be Player or String");
+		}
 	}
 }
