@@ -21,10 +21,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -35,6 +34,7 @@ import java.util.logging.Logger;
 import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.SQLibrary.*;
 import mmo.Core.util.EnumBitSet;
+import mmo.Core.util.HashMapString;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -63,11 +63,11 @@ public abstract class MMOPlugin extends JavaPlugin {
 		 */
 		MMO_PLAYER,
 		/**
-		 * No config file used for this plugin
+		 * No config file used for this plugin.
 		 */
 		MMO_NO_CONFIG,
 		/**
-		 * Auto-extract supported files inside the plugin.jar
+		 * Auto-extract supported files inside the plugin.jar file.
 		 */
 		MMO_AUTO_EXTRACT,
 		/**
@@ -75,9 +75,14 @@ public abstract class MMOPlugin extends JavaPlugin {
 		 */
 		MMO_DATABASE,
 		/**
-		 * Attach a i18n lookup table to the plugin
+		 * Attach a i18n lookup table to the plugin.
 		 */
-		MMO_I18N
+		MMO_I18N,
+		/**
+		 * Don't cache shared database access (this allows external changes to be noticed).
+		 * NOTE: This only affects shared access (the setXyz() and getXyz() methods), direct access has no cache!
+		 */
+		MMO_NO_SHARED_CACHE
 	}
 	/**
 	 * Spout is loaded and enabled
@@ -91,16 +96,20 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * Private and protected variables
 	 */
 	static protected DatabaseHandler database = null;
-	protected static final Logger logger = Logger.getLogger("Minecraft");
+	static protected MMOPlugin mmoCore;
+	static protected final Logger logger = Logger.getLogger("Minecraft");
 	protected PluginDescriptionFile description;
 	protected Configuration cfg;
 	protected PluginManager pm;
 	protected Server server;
 	protected String title;
 	protected String prefix;
-	protected static MMOPlugin mmoCore;
 	protected MMOPlugin plugin;
 	protected MMOi18n i18n;
+	/**
+	 * Map of player+key entries for quick db cache access
+	 */
+	protected Map<Player, Map<String, String>> dbCache = null;
 	/**
 	 * Version of this plugin
 	 */
@@ -117,7 +126,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		if (this instanceof MMOCore) {
-			mmoCore = (MMOCore) this;
+			mmoCore = this;
 		}
 		plugin = this;
 		description = getDescription();
@@ -172,6 +181,9 @@ public abstract class MMOPlugin extends JavaPlugin {
 				cfg.setHeader("#" + title + " Configuration");
 				cfg.save();
 			}
+		}
+		if (!support.get(Support.MMO_NO_SHARED_CACHE)) {
+			dbCache = new HashMap<Player, Map<String, String>>();
 		}
 		// Do we want a custom database table
 		if (support.get(Support.MMO_DATABASE)) {
@@ -645,7 +657,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @throws NullPointerException if database is uninitialised
 	 * @see DatabaseHandler
 	 */
-	public Map<String,Object> query(String query, Object... vars) {
+	public Map<String, Object> query(String query, Object... vars) {
 		return database.query(query, vars);
 	}
 
@@ -662,33 +674,94 @@ public abstract class MMOPlugin extends JavaPlugin {
 	}
 
 	/**
-	 * Get a value for a specific path.
+	 * Get a value for a specific key.
 	 * @param player the Player (or player name) this data relates to
 	 * @param key a unique id (per plugin per player)
 	 * @return the value stored
 	 */
 	public <T> String getData(T player, String key) {
-		Map<String,Object> result = query("SELECT value FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), MMO.nameFromPlayer(player), key);
-		return (String) result.get("value");
+		Player p = MMO.playerFromName(player);
+		Map<String, String> cache = null;
+		if (dbCache != null) {
+			if (dbCache.containsKey(p)) {
+				cache = dbCache.get(p);
+			} else {
+				dbCache.put(p, cache = new HashMapString<String>());
+			}
+			if (cache.containsKey(key)) {
+				return cache.get(key);
+			}
+		}
+		Map<String, Object> result = query("SELECT value FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), p.getName(), key);
+		String value = (String) result.get("value");
+		if (dbCache != null) {
+			cache.put(key, value);
+		}
+		return value;
 	}
 
 	/**
-	 * Set the value for a specific path.
+	 * Set the value for a specific key.
+	 * If caching is turned on and there is no change then this won't try to write to the database.
 	 * @param player the Player (or player name) this data relates to
 	 * @param key a unique id (per plugin per player)
 	 * @param value the value to set it to
 	 */
 	public <T> void setData(T player, String key, String value) {
-		query("REPLACE INTO mmoMinecraft ('plugin', 'player', 'key', 'value') VALUES (?, ?, ?, ?)", description.getName(), MMO.nameFromPlayer(player), key, value);
+		Player p = MMO.playerFromName(player);
+		if (dbCache != null) {
+			Map<String, String> cache;
+			if (dbCache.containsKey(p)) {
+				cache = dbCache.get(p);
+			} else {
+				dbCache.put(p, cache = new HashMapString<String>());
+			}
+			if (cache.containsKey(key) && cache.get(key).equals(value)) {
+				return; // No need to do anything else if it's not changing
+			}
+			cache.put(key, value);
+		}
+		query("REPLACE INTO mmoMinecraft ('plugin', 'player', 'key', 'value') VALUES (?, ?, ?, ?)", description.getName(), p.getName(), key, value);
 	}
 
 	/**
-	 * Delete a database object.
+	 * Delete the value for a specific key.
 	 * @param player the Player (or player name) this data relates to
 	 * @param key a unique id (per plugin per player)
 	 */
 	public <T> void deleteData(T player, String key) {
-		database.query("DELETE FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), MMO.nameFromPlayer(player), key);
+		Player p = MMO.playerFromName(player);
+		if (dbCache != null) {
+			Map<String, String> cache;
+			if (dbCache.containsKey(p)) {
+				cache = dbCache.get(p);
+			} else {
+				dbCache.put(p, cache = new HashMapString<String>());
+			}
+			cache.remove(key);
+		}
+		database.query("DELETE FROM mmoMinecraft WHERE 'plugin' = ? AND 'player' = ? AND 'key' = ?", description.getName(), p.getName(), key);
+	}
+
+	/**
+	 * Clear the shared cache for a single player.
+	 * This is automatically called after players disconnect.
+	 * @param player the Player (or player name) to clear
+	 */
+	public <T> void clearCache(T player) {
+		if (dbCache != null) {
+			Player p = MMO.playerFromName(player);
+			dbCache.remove(p);
+		}
+	}
+
+	/**
+	 * Clear the shared cache for all players.
+	 */
+	public void clearCache() {
+		if (dbCache != null) {
+			dbCache.clear();
+		}
 	}
 
 	/**

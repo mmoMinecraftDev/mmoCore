@@ -265,6 +265,11 @@ public class MMOCore extends MMOPlugin {
 			for (MMOPlugin plugin : support_mmo_player) {
 				plugin.onPlayerQuit(player);
 			}
+			for (Plugin p : Arrays.asList(pm.getPlugins())) {
+				if (p instanceof MMOPlugin) {
+					((MMOPlugin) p).clearCache(player);
+				}
+			}
 		}
 
 		@Override
@@ -272,6 +277,11 @@ public class MMOCore extends MMOPlugin {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
 				plugin.onPlayerQuit(player);
+			}
+			for (Plugin p : Arrays.asList(pm.getPlugins())) {
+				if (p instanceof MMOPlugin) {
+					((MMOPlugin) p).clearCache(player);
+				}
 			}
 		}
 
