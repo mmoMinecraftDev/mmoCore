@@ -27,6 +27,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import mmo.Core.SQLibrary.HSQLDB;
 import mmo.Core.SQLibrary.MySQL;
@@ -82,6 +83,8 @@ public class MMOCore extends MMOPlugin {
 	static public boolean config_show_player_faces = true;
 	static public int config_update_hours = 24;
 	static public boolean config_update_download = false;
+	static public List<String> config_colours = new ArrayList<String>();
+	static public LinkedHashMap<String, String> default_colours = new LinkedHashMap<String, String>();
 
 	@Override
 	public EnumBitSet mmoSupport(EnumBitSet support) {
@@ -136,6 +139,17 @@ public class MMOCore extends MMOPlugin {
 		config_database_hsqldb_database = cfg.getString("database.hsqldb.database", config_database_hsqldb_database);
 		config_database_hsqldb_username = cfg.getString("database.hsqldb.username", config_database_hsqldb_username);
 		config_database_hsqldb_password = cfg.getString("database.hsqldb.password", config_database_hsqldb_password);
+		config_colours.add("op=GOLD");
+		config_colours.add("default=YELLOW");
+		config_colours = cfg.getStringList("player_colors", config_colours); // american spelling for config, proper spelling for us!
+		default_colours.clear();
+		for (String arg : config_colours) {
+			String[] perm = arg.split("=");
+			if (perm.length == 2) {
+				default_colours.put(perm[0].trim(), perm[1].trim());
+			}
+		}
+
 
 		if (database != null) {
 			database.close();

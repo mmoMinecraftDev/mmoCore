@@ -207,6 +207,15 @@ public class MMO {
 	 */
 	public static String getColor(Player player, LivingEntity target) {
 		if (target instanceof Player) {
+			for (String arg : MMOCore.default_colours.keySet()) {
+				if ((arg.equals("op") && ((Player) target).isOp()) || arg.equals("default") || ((Player) target).hasPermission(arg)) {
+					String color = MMOCore.default_colours.get(arg);
+					if (color.matches("[0-9a-f]")) {
+						return "§" + color;
+					}
+					return ChatColor.valueOf(color.toUpperCase()).toString();
+				}
+			}
 			if (((Player) target).isOp()) {
 				return ChatColor.GOLD.toString();
 			}

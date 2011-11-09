@@ -716,7 +716,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 			} else {
 				dbCache.put(p, cache = new HashMapString<String>());
 			}
-			if (cache.containsKey(key) && cache.get(key).equals(value)) {
+			if (value instanceof String && cache.containsKey(key) && value.equals(cache.get(key))) {
 				return; // No need to do anything else if it's not changing
 			}
 			cache.put(key, value);
@@ -924,6 +924,20 @@ public abstract class MMOPlugin extends JavaPlugin {
 			}
 		}
 		return def;
+	}
+
+	/**
+	 * Pop up a requester for the player.
+	 * @param player the Player to ask
+	 * @param description the question to ask them
+	 * @param buttons a list of buttons to display
+	 * @return if the request could be shown
+	 */
+	public boolean request(Player player, String id, String description, String... buttons) {
+		if (hasSpout) {
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * Will add custom commands to plugins without needing the plugin.yml entry
