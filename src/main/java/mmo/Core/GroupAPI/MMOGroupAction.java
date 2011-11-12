@@ -19,7 +19,7 @@ package mmo.Core.GroupAPI;
 /**
  * The type of event in MMOGroupEvent.
  */
-public enum MMOGroupType {
+public enum MMOGroupAction {
 
 	JOIN,
 	LEAVE,
