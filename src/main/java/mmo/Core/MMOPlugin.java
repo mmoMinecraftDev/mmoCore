@@ -458,75 +458,35 @@ public abstract class MMOPlugin extends JavaPlugin {
 
 	/**
 	 * Send a message to one person by name.
-	 * @param name the player to message
+	 * @param player the Player, player name, or List of Players or player names to tell
 	 * @param msg the formatted message to send
 	 * @param args any args for the format string
 	 */
-	public void sendMessage(String name, String msg, Object... args) {
-		sendMessage(true, server.getPlayer(name), msg, args);
-	}
-
-	/**
-	 * Send a message to multiple people.
-	 * @param players the Players to message
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
-	 */
-	public void sendMessage(List<Player> players, String msg, Object... args) {
-		for (Player player : players) {
-			sendMessage(true, player, msg, args);
-		}
-	}
-
-	/**
-	 * Send a message to one person.
-	 * @param player the Player to message
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
-	 */
-	public void sendMessage(CommandSender player, String msg, Object... args) {
+	public <T> void sendMessage(T player, String msg, Object... args) {
 		sendMessage(true, player, msg, args);
 	}
 
 	/**
-	 * Send a message to one person by name.
-	 * @param prefix whether to show the plugin name
-	 * @param name the player to message
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
-	 */
-	public void sendMessage(boolean prefix, String name, String msg, Object... args) {
-		sendMessage(prefix, server.getPlayer(name), msg, args);
-	}
-
-	/**
-	 * Send a message to multiple people.
-	 * @param prefix whether to show the plugin name
-	 * @param players the Players to message
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
-	 */
-	public void sendMessage(boolean prefix, List<CommandSender> players, String msg, Object... args) {
-		for (CommandSender player : players) {
-			sendMessage(prefix, player, msg, args);
-		}
-	}
-
-	/**
 	 * Send a message to one person.
 	 * @param prefix whether to show the plugin name
-	 * @param player the Player to message
+	 * @param player the Player, player name, or List of Players or player names to tell
 	 * @param msg the formatted message to send
 	 * @param args any args for the format string
 	 */
-	public void sendMessage(boolean prefix, CommandSender player, String msg, Object... args) {
+	public <T> void sendMessage(boolean prefix, T player, String msg, Object... args) {
 		if (player != null) {
-			try {
-				for (String line : String.format(msg, args).split("\n")) {
-					player.sendMessage((prefix ? this.prefix : "") + line);
+			if (player instanceof List) {
+				for (Object entry : (List) player) {
+					sendMessage(prefix, entry, msg, args);
 				}
-			} catch (Exception e) {
-				// Bad format->Object type
+			} else {
+				try {
+					for (String line : String.format(msg, args).split("\n")) {
+						MMO.senderFromName(player).sendMessage((prefix ? this.prefix : "") + line);
+					}
+				} catch (Exception e) {
+					// Bad format->Object type
+				}
 			}
 		}
 	}
