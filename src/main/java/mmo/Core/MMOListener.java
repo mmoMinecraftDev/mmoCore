@@ -19,6 +19,7 @@ package mmo.Core;
 import mmo.Core.ChatAPI.MMOChatEvent;
 import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.DamageAPI.MMODamageEvent;
+import mmo.Core.GroupAPI.MMOGroupEvent;
 import mmo.Core.InfoAPI.MMOInfoEvent;
 import mmo.Core.SkillAPI.MMOSkillEvent;
 import org.bukkit.event.CustomEventListener;
@@ -78,6 +79,13 @@ public class MMOListener extends CustomEventListener {
 	public void onMMOSkill(MMOSkillEvent event) {
 	}
 
+	/**
+	 * Called on any change to a group (requires mmoGroup).
+	 * @param event the event
+	 */
+	public void onMMOGroup(MMOGroupEvent event) {
+	}
+
 	@Override
 	public void onCustomEvent(Event event) {
 		if (event instanceof MMOHUDEvent) {
@@ -88,6 +96,8 @@ public class MMOListener extends CustomEventListener {
 			onMMOInfo((MMOInfoEvent) event);
 		} else if (MMOMinecraft.mmoSkill && event instanceof MMOSkillEvent) {
 			onMMOSkill((MMOSkillEvent) event);
+		} else if (MMOMinecraft.mmoGroup && event instanceof MMOGroupEvent) {
+			onMMOGroup((MMOGroupEvent) event);
 		} else if (MMOMinecraft.mmoDamage && event instanceof MMODamageEvent) {
 			switch (((MMODamageEvent) event).getDamageType()) {
 				case PVE:

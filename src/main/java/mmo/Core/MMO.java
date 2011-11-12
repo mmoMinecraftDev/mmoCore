@@ -24,6 +24,7 @@ import javax.xml.bind.TypeConstraintException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
@@ -475,6 +476,24 @@ public class MMO {
 			return Bukkit.getPlayerExact((String) player);
 		} else {
 			throw new TypeConstraintException("'player' must be Player or String");
+		}
+	}
+
+	/**
+	 * Return a CommandSender from a Player or string.
+	 * @param <T> a Player or String
+	 * @param player the player to find
+	 * @return the player name
+	 */
+	public static <T> CommandSender senderFromName(T player) {
+		if (player instanceof CommandSender) {
+			return (CommandSender) player;
+		} else if (player instanceof Player) {
+			return (Player) player;
+		} else if (player instanceof String) {
+			return Bukkit.getPlayerExact((String) player);
+		} else {
+			throw new TypeConstraintException("'player' must be CommandSender, Player or String");
 		}
 	}
 }

@@ -17,6 +17,7 @@
 package mmo.Core;
 
 import mmo.Core.ChatAPI.Chat;
+import mmo.Core.GroupAPI.Group;
 import mmo.Core.PartyAPI.Party;
 import org.bukkit.plugin.Plugin;
 
@@ -46,6 +47,10 @@ public class MMOMinecraft {
 	 */
 	public static boolean mmoSkill = false;
 	/**
+	 * Does mmoGroup exist - quicker than isPluginEnabled.
+	 */
+	public static boolean mmoGroup = false;
+	/**
 	 * mmoChat API
 	 */
 	private static Chat mmoChatAPI = null;
@@ -53,6 +58,10 @@ public class MMOMinecraft {
 	 * mmoParty API
 	 */
 	private static Party mmoPartyAPI = null;
+	/**
+	 * mmoGroup API
+	 */
+	private static Group mmoGroupAPI = null;
 
 	/**
 	 * Static class only
@@ -76,6 +85,8 @@ public class MMOMinecraft {
 			mmoParty = true;
 		} else if ("mmoSkill".equals(name)) {
 			mmoSkill = true;
+		} else if ("mmoGroup".equals(name)) {
+			mmoGroup = true;
 		}
 	}
 
@@ -88,6 +99,8 @@ public class MMOMinecraft {
 			mmoChatAPI = (Chat) api;
 		} else if (api instanceof Party) {
 			mmoPartyAPI = (Party) api;
+		} else if (api instanceof Group) {
+			mmoGroupAPI = (Group) api;
 		}
 	}
 
@@ -109,6 +122,9 @@ public class MMOMinecraft {
 			mmoPartyAPI = null;
 		} else if ("mmoSkill".equals(name)) {
 			mmoSkill = false;
+		} else if ("mmoGroup".equals(name)) {
+			mmoGroup = false;
+			mmoGroupAPI = null;
 		}
 	}
 
@@ -126,6 +142,14 @@ public class MMOMinecraft {
 	 */
 	static public Party getParty() {
 		return mmoPartyAPI;
+	}
+
+	/**
+	 * Get the mmoGroup API.
+	 * @return an instance of Group
+	 */
+	static public Group getGroup() {
+		return mmoGroupAPI;
 	}
 
 }
