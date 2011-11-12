@@ -43,5 +43,5 @@ public interface MMOGroupEvent extends Cancellable {
 	 * Get the type of event that has happened.
 	 * @return the group event type
 	 */
-	public MMOGroupType getType();
+	public MMOGroupType getAction();
 }
