@@ -33,47 +33,34 @@ public class GenericLivingEntity extends GenericContainer {
 	private int armor = 100;
 	private int def_width = 80;
 	private int def_height = 14;
-	private int old_health_width = -1;
-	private int old_armor_width = -1;
 	String face = "~";
-	String label = "";
 
 	public GenericLivingEntity() {
-		super();
-		Color color = new Color(0, 0, 0, 0.75f);
-
 		this.addChildren( 
 			_bar = (Container) new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
-				new GenericGradient()
-						.setTopColor(color)
-						.setBottomColor(color)
-						.setPriority(RenderPriority.Highest),
-				new GenericContainer(
-					_health = (Gradient) new GenericGradient(),
-					_armor = (Gradient) new GenericGradient()
-				)		.setMargin(1)
-						.setPriority(RenderPriority.High),
-				new GenericContainer(
-					_face = (GenericFace) new GenericFace()
-							.setVisible(MMOCore.config_show_player_faces)
-							.setMargin(3, 0, 3, 3),
-					_label = (Label) new GenericLabel()
-							.setResize(true)
-							.setFixed(true)
-							.setMargin(3, 3, 1, 3)
-				)		.setLayout(ContainerType.HORIZONTAL)
-			)		.setLayout(ContainerType.OVERLAY)
-					.setMaxHeight(def_height)
-					.setMargin(0, 0, 1, 0)
-		)		.setAlign(WidgetAnchor.TOP_LEFT)
-				.setMinWidth(def_width)
+				new GenericGradient(new Color(0, 0, 0, 0.75f)) //
+						.setPriority(RenderPriority.Highest), //
+				new GenericContainer( //
+					_health = (Gradient) new GenericGradient(new Color(1f, 0, 0, 0.75f)), //
+					_armor = (Gradient) new GenericGradient(new Color(0.75f, 0.75f, 0.75f, 0.75f)) //
+				)		.setMargin(1) //
+						.setPriority(RenderPriority.High), //
+				new GenericContainer( //
+					_face = (GenericFace) new GenericFace() //
+							.setVisible(MMOCore.config_show_player_faces) //
+							.setMargin(3, 0, 3, 3), //
+					_label = (Label) new GenericLabel() //
+							.setResize(true) //
+							.setFixed(true) //
+							.setMargin(3, 3, 1, 3) //
+				)		.setLayout(ContainerType.HORIZONTAL) //
+			)		.setLayout(ContainerType.OVERLAY) //
+					.setMaxHeight(def_height) //
+					.setMargin(0, 0, 1, 0) //
+		)		.setAlign(WidgetAnchor.TOP_LEFT) //
+				.setMinWidth(def_width) //
 //				.setMaxWidth(def_width * 2)
 				.setMaxHeight(def_height + 1);
-
-		color = new Color(1f, 0, 0, 0.75f);
-		_health.setTopColor(color).setBottomColor(color);
-		color = new Color(0.75f, 0.75f, 0.75f, 0.75f);
-		_armor.setTopColor(color).setBottomColor(color);
 	}
 
 	/**
@@ -158,9 +145,9 @@ public class GenericLivingEntity extends GenericContainer {
 		}
 		setMaxHeight((targets.length + 1) * (def_height + 1));
 		if (getContainer() instanceof Container) {
-			getContainer().updateLayout();
+			getContainer().deferLayout();
 		} else {
-			updateLayout();
+			deferLayout();
 		}
 		return this;
 	}
@@ -173,7 +160,7 @@ public class GenericLivingEntity extends GenericContainer {
 	public GenericLivingEntity setHealth(int health) {
 		if (this.health != health) {
 			this.health = health;
-			updateLayout();
+			deferLayout();
 		}
 		return this;
 	}
@@ -184,7 +171,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return this
 	 */
 	public GenericLivingEntity setHealthColor(Color color) {
-		_health.setTopColor(color).setBottomColor(color);
+		_health.setColor(color);
 		return this;
 	}
 
@@ -196,7 +183,7 @@ public class GenericLivingEntity extends GenericContainer {
 	public GenericLivingEntity setArmor(int armor) {
 		if (this.armor != armor) {
 			this.armor = armor;
-			updateLayout();
+			deferLayout();
 		}
 		return this;
 	}
@@ -207,7 +194,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return this
 	 */
 	public GenericLivingEntity setArmorColor(Color color) {
-		_armor.setTopColor(color).setBottomColor(color);
+		_armor.setColor(color);
 		return this;
 	}
 
@@ -217,11 +204,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return this
 	 */
 	public GenericLivingEntity setLabel(String label) {
-		if (!this.label.equals(label)) {
-			this.label = label;
-			_label.setText(label).setDirty(true);
-			updateLayout();
-		}
+		_label.setText(label);
 		return this;
 	}
 
@@ -235,20 +218,17 @@ public class GenericLivingEntity extends GenericContainer {
 		if (!this.face.equals(name)) {
 			this.face = name;
 			_face.setName(name).setVisible(!name.isEmpty());
-			updateLayout();
+			deferLayout();
 		}
 		return this;
 	}
 
 	@Override
 	public Container updateLayout() {
-		_armor.setWidth(old_armor_width); // cache for bandwidth
-		_health.setWidth(old_health_width); // cache for bandwidth
 		super.updateLayout();
-		old_armor_width = _armor.getWidth(); // cache for bandwidth
-		old_health_width = _health.getWidth(); // cache for bandwidth
-		_armor.setWidth((_armor.getContainer().getWidth() * armor) / 100).setDirty(true);
-		_health.setWidth((_health.getContainer().getWidth() * health) / 100).setDirty(true);
+		Container box = _armor.getContainer();
+		_armor.setWidth((box.getWidth() * armor) / 100);//.setFixed(true);
+		_health.setWidth((box.getWidth() * health) / 100);//.setFixed(true);
 		return this;
 	}
 }
