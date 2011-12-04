@@ -40,21 +40,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 import org.getspout.spoutapi.player.SpoutPlayer;
+import org.getspout.spoutapi.plugin.SpoutPlugin;
 
-public abstract class MMOPlugin extends JavaPlugin {
+public abstract class MMOPlugin extends SpoutPlugin {
 
 	public enum Support {
 
@@ -84,10 +83,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 		 */
 		MMO_NO_SHARED_CACHE
 	}
-	/**
-	 * Spout is loaded and enabled
-	 */
-	static public boolean hasSpout = false;
 	/**
 	 * There is a plugins/mmoMinecraft folder that we need to store all files in
 	 */
@@ -146,9 +141,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 		MMOMinecraft.enablePlugin(this);
 
 		// Shortcut booleans to make life easier
-		if (!hasSpout) {
-			hasSpout = server.getPluginManager().isPluginEnabled("Spout");
-		}
 		if (!singleFolder && new File("plugins/mmoMinecraft").exists()) {
 			singleFolder = true;
 		}
@@ -322,7 +314,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 							is.close();
 							found = true;
 						}
-						if (hasSpout && cache && name.matches(".*\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
+						if (cache && name.matches(".*\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
 							SpoutManager.getFileManager().addToCache(plugin, file);
 						}
 					} catch (Exception e) {
@@ -442,7 +434,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param args any args for the format string
 	 */
 	public <T> void notify(T player, String msg, Material icon, Object... args) {
-		if (hasSpout && player != null) {
+		if (player != null) {
 			if (player instanceof List) {
 				for (Object entry : (List) player) {
 					this.notify(entry, msg, icon, args);
@@ -545,7 +537,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param title the title to show
 	 */
 	public void setTitle(LivingEntity target, String title) {
-		if (hasSpout && target != null) {
+		if (target != null) {
 			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
 		}
 	}
@@ -557,7 +549,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param title the title to show
 	 */
 	public void setTitle(Player player, LivingEntity target, String title) {
-		if (hasSpout && player != null && target != null) {
+		if (player != null && target != null) {
 			SpoutManager.getAppearanceManager().setPlayerTitle(SpoutManager.getPlayer(player), target, title);
 		}
 	}
@@ -568,7 +560,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url the cloak to show
 	 */
 	public void setCloak(HumanEntity target, String url) {
-		if (hasSpout && target != null) {
+		if (target != null) {
 			SpoutManager.getAppearanceManager().setGlobalCloak(target, url);
 		}
 	}
@@ -580,7 +572,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url the cloak to show
 	 */
 	public void setCloak(Player player, HumanEntity target, String url) {
-		if (hasSpout && player != null && target != null) {
+		if (player != null && target != null) {
 			SpoutManager.getAppearanceManager().setPlayerCloak(SpoutManager.getPlayer(player), target, url);
 		}
 	}
@@ -591,7 +583,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url the cloak to show
 	 */
 	public void setSkin(HumanEntity target, String url) {
-		if (hasSpout && target != null) {
+		if (target != null) {
 			SpoutManager.getAppearanceManager().setGlobalSkin(target, url);
 		}
 	}
@@ -603,7 +595,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url the cloak to show
 	 */
 	public void setSkin(Player player, HumanEntity target, String url) {
-		if (hasSpout && player != null && target != null) {
+		if (player != null && target != null) {
 			SpoutManager.getAppearanceManager().setPlayerSkin(SpoutManager.getPlayer(player), target, url);
 		}
 	}
@@ -894,7 +886,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @return if the request could be shown
 	 */
 	public boolean request(Player player, String id, String description, String... buttons) {
-		if (hasSpout) {
+		if (false) {
 			return true;
 		}
 		return false;

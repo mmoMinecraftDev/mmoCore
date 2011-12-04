@@ -240,13 +240,11 @@ public class MMOCore extends MMOPlugin {
 	}
 
 	public void redrawAll(Player player) {
-		if (hasSpout) {
-			SpoutPlayer splayer = SpoutManager.getPlayer(player);
-			if (splayer.isSpoutCraftEnabled()) {
-				for (Widget widget : splayer.getMainScreen().getAttachedWidgets()) {
-					if (widget.getPlugin() instanceof MMOPlugin) {
-						widget.setDirty(true);
-					}
+		SpoutPlayer splayer = SpoutManager.getPlayer(player);
+		if (splayer.isSpoutCraftEnabled()) {
+			for (Widget widget : splayer.getMainScreen().getAttachedWidgets()) {
+				if (widget.getPlugin() instanceof MMOPlugin) {
+					widget.setDirty(true);
 				}
 			}
 		}
