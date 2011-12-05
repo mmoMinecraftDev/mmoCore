@@ -24,13 +24,12 @@ import org.getspout.spoutapi.gui.*;
 
 public class GenericLivingEntity extends GenericContainer {
 
+	private LivingEntity target = null;
 	private Container _bar;
 	private Label _label;
-	private Gradient _health;
-	private Gradient _armor;
+	private Gradient _top;
+	private Gradient _bottom;
 	private GenericFace _face;
-	private int health = 100;
-	private int armor = 100;
 	private int def_width = 80;
 	private int def_height = 14;
 	String face = "~";
@@ -39,28 +38,40 @@ public class GenericLivingEntity extends GenericContainer {
 		this.addChildren( 
 			_bar = (Container) new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
 				new GenericGradient(new Color(0, 0, 0, 0.75f)) //
+						.setWidth(def_width) //
 						.setPriority(RenderPriority.Highest), //
 				new GenericContainer( //
-					_health = (Gradient) new GenericGradient(new Color(1f, 0, 0, 0.75f)), //
-					_armor = (Gradient) new GenericGradient(new Color(0.75f, 0.75f, 0.75f, 0.75f)) //
+					_top = (Gradient) new GenericGradient(new Color(1f, 0, 0, 0.75f)), //
+					_bottom = (Gradient) new GenericGradient(new Color(0.75f, 0.75f, 0.75f, 0.75f)) //
 				)		.setMargin(1) //
 						.setPriority(RenderPriority.High), //
 				new GenericContainer( //
 					_face = (GenericFace) new GenericFace() //
 							.setVisible(MMOCore.config_show_player_faces) //
 							.setMargin(3, 0, 3, 3), //
-					_label = (Label) new GenericLabel() //
+					_label = (Label) new GenericLabel("") //
 							.setResize(true) //
 							.setFixed(true) //
 							.setMargin(3, 3, 1, 3) //
 				)		.setLayout(ContainerType.HORIZONTAL) //
 			)		.setLayout(ContainerType.OVERLAY) //
-					.setMaxHeight(def_height) //
+					.setFixed(true) //
+					.setWidth(def_width) //
+					.setHeight(def_height) //
 					.setMargin(0, 0, 1, 0) //
 		)		.setAlign(WidgetAnchor.TOP_LEFT) //
-				.setMinWidth(def_width) //
-//				.setMaxWidth(def_width * 2)
-				.setMaxHeight(def_height + 1);
+				.setLayout(ContainerType.VERTICAL) //
+				.setFixed(true) //
+				.setWidth(def_width) //
+				.setHeight(def_height + 1);
+	}
+
+	/**
+	 * Clear the current entity.
+	 * @return this
+	 */
+	public GenericLivingEntity setEntity() {
+		return setEntity((LivingEntity) null, "");
 	}
 
 	/**
@@ -83,8 +94,7 @@ public class GenericLivingEntity extends GenericContainer {
 		if (player != null && player.isOnline()) {
 			return setEntity(player, prefix);
 		}
-		setHealth(0);
-		setArmor(0);
+		target = null;
 		setLabel((!"".equals(prefix) ? prefix : "") + MMO.getColor(screen != null ? screen.getPlayer() : null, null) + name);
 		setFace("~" + name);
 		return this;
@@ -107,17 +117,23 @@ public class GenericLivingEntity extends GenericContainer {
 	 */
 	public GenericLivingEntity setEntity(LivingEntity entity, String prefix) {
 		if (entity != null && entity instanceof LivingEntity) {
-			setHealth(MMO.getHealth(entity)); // Needs a maxHealth() check
-			setArmor(MMO.getArmor(entity));
+			target = entity;
 			setLabel((!"".equals(prefix) ? prefix : "") + MMO.getColor(screen != null ? screen.getPlayer() : null, entity) + MMO.getSimpleName(entity, !(getContainer() instanceof GenericLivingEntity)));
 			setFace(entity instanceof Player ? ((Player)entity).getName() : "+" + MMO.getSimpleName(entity,false).replaceAll(" ", ""));
 		} else {
-			setHealth(0);
-			setArmor(0);
+			target = null;
 			setLabel("");
 			setFace("");
 		}
 		return this;
+	}
+
+	/**
+	 * Get the current entity.
+	 * @return current entity
+	 */
+	public LivingEntity getEntity() {
+		return target;
 	}
 
 	/**
@@ -130,7 +146,7 @@ public class GenericLivingEntity extends GenericContainer {
 		if (targets == null) {
 			targets = new LivingEntity[0]; // zero-length array is easier to handle
 		}
-		for (int i=targets.length + 1; i<widgets.length; i++) {
+		for (int i=widgets.length - 1; i>targets.length; i--) {
 			this.removeChild(widgets[i]);
 		}
 		for (int i=0; i<targets.length; i++) {
@@ -139,62 +155,53 @@ public class GenericLivingEntity extends GenericContainer {
 				child = (GenericLivingEntity) widgets[i+1];
 			} else {
 				this.addChild(child = new GenericLivingEntity());
-				child._bar.setMarginLeft(def_width / 4);
+				child._bar.setMarginLeft(def_width / 4).setWidth(def_width - (def_width / 4));
 			}
 			child.setEntity(targets[i]);
 		}
-		setMaxHeight((targets.length + 1) * (def_height + 1));
-		if (getContainer() instanceof Container) {
-			getContainer().deferLayout();
-		} else {
-			deferLayout();
-		}
+		setHeight((targets.length + 1) * (def_height + 1));
 		return this;
 	}
 	
 	/**
-	 * Set the health to display.
-	 * @param health percentage
-	 * @return this
+	 * Get the current top bar (health) value as a percentage.
+	 * @return current health
 	 */
-	public GenericLivingEntity setHealth(int health) {
-		if (this.health != health) {
-			this.health = health;
-			deferLayout();
+	public int getTopValue() {
+		if (target != null) {
+			return MMO.getHealth(target); // Needs a maxHealth() check
 		}
-		return this;
+		return 0;
 	}
 
 	/**
-	 * Set the health colour to use.
+	 * Get the current top bar (armor) value as a percentage.
+	 * @return current armor
+	 */
+	public int getBottomValue() {
+		if (target != null) {
+			return MMO.getArmor(target);
+		}
+		return 0;
+	}
+
+	/**
+	 * Set the top bar (health) colour to use.
 	 * @param color the solid colour for the health bar
 	 * @return this
 	 */
-	public GenericLivingEntity setHealthColor(Color color) {
-		_health.setColor(color);
+	public GenericLivingEntity setTopColor(Color color) {
+		_top.setColor(color);
 		return this;
 	}
 
 	/**
-	 * Set the armor to display.
-	 * @param armor percentage
-	 * @return this
-	 */
-	public GenericLivingEntity setArmor(int armor) {
-		if (this.armor != armor) {
-			this.armor = armor;
-			deferLayout();
-		}
-		return this;
-	}
-
-	/**
-	 * Set the armor colour to use.
+	 * Set the bottom bar (armor) colour to use.
 	 * @param color the solid colour for the health bar
 	 * @return this
 	 */
-	public GenericLivingEntity setArmorColor(Color color) {
-		_armor.setColor(color);
+	public GenericLivingEntity setBottomColor(Color color) {
+		_bottom.setColor(color);
 		return this;
 	}
 
@@ -204,7 +211,9 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return this
 	 */
 	public GenericLivingEntity setLabel(String label) {
-		_label.setText(label);
+		if (label != null && !label.equals(_label.getText())) {
+			_label.setText(label).setScale(Math.min(1f, (def_width - _face.getWidth() - 10f) / (GenericLabel.getStringWidth(label) + 1f)));
+		}
 		return this;
 	}
 
@@ -224,11 +233,10 @@ public class GenericLivingEntity extends GenericContainer {
 	}
 
 	@Override
-	public Container updateLayout() {
-		super.updateLayout();
-		Container box = _armor.getContainer();
-		_armor.setWidth((box.getWidth() * armor) / 100);//.setFixed(true);
-		_health.setWidth((box.getWidth() * health) / 100);//.setFixed(true);
-		return this;
+	public void onTick() {
+		super.onTick();
+		Container box = _bottom.getContainer();
+		_top.setWidth((box.getWidth() * getTopValue()) / 100);
+		_bottom.setWidth((box.getWidth() * getBottomValue()) / 100);
 	}
 }
