@@ -166,7 +166,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 		// Don't try to load and save the config if the plugin doesn't use it
 		if (!support.get(Support.MMO_NO_CONFIG)) {
-			cfg = new Configuration(new File("plugins/mmoMinecraft", description.getName() + ".yml"));
+			cfg = new Configuration(new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml"));
 			cfg.load();
 			loadConfiguration(cfg);
 			if (!cfg.getKeys().isEmpty()) {
