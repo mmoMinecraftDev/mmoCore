@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<groupId>mmo.Core</groupId>
 	<artifactId>mmoCore</artifactId>
 	<name>mmoCore</name>
-	<version>dev</version>
+	<version>dev-SNAPSHOT</version>
 	<url>http://github.com/mmoMinecraftDev/mmoCore</url>
 	<description>mmoCore provides the common code for all mmoMinecraft plugins to use.</description>
 
@@ -49,17 +49,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Continuous integration -->
 	<ciManagement>
 		<system>jenkins</system>
-		<url>http://ci.mmo.me.uk</url>
+		<url>http://ci.mmo.me.uk/</url>
 	</ciManagement>
 
 	<!-- Repository locations -->
 	<repositories>
-		<repository>
-			<id>bukkit-repo</id>
-			<name>bukkit Plugin API</name>
-			<url>http://repo.bukkit.org/artifactory/repo/</url>
-			<layout>default</layout>
-		</repository>
 		<repository>
 			<id>spout-repo</id>
 			<name>Spout API</name>
@@ -69,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<repository>
 			<id>mmoMinecraft-repo</id>
 			<name>mmoMinecraft API</name>
-			<url>http://repo.mmo.me.uk</url>
+			<url>http://repo.mmo.me.uk/</url>
 			<layout>default</layout>
 		</repository>
 	</repositories>
@@ -77,15 +71,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	<!-- Dependencies -->
 	<dependencies>
 		<dependency>
-			<groupId>org.getspout</groupId>
-			<artifactId>spoutapi</artifactId>
-			<version>dev-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>1.0.0-R1-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.getspout</groupId>
+			<artifactId>spoutapi</artifactId>
+			<version>dev-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
