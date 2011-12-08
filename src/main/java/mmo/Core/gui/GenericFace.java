@@ -18,6 +18,10 @@ package mmo.Core.gui;
 
 import org.getspout.spoutapi.gui.GenericTexture;
 
+/**
+ * Display the face of a player or monster.
+ * The default size is 8x8 pixels, but must always be square.
+ */
 public final class GenericFace extends GenericTexture {
 
 	private static String facePath = "http://face.mmo.me.uk/";

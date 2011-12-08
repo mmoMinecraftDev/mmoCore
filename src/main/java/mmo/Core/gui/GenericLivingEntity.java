@@ -32,6 +32,7 @@ public class GenericLivingEntity extends GenericContainer {
 	private GenericFace _face;
 	private int def_width = 80;
 	private int def_height = 14;
+	private int def_space = 1;
 	String face = "~";
 
 	public GenericLivingEntity() {
@@ -63,7 +64,7 @@ public class GenericLivingEntity extends GenericContainer {
 				.setLayout(ContainerType.VERTICAL) //
 				.setFixed(true) //
 				.setWidth(def_width) //
-				.setHeight(def_height + 1);
+				.setHeight(def_height + def_space);
 	}
 
 	/**
@@ -71,7 +72,14 @@ public class GenericLivingEntity extends GenericContainer {
 	 * @return this
 	 */
 	public GenericLivingEntity setEntity() {
-		return setEntity((LivingEntity) null, "");
+		target = null;
+		setLabel("");
+		setFace("");
+		Widget[] widgets = this.getChildren();
+		for (int i=1; i<widgets.length; i++) {
+			this.removeChild(widgets[i]);
+		}
+		return this;
 	}
 
 	/**
@@ -121,9 +129,7 @@ public class GenericLivingEntity extends GenericContainer {
 			setLabel((!"".equals(prefix) ? prefix : "") + MMO.getColor(screen != null ? screen.getPlayer() : null, entity) + MMO.getSimpleName(entity, !(getContainer() instanceof GenericLivingEntity)));
 			setFace(entity instanceof Player ? ((Player)entity).getName() : "+" + MMO.getSimpleName(entity,false).replaceAll(" ", ""));
 		} else {
-			target = null;
-			setLabel("");
-			setFace("");
+			setEntity();
 		}
 		return this;
 	}
@@ -146,7 +152,7 @@ public class GenericLivingEntity extends GenericContainer {
 		if (targets == null) {
 			targets = new LivingEntity[0]; // zero-length array is easier to handle
 		}
-		for (int i=widgets.length - 1; i>targets.length; i--) {
+		for (int i=targets.length+1; i<widgets.length; i++) {
 			this.removeChild(widgets[i]);
 		}
 		for (int i=0; i<targets.length; i++) {
@@ -159,7 +165,7 @@ public class GenericLivingEntity extends GenericContainer {
 			}
 			child.setEntity(targets[i]);
 		}
-		setHeight((targets.length + 1) * (def_height + 1));
+		setHeight((targets.length + 1) * (def_height + def_space));
 		return this;
 	}
 	
