@@ -6,7 +6,7 @@ mmoMinecraft is an attempt to make an easy to configure and use suite of MMORPG 
 knowing that they won't interfere with each other, and that they aren't forced to have a feature they don't want in order to gain a feature they do want.
 
 Copyright &copy; 2011, mmoMinecraftDev <[Website]>
-SpoutAPI is licensed under [GNU GENERAL PUBLIC LICENSE Version 3][License]
+mmoMinecraft is licensed under [GNU GENERAL PUBLIC LICENSE Version 3][License]
 
 [![Donate to the mmoMinecraft suite][Donate Logo]][Donate]
 
@@ -43,4 +43,4 @@ Coding and Pull Request Formatting
 [Files]: http://files.mmo.me.uk/
 [Jenkins]: http://ci.mmo.me.uk/
 [Donate]: https://www.paypal.com/cgi-bin/webscr?hosted_button_id=ECAE2696RB724&item_name=mmoMinecraft+donation+%28from+github.com%29&cmd=_s-xclick
-[Donate Logo]: http://cdn.getspout.org/img/button/donate_paypal_96x96.png
+[Donate Logo]: http://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif
