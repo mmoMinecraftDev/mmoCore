@@ -78,7 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		</dependency>
 		<dependency>
 			<groupId>org.getspout</groupId>
-			<artifactId>spoutapi</artifactId>
+			<artifactId>spoutpluginapi</artifactId>
 			<version>dev-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
