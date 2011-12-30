@@ -159,42 +159,11 @@ public class MMO {
 	 * @return the name to use
 	 */
 	public static String getName(Player player, LivingEntity target) {
-		String name;
-		if (target instanceof Player) {
-			name = ChatColor.YELLOW + ((Player) target).getName();
-		} else {
-			if (target instanceof Monster) {
-				if (player != null && player.equals(((Creature) target).getTarget())) {
-					name = "" + ChatColor.RED;
-				} else {
-					name = "" + ChatColor.YELLOW;
-				}
-			} else if (target instanceof WaterMob) {
-				name = "" + ChatColor.GREEN;
-			} else if (target instanceof Flying) {
-				name = "" + ChatColor.YELLOW;
-			} else if (target instanceof Animals) {
-				if (player != null && player.equals(((Creature) target).getTarget())) {
-					name = "" + ChatColor.RED;
-				} else if (target instanceof Tameable) {
-					Tameable pet = (Tameable) target;
-					if (pet.isTamed()) {
-						name = "" + ChatColor.YELLOW;
-					} else {
-						name = "" + ChatColor.GREEN;
-					}
-				} else {
-					name = "" + ChatColor.GRAY;
-				}
-			} else {
-				name = "" + ChatColor.GRAY;
-			}
-			name += getSimpleName(target, true);
-			if (target instanceof Tameable) {
-				Tameable pet = (Tameable) target;
-				if (pet.isTamed() && pet.getOwner() instanceof HumanEntity) {
-					name = ChatColor.YELLOW + ((HumanEntity) pet.getOwner()).getName() + "'s " + name;
-				}
+		String name = getColor(player, target) + getSimpleName(target, true);
+		if (target instanceof Tameable) {
+			Tameable pet = (Tameable) target;
+			if (pet.isTamed() && pet.getOwner() instanceof LivingEntity) {
+				name = getColor(player, (LivingEntity) pet.getOwner()) + name;
 			}
 		}
 		return name;
@@ -217,10 +186,7 @@ public class MMO {
 					return ChatColor.valueOf(color.toUpperCase()).toString();
 				}
 			}
-			if (((Player) target).isOp()) {
-				return ChatColor.GOLD.toString();
-			}
-			return ChatColor.YELLOW.toString();
+			return ((Player) target).isOp() ? ChatColor.GOLD.toString() : ChatColor.YELLOW.toString();
 		} else {
 			if (target instanceof Monster) {
 				if (player != null && player.equals(((Monster) target).getTarget())) {
@@ -268,51 +234,78 @@ public class MMO {
 		} else if (target instanceof HumanEntity) {
 			name += ((HumanEntity) target).getName();
 		} else {
-			if (target instanceof Tameable) {
-				if (((Tameable) target).isTamed()) {
-					if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
-						if (MMOCore.config_show_display_name) {
-							name += ((Player) ((Tameable) target).getOwner()).getName() + "'s ";
+			if (target instanceof Creature) {
+				if (target instanceof Tameable) {
+					if (((Tameable) target).isTamed()) {
+						if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
+							Player owner = (Player) ((Tameable) target).getOwner();
+							if (MMOCore.config_show_display_name) {
+								name += owner.getName() + "'s ";
+							} else {
+								name += owner.getDisplayName() + "'s ";
+							}
 						} else {
-							name += ((Player) ((Tameable) target).getOwner()).getDisplayName() + "'s ";
+							name += "Pet ";
 						}
-					} else {
-						name += "Pet ";
 					}
 				}
-			}
-			if (target instanceof Chicken) {
-				name += "Chicken";
-			} else if (target instanceof Cow) {
-				name += "Cow";
-			} else if (target instanceof Creeper) {
-				name += "Creeper";
-			} else if (target instanceof Ghast) {
-				name += "Ghast";
-			} else if (target instanceof Giant) {
-				name += "Giant";
-			} else if (target instanceof Pig) {
-				name += "Pig";
-			} else if (target instanceof PigZombie) {
-				name += "PigZombie";
-			} else if (target instanceof Sheep) {
-				name += "Sheep";
-			} else if (target instanceof Slime) {
-				name += "Slime";
-			} else if (target instanceof Skeleton) {
-				name += "Skeleton";
-			} else if (target instanceof Spider) {
-				name += "Spider";
-			} else if (target instanceof Squid) {
-				name += "Squid";
-			} else if (target instanceof Wolf) {
-				name += "Wolf";
-			} else if (target instanceof Zombie) {
-				name += "Zombie";
-			} else if (target instanceof Monster) {
-				name += "Monster";
-			} else if (target instanceof Creature) {
-				name += "Creature";
+				if (target instanceof Animals) {
+					if (target instanceof Chicken) {
+						name += "Chicken";
+					} else if (target instanceof Cow) {
+						name += "Cow";
+					} else if (target instanceof Pig) {
+						name += "Pig";
+					} else if (target instanceof MushroomCow) {
+						name += "MushroomCow";
+					} else if (target instanceof Sheep) {
+						name += "Sheep";
+					} else if (target instanceof Wolf) {
+						name += "Wolf";
+					} else {
+						name += "Animal";
+					}
+				} else if (target instanceof Monster) {
+					if (target instanceof Blaze) {
+						name += "Blaze";
+					} else if (target instanceof CaveSpider) {
+						name += "CaveSpider";
+					} else if (target instanceof Creeper) {
+						name += "Creeper";
+					} else if (target instanceof Enderman) {
+						name += "Enderman";
+					} else if (target instanceof Giant) {
+						name += "Giant";
+					} else if (target instanceof PigZombie) {
+						name += "PigZombie";
+					} else if (target instanceof Silverfish) {
+						name += "Silverfish";
+					} else if (target instanceof Skeleton) {
+						name += "Skeleton";
+					} else if (target instanceof Spider) {
+						name += "Spider";
+					} else if (target instanceof Zombie) {
+						name += "Zombie";
+					} else {
+						name += "Monster";
+					}
+				} else if (target instanceof WaterMob) {
+					if (target instanceof Squid) {
+						name += "Squid";
+					} else {
+						name += "WaterMob";
+					}
+				} else if (target instanceof Flying) {
+					if (target instanceof Ghast) {
+						name += "Ghast";
+					} else {
+						name += "Flying";
+					}
+				} else if (target instanceof Slime) {
+					name += "Slime";
+				} else {
+					name += "Creature";
+				}
 			} else {
 				name += "Unknown";
 			}
@@ -455,7 +448,7 @@ public class MMO {
 	 */
 	public static <T> String nameFromPlayer(T player) {
 		if (player instanceof Player) {
-			return ((Player )player).getName();
+			return ((Player) player).getName();
 		} else if (player instanceof String) {
 			return (String) player;
 		} else {
