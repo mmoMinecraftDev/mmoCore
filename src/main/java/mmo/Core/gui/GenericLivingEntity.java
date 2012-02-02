@@ -42,8 +42,8 @@ public class GenericLivingEntity extends GenericContainer {
 						.setWidth(def_width) //
 						.setPriority(RenderPriority.Highest), //
 				new GenericContainer( //
-					_top = (Gradient) new GenericGradient(new Color(1f, 0, 0, 0.75f)), //
-					_bottom = (Gradient) new GenericGradient(new Color(0.75f, 0.75f, 0.75f, 0.75f)) //
+					_top = (Gradient) new GenericGradient(new Color(1f, 0, 0, 0.75f)).setWidth(def_width), //
+					_bottom = (Gradient) new GenericGradient(new Color(0.75f, 0.75f, 0.75f, 0.75f)).setWidth(def_width) //
 				)		.setMargin(1) //
 						.setPriority(RenderPriority.High), //
 				new GenericContainer( //

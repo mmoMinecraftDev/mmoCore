@@ -110,7 +110,7 @@ public class MMO {
 			ItemStack inv[] = ((Player) player).getInventory().getArmorContents();
 			for (int i = 0; i < inv.length; i++) {
 				max = inv[i].getType().getMaxDurability();
-				if (max >= 0) {
+				if (max > 0) {
 					armor += multi[i] * (max - inv[i].getDurability()) / max;
 				}
 			}
