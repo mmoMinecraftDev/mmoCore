@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
-   <!-- License -->
+	<!-- License -->
 	<licenses>
 		<license>
 			<name>GNU GENERAL PUBLIC LICENSE Version 3</name>
@@ -39,14 +39,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		</license>
 	</licenses>
 
-    <!-- Source code -->
+	<!-- Source code -->
 	<scm>
 		<developerConnection>scm:git:git@github.com:mmoMinecraftDev/${project.name}.git</developerConnection>
 		<connection>scm:git:git://github.com/mmoMinecraftDev/${project.name}.git</connection>
 		<url>https://github.com/mmoMinecraftDev/${project.name}</url>
 	</scm>
 
-    <!-- Continuous integration -->
+	<!-- Continuous integration -->
 	<ciManagement>
 		<system>jenkins</system>
 		<url>http://ci.mmo.me.uk/</url>
@@ -73,7 +73,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.1-R1-SNAPSHOT</version>
+			<version>1.1-R3</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
