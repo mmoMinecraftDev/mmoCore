@@ -2,7 +2,7 @@
 
 What is mmoMinecraft?
 ---------------------
-mmoMinecraft is an attempt to make an easy to configure and use suite of MMORPG related plugins for Spout and CraftBukkit based Minecarft servers.Server admin can install exactly which plugins they need
+mmoMinecraft is an attempt to make an easy to configure and use suite of MMORPG related plugins for Spout and CraftBukkit based Minecraft servers.Server admin can install exactly which plugins they need
 knowing that they won't interfere with each other, and that they aren't forced to have a feature they don't want in order to gain a feature they do want.
 
 Copyright &copy; 2011, mmoMinecraftDev <[Website]>
