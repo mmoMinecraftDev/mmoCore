@@ -22,16 +22,17 @@ Compiling
 All mmoMinecraft projects use Maven to handle their dependencies.
 
 This requires Bukkit and other libraries (preferrably the latest version or source).
-* Install [Maven 2 or 3](http://maven.apache.org/download.html)
-* Checkout this repo and run: `mvn clean package`
+
+ * Install [Maven 2 or 3](http://maven.apache.org/download.html)
+ * Checkout this repo and run: `mvn clean package`
 
 Coding and Pull Request Formatting
 ----------------------------------
-* Generally follow the Oracle coding standards.
-* Use tabs, no spaces.
-* No 80 column limit or midstatement newlines.
-* Pull requests must compile and work.
-* Pull requests must be formatted properly.
+ * Generally follow the Oracle coding standards.
+ * Use tabs, no spaces.
+ * No 80 column limit or midstatement newlines.
+ * Pull requests must compile and work.
+ * Pull requests must be formatted properly.
 
 **Please follow the above conventions if you want your pull request(s) accepted.**
 
