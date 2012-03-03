@@ -18,6 +18,7 @@ package mmo.Core.CoreAPI;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 
@@ -30,9 +31,10 @@ public class MMOHUDEvent extends Event {
 	Plugin plugin;
 	WidgetAnchor anchor;
 	int offsetX, offsetY;
+	protected static final HandlerList handlers = new HandlerList();
 
 	public MMOHUDEvent(Player player, Plugin plugin, WidgetAnchor anchor, int offsetX, int offsetY) {
-		super("mmoHUDEvent");
+		super();
 		this.player = player;
 		this.plugin = plugin;
 		this.anchor = anchor;
@@ -67,4 +69,12 @@ public class MMOHUDEvent extends Event {
 	public void setOffsetY(int offsetY) {
 		this.offsetY = offsetY;
 	}
+
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
+
 }

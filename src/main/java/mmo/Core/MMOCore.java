@@ -38,11 +38,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.Event.Type;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -50,7 +50,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
-import org.getspout.spoutapi.event.spout.SpoutListener;
 import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
 import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.player.SpoutPlayer;
@@ -97,15 +96,7 @@ public class MMOCore extends MMOPlugin {
 		super.onEnable();
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
-		pm.registerEvent(Type.PLAYER_JOIN, cpl, Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_QUIT, cpl, Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_KICK, cpl, Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_RESPAWN, cpl, Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_PORTAL, cpl, Priority.Monitor, this);
-		pm.registerEvent(Type.PLAYER_TELEPORT, cpl, Priority.Monitor, this);
-
-		pm.registerEvent(Type.CUSTOM_EVENT, new mmoCoreSpoutListener(), Priority.Monitor, this);
-
+		pm.registerEvents(cpl, this);
 		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this,
 				new Runnable() {
 
@@ -219,7 +210,7 @@ public class MMOCore extends MMOPlugin {
 						}
 						mmo.cfg.save();
 					}
-					sendMessage(sender, "Config: %s%s.%s%s: %s", ChatColor.YELLOW, mmo.getDescription().getName(), args[1], ChatColor.WHITE, mmo.cfg.getProperty(args[1]));
+					sendMessage(sender, "Config: %s%s.%s%s: %s", ChatColor.YELLOW, mmo.getDescription().getName(), args[1], ChatColor.WHITE, mmo.cfg.getString(args[1]));
 				}
 			}
 			return true;
@@ -250,9 +241,9 @@ public class MMOCore extends MMOPlugin {
 		}
 	}
 
-	public class mmoCorePlayerListener extends PlayerListener {
+	public class mmoCorePlayerListener implements Listener {
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerJoin(PlayerJoinEvent event) {
 			Player player = event.getPlayer();
 			if (player.hasPermission("mmocore.update")) {
@@ -271,7 +262,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerQuit(PlayerQuitEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -284,7 +275,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerKick(PlayerKickEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -297,17 +288,17 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerRespawn(PlayerRespawnEvent event) {
 			redrawAll(event.getPlayer());
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerPortal(PlayerPortalEvent event) {
 			redrawAll(event.getPlayer());
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onPlayerTeleport(PlayerTeleportEvent event) {
 			if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
 				redrawAll(event.getPlayer());
@@ -315,9 +306,9 @@ public class MMOCore extends MMOPlugin {
 		}
 	}
 
-	public class mmoCoreSpoutListener extends SpoutListener {
+	public class mmoCoreSpoutListener implements Listener {
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
 			SpoutPlayer player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -325,7 +316,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@Override
+		@EventHandler (priority = EventPriority.MONITOR)
 		public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
