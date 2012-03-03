@@ -40,12 +40,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
@@ -94,7 +95,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	static protected MMOPlugin mmoCore;
 	static protected final Logger logger = Logger.getLogger("Minecraft");
 	protected PluginDescriptionFile description;
-	protected Configuration cfg;
+	protected FileConfiguration cfg;
 	protected PluginManager pm;
 	protected Server server;
 	protected String title;
@@ -166,12 +167,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 		// Don't try to load and save the config if the plugin doesn't use it
 		if (!support.get(Support.MMO_NO_CONFIG)) {
-			cfg = new Configuration(new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml"));
-			cfg.load();
-			loadConfiguration(cfg);
-			if (!cfg.getKeys().isEmpty()) {
-				cfg.setHeader("#" + title + " Configuration");
-				cfg.save();
+                        File cfgFile = new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml");
+			cfg = YamlConfiguration.loadConfiguration(cfgFile);
+			if (!cfg.getKeys(false).isEmpty()) {
+				cfg.options().header("#" + title + " Configuration");
+                                try {
+                                    cfg.save(cfgFile);
+                                } catch(IOException e) {
+                                    log("Could not save to file " + cfgFile);
+                                }
 			}
 		}
 		if (!support.get(Support.MMO_NO_SHARED_CACHE)) {
@@ -248,7 +252,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 				// i18n: Extract main configuration
 				File i18nMain = new File(this.getDataFolder(), "i18n.yml");
 				if (i18nMain.exists()) {
-					Configuration i18nCfg = new Configuration(i18nMain);
+					FileConfiguration i18nCfg = YamlConfiguration.loadConfiguration(i18nMain);
 
 					//Add load from web code here
 					//Add check for old version here
@@ -346,7 +350,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * Load the configuration - don't save or anything...
 	 * @param cfg load from here only
 	 */
-	public void loadConfiguration(Configuration cfg) {
+	public void loadConfiguration(FileConfiguration cfg) {
 	}
 
 	/**

@@ -36,6 +36,7 @@ import mmo.Core.util.EnumBitSet;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event.Type;
@@ -47,7 +48,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.event.spout.SpoutCraftEnableEvent;
 import org.getspout.spoutapi.event.spout.SpoutListener;
@@ -123,7 +123,7 @@ public class MMOCore extends MMOPlugin {
 	}
 
 	@Override
-	public void loadConfiguration(Configuration cfg) {
+	public void loadConfiguration(FileConfiguration cfg) {
 		config_show_display_name = cfg.getBoolean("show_display_name", config_show_display_name);
 		config_show_player_faces = cfg.getBoolean("show_player_faces", config_show_player_faces);
 		config_update_hours = cfg.getInt("update_hours", config_update_hours);
@@ -141,7 +141,7 @@ public class MMOCore extends MMOPlugin {
 		config_database_hsqldb_password = cfg.getString("database.hsqldb.password", config_database_hsqldb_password);
 		config_colours.add("op=GOLD");
 		config_colours.add("default=YELLOW");
-		config_colours = cfg.getStringList("player_colors", config_colours); // american spelling for config, proper spelling for us!
+		config_colours = cfg.getStringList("player_colors");//, config_colours); // american spelling for config, proper spelling for us!
 		default_colours.clear();
 		for (String arg : config_colours) {
 			String[] perm = arg.split("=");
@@ -195,7 +195,7 @@ public class MMOCore extends MMOPlugin {
 				sendMessage(sender, "Plugins: %s", list);
 			} else {
 				Object old;
-				if (args.length == 1 || (old = mmo.cfg.getProperty(args[1])) == null) {
+				if (args.length == 1 || (old = mmo.cfg.get(args[1])) == null) {
 					String keys = "";
 					for (String key : mmo.cfg.getKeys(args.length == 1 ? null : args[1])) {
 						if (!keys.equals("")) {
@@ -207,15 +207,15 @@ public class MMOCore extends MMOPlugin {
 				} else {
 					if (args.length > 2) {
 						if (old instanceof Boolean) {
-							mmo.cfg.setProperty(args[1], Boolean.valueOf(args[2]));
+							mmo.cfg.set(args[1], Boolean.valueOf(args[2]));
 						} else if (old instanceof Double) {
-							mmo.cfg.setProperty(args[1], new Double(args[2]));
+							mmo.cfg.set(args[1], new Double(args[2]));
 						} else if (old instanceof Integer) {
-							mmo.cfg.setProperty(args[1], new Integer(args[2]));
+							mmo.cfg.set(args[1], new Integer(args[2]));
 						} else if (old instanceof List) {
-							mmo.cfg.setProperty(args[1], args[2]);
+							mmo.cfg.set(args[1], args[2]);
 						} else {
-							mmo.cfg.setProperty(args[1], args[2]);
+							mmo.cfg.set(args[1], args[2]);
 						}
 						mmo.cfg.save();
 					}
