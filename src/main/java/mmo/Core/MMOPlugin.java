@@ -40,12 +40,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.util.config.Configuration;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
@@ -70,7 +71,8 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		 */
 		MMO_AUTO_EXTRACT,
 		/**
-		 * Uses a custom table in the database, include "table.sql" files in the jar with all create and default values.
+		 * Uses a custom table in the database, include "table.sql" files in the
+		 * jar with all create and default values.
 		 */
 		MMO_DATABASE,
 		/**
@@ -78,11 +80,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		 */
 		MMO_I18N,
 		/**
-		 * Don't cache shared database access (this allows external changes to be noticed).
-		 * NOTE: This only affects shared access (the setXyz() and getXyz() methods), direct access has no cache!
+		 * Don't cache shared database access (this allows external changes to
+		 * be noticed). NOTE: This only affects shared access (the setXyz() and
+		 * getXyz() methods), direct access has no cache!
 		 */
 		MMO_NO_SHARED_CACHE
 	}
+
 	/**
 	 * There is a plugins/mmoMinecraft folder that we need to store all files in
 	 */
@@ -94,7 +98,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	static protected MMOPlugin mmoCore;
 	static protected final Logger logger = Logger.getLogger("Minecraft");
 	protected PluginDescriptionFile description;
-	protected Configuration cfg;
+	protected FileConfiguration cfg;
 	protected PluginManager pm;
 	protected Server server;
 	protected String title;
@@ -166,12 +170,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 		// Don't try to load and save the config if the plugin doesn't use it
 		if (!support.get(Support.MMO_NO_CONFIG)) {
-			cfg = new Configuration(new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml"));
-			cfg.load();
-			loadConfiguration(cfg);
-			if (!cfg.getKeys().isEmpty()) {
-				cfg.setHeader("#" + title + " Configuration");
-				cfg.save();
+			File cfgFile = new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml");
+			cfg = YamlConfiguration.loadConfiguration(cfgFile);
+			if (!cfg.getKeys(false).isEmpty()) {
+				cfg.options().header("#" + title + " Configuration");
+				try {
+					cfg.save(cfgFile);
+				} catch (IOException e) {
+					log("Could not save to file " + cfgFile);
+				}
 			}
 		}
 		if (!support.get(Support.MMO_NO_SHARED_CACHE)) {
@@ -184,8 +191,8 @@ public abstract class MMOPlugin extends SpoutPlugin {
 			// Maybe go with table.sql as the filename...
 			try {
 				JarFile jar = new JarFile(getFile());
-				for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
-					JarEntry entry = (JarEntry) entries.nextElement();
+				for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+					JarEntry entry = entries.nextElement();
 					String name = entry.getName();
 					if (name.matches(".+\\.sql$")) {
 						String table = name.substring(0, name.length() - 4);
@@ -221,16 +228,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		// Use our own global onPlayerXYZ plugin methods
 		if (support.get(Support.MMO_PLAYER)) {
 			MMOCore.support_mmo_player.add(this);
-			server.getScheduler().scheduleSyncDelayedTask(plugin,
-					new Runnable() {
+			server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
-						@Override
-						public void run() {
-							for (Player player : Bukkit.getOnlinePlayers()) {
-								onPlayerJoin(player);
-							}
-						}
-					});
+				@Override
+				public void run() {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						onPlayerJoin(player);
+					}
+				}
+			});
 		}
 		// Auto-extract resource files from within our plugin.jar
 		if (support.get(Support.MMO_AUTO_EXTRACT)) {
@@ -248,13 +254,16 @@ public abstract class MMOPlugin extends SpoutPlugin {
 				// i18n: Extract main configuration
 				File i18nMain = new File(this.getDataFolder(), "i18n.yml");
 				if (i18nMain.exists()) {
-					Configuration i18nCfg = new Configuration(i18nMain);
+					FileConfiguration i18nCfg = YamlConfiguration.loadConfiguration(i18nMain);
 
-					//Add load from web code here
-					//Add check for old version here
-					//Add more stuff
-					/* The keys used to translate (and hence show in the config files) are the real
-					 * strings with "[. ]" replaced with "_" (for use as YAML nodes). */
+					// Add load from web code here
+					// Add check for old version here
+					// Add more stuff
+					/*
+					 * The keys used to translate (and hence show in the config
+					 * files) are the real strings with "[. ]" replaced with "_"
+					 * (for use as YAML nodes).
+					 */
 
 					i18nCfg = null;
 				} else {
@@ -272,7 +281,9 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Extract files from the plugin jar.
-	 * @param regex a pattern of files to extract
+	 * 
+	 * @param regex
+	 *            a pattern of files to extract
 	 * @return if any files were extracted
 	 */
 	public boolean extractFile(String regex) {
@@ -281,16 +292,19 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Extract files from the plugin jar and optionally cache them on the client.
-	 * @param regex a pattern of files to extract
-	 * @param cache if any files found should be added to the Spout cache
+	 * 
+	 * @param regex
+	 *            a pattern of files to extract
+	 * @param cache
+	 *            if any files found should be added to the Spout cache
 	 * @return if any files were extracted
 	 */
 	public boolean extractFile(String regex, boolean cache) {
 		boolean found = false;
 		try {
 			JarFile jar = new JarFile(getFile());
-			for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
-				JarEntry entry = (JarEntry) entries.nextElement();
+			for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+				JarEntry entry = entries.nextElement();
 				String name = entry.getName();
 				if (name.matches(regex)) {
 					if (!getDataFolder().exists()) {
@@ -344,13 +358,16 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Load the configuration - don't save or anything...
-	 * @param cfg load from here only
+	 * 
+	 * @param cfg
+	 *            load from here only
 	 */
-	public void loadConfiguration(Configuration cfg) {
+	public void loadConfiguration(FileConfiguration cfg) {
 	}
 
 	/**
 	 * Supply a bitset of shortcuts for MMOPlugin to handle
+	 * 
 	 * @return the bitset provided with bits set
 	 */
 	public EnumBitSet mmoSupport(EnumBitSet support) {
@@ -359,13 +376,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Called when any player joins - need to return MMO_PLAYER from mmoSupport.
-	 * @param player 
+	 * 
+	 * @param player
 	 */
 	public void onPlayerJoin(Player player) {
 	}
 
 	/**
 	 * Called for every Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport.
+	 * 
 	 * @param player
 	 */
 	public void onSpoutCraftPlayer(SpoutPlayer player) {
@@ -373,6 +392,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Called for every *NON* Spoutcraft player on /reload and PlayerJoin - need to return MMO_PLAYER from mmoSupport.
+	 * 
 	 * @param player
 	 */
 	public void onNormalPlayer(Player player) {
@@ -380,15 +400,19 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Called when any player quits or is kicked - need to return MMO_PLAYER from mmoSupport.
-	 * @param player 
+	 * 
+	 * @param player
 	 */
 	public void onPlayerQuit(Player player) {
 	}
 
 	/**
 	 * Send a message to the log.
-	 * @param text a format style string
-	 * @param args any args for the format
+	 * 
+	 * @param text
+	 *            a format style string
+	 * @param args
+	 *            any args for the format
 	 */
 	public void log(String text, Object... args) {
 		log(Level.INFO, text, args);
@@ -396,8 +420,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Send a message to the log.
-	 * @param text a format style string
-	 * @param args any args for the format
+	 * 
+	 * @param text
+	 *            a format style string
+	 * @param args
+	 *            any args for the format
 	 */
 	public void log(Level level, String text, Object... args) {
 		logger.log(level, String.format("[" + description.getName() + "] " + text, args));
@@ -405,7 +432,9 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Return the fill pathname for an auto-extracted file.
-	 * @param name the filename
+	 * 
+	 * @param name
+	 *            the filename
 	 * @return the pathname
 	 */
 	public String getPath(String name) {
@@ -418,9 +447,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Pop up an "achievement" message.
-	 * @param player the player to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param args any args for the format string
+	 * 
+	 * @param player
+	 *            the player to tell
+	 * @param msg
+	 *            a formatted message to send (max 23 chars)
+	 * @param args
+	 *            any args for the format string
 	 */
 	public <T> void notify(T player, String msg, Object... args) {
 		this.notify(player, msg, Material.SIGN, args);
@@ -428,15 +461,20 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Pop up an "achievement" message.
-	 * @param player the Player, player name, or List of Players or player names to tell
-	 * @param msg a formatted message to send (max 23 chars)
-	 * @param icon the material to use
-	 * @param args any args for the format string
+	 * 
+	 * @param player
+	 *            the Player, player name, or List of Players or player names to tell
+	 * @param msg
+	 *            a formatted message to send (max 23 chars)
+	 * @param icon
+	 *            the material to use
+	 * @param args
+	 *            any args for the format string
 	 */
 	public <T> void notify(T player, String msg, Material icon, Object... args) {
 		if (player != null) {
 			if (player instanceof List) {
-				for (Object entry : (List) player) {
+				for (Object entry : (List<?>) player) {
 					this.notify(entry, msg, icon, args);
 				}
 			} else {
@@ -450,9 +488,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Send a message to one person by name.
-	 * @param player the Player, player name, or List of Players or player names to tell
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
+	 * 
+	 * @param player
+	 *            the Player, player name, or List of Players or player names to tell
+	 * @param msg
+	 *            the formatted message to send
+	 * @param args
+	 *            any args for the format string
 	 */
 	public <T> void sendMessage(T player, String msg, Object... args) {
 		sendMessage(true, player, msg, args);
@@ -460,15 +502,20 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Send a message to one person.
-	 * @param prefix whether to show the plugin name
-	 * @param player the Player, player name, or List of Players or player names to tell
-	 * @param msg the formatted message to send
-	 * @param args any args for the format string
+	 * 
+	 * @param prefix
+	 *            whether to show the plugin name
+	 * @param player
+	 *            the Player, player name, or List of Players or player names to tell
+	 * @param msg
+	 *            the formatted message to send
+	 * @param args
+	 *            any args for the format string
 	 */
 	public <T> void sendMessage(boolean prefix, T player, String msg, Object... args) {
 		if (player != null) {
 			if (player instanceof List) {
-				for (Object entry : (List) player) {
+				for (Object entry : (List<?>) player) {
 					sendMessage(prefix, entry, msg, args);
 				}
 			} else {
@@ -485,10 +532,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get the container for use by this plugin, anchor and position can be overridden by MMOHUDEvent.
-	 * @param player the player this is for
-	 * @param anchorName the name of the WidgetAnchor
-	 * @param offsetX the horizontal offset to use
-	 * @param offsetY the vertical offset to use
+	 * 
+	 * @param player
+	 *            the player this is for
+	 * @param anchorName
+	 *            the name of the WidgetAnchor
+	 * @param offsetX
+	 *            the horizontal offset to use
+	 * @param offsetY
+	 *            the vertical offset to use
 	 * @return the Container
 	 */
 	public Container getContainer(SpoutPlayer player, String anchorName, int offsetX, int offsetY) {
@@ -533,8 +585,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setGlobalTitle.
-	 * @param target the entity to target
-	 * @param title the title to show
+	 * 
+	 * @param target
+	 *            the entity to target
+	 * @param title
+	 *            the title to show
 	 */
 	public void setTitle(LivingEntity target, String title) {
 		if (target != null) {
@@ -544,9 +599,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setPlayerTitle.
-	 * @param player the player seeing the target
-	 * @param target the entity to target
-	 * @param title the title to show
+	 * 
+	 * @param player
+	 *            the player seeing the target
+	 * @param target
+	 *            the entity to target
+	 * @param title
+	 *            the title to show
 	 */
 	public void setTitle(Player player, LivingEntity target, String title) {
 		if (player != null && target != null) {
@@ -556,8 +615,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setGlobalCloak.
-	 * @param target the entity to target
-	 * @param url the cloak to show
+	 * 
+	 * @param target
+	 *            the entity to target
+	 * @param url
+	 *            the cloak to show
 	 */
 	public void setCloak(HumanEntity target, String url) {
 		if (target != null) {
@@ -567,9 +629,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setPlayerCloak.
-	 * @param player the player seeing the target
-	 * @param target the entity to target
-	 * @param url the cloak to show
+	 * 
+	 * @param player
+	 *            the player seeing the target
+	 * @param target
+	 *            the entity to target
+	 * @param url
+	 *            the cloak to show
 	 */
 	public void setCloak(Player player, HumanEntity target, String url) {
 		if (player != null && target != null) {
@@ -579,8 +645,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setGlobalCloak.
-	 * @param target the entity to target
-	 * @param url the cloak to show
+	 * 
+	 * @param target
+	 *            the entity to target
+	 * @param url
+	 *            the cloak to show
 	 */
 	public void setSkin(HumanEntity target, String url) {
 		if (target != null) {
@@ -590,9 +659,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Spout-safe version of setPlayerCloak.
-	 * @param player the player seeing the target
-	 * @param target the entity to target
-	 * @param url the cloak to show
+	 * 
+	 * @param player
+	 *            the player seeing the target
+	 * @param target
+	 *            the entity to target
+	 * @param url
+	 *            the cloak to show
 	 */
 	public void setSkin(Player player, HumanEntity target, String url) {
 		if (player != null && target != null) {
@@ -601,12 +674,15 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	}
 
 	/**
-	 * Sends a query to the SQL database.
-	 * This uses a prepared statement to ensure the safety of the arguments.
-	 * @param query the SQL query to send to the database
-	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * Sends a query to the SQL database. This uses a prepared statement to ensure the safety of the arguments.
+	 * 
+	 * @param query
+	 *            the SQL query to send to the database
+	 * @param vars
+	 *            a list of variables that replace "?" in the query in a secure manner
 	 * @return the table of results from the query
-	 * @throws NullPointerException if database is uninitialised
+	 * @throws NullPointerException
+	 *             if database is uninitialized
 	 * @see DatabaseHandler
 	 */
 	public Map<String, Object> query(String query, Object... vars) {
@@ -615,10 +691,14 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Creates a prepared query for the database.
-	 * @param query the SQL query to prepare to send to the database
-	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * 
+	 * @param query
+	 *            the SQL query to prepare to send to the database
+	 * @param vars
+	 *            a list of variables that replace "?" in the query in a secure manner
 	 * @return the prepared statement
-	 * @throws NullPointerException if database is uninitialised
+	 * @throws NullPointerException
+	 *             if database is uninitialized
 	 * @see DatabaseHandler
 	 */
 	public PreparedStatement prepare(String query, Object... vars) {
@@ -627,8 +707,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a value for a specific key.
-	 * @param player the Player (or player name) this data relates to
-	 * @param key a unique id (per plugin per player)
+	 * 
+	 * @param player
+	 *            the Player (or player name) this data relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
 	 * @return the value stored
 	 */
 	public <T> String getData(T player, String key) {
@@ -653,11 +736,14 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	}
 
 	/**
-	 * Set the value for a specific key.
-	 * If caching is turned on and there is no change then this won't try to write to the database.
-	 * @param player the Player (or player name) this data relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set it to
+	 * Set the value for a specific key. If caching is turned on and there is no change then this won't try to write to the database.
+	 * 
+	 * @param player
+	 *            the Player (or player name) this data relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set it to
 	 */
 	public <T> void setData(T player, String key, String value) {
 		Player p = MMO.playerFromName(player);
@@ -678,8 +764,11 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Delete the value for a specific key.
-	 * @param player the Player (or player name) this data relates to
-	 * @param key a unique id (per plugin per player)
+	 * 
+	 * @param player
+	 *            the Player (or player name) this data relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
 	 */
 	public <T> void deleteData(T player, String key) {
 		Player p = MMO.playerFromName(player);
@@ -696,9 +785,10 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	}
 
 	/**
-	 * Clear the shared cache for a single player.
-	 * This is automatically called after players disconnect.
-	 * @param player the Player (or player name) to clear
+	 * Clear the shared cache for a single player. This is automatically called after players disconnect.
+	 * 
+	 * @param player
+	 *            the Player (or player name) to clear
 	 */
 	public <T> void clearCache(T player) {
 		if (dbCache != null) {
@@ -718,9 +808,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set a string in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setString(T player, String key, String value) {
 		setData(player, key, value);
@@ -728,9 +822,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a string from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> String getString(T player, String key, String def) {
@@ -743,9 +841,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set a list of strings in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setStringList(T player, String key, List<String> value) {
 		setData(player, key, MMO.join(value, ","));
@@ -753,9 +855,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a list of strings from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> List<String> getStringList(T player, String key, List<String> def) {
@@ -768,9 +874,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set an integer in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setInt(T player, String key, int value) {
 		setData(player, key, "" + value);
@@ -778,9 +888,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get an integer from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> int getInt(T player, String key, int def) {
@@ -793,9 +907,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set a double in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setDouble(T player, String key, double value) {
 		setData(player, key, "" + value);
@@ -803,9 +921,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a double from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> double getDouble(T player, String key, double def) {
@@ -818,9 +940,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set a boolean in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setBoolean(T player, String key, boolean value) {
 		setData(player, key, value ? "true" : "false");
@@ -828,9 +954,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a boolean from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> boolean getBoolean(T player, String key, boolean def) {
@@ -843,9 +973,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Set a Location in the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param value the value to set
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param value
+	 *            the value to set
 	 */
 	public <T> void setLocation(T player, String key, Location value) {
 		setData(player, key, value.getWorld().getName() + "," + value.getX() + "," + value.getY() + "," + value.getZ() + "," + value.getPitch() + "," + value.getYaw());
@@ -853,9 +987,13 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Get a Location from the shared database.
-	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per plugin per player)
-	 * @param def the default value if not found
+	 * 
+	 * @param player
+	 *            the Player (or player name) this relates to
+	 * @param key
+	 *            a unique id (per plugin per player)
+	 * @param def
+	 *            the default value if not found
 	 * @return the data
 	 */
 	public <T> Location getLocation(T player, String key, Location def) {
@@ -864,12 +1002,9 @@ public abstract class MMOPlugin extends SpoutPlugin {
 			List<String> values = Arrays.asList(result.split(","));
 			if (values.size() == 6) {
 				try {
-					return new Location(
-							Bukkit.getWorld(values.get(0)),
-							Double.parseDouble(values.get(1)),
-							Double.parseDouble(values.get(2)),
-							Double.parseDouble(values.get(3)),
-							Float.parseFloat(values.get(4)),
+					return new Location(Bukkit.getWorld(values.get(0)),
+							Double.parseDouble(values.get(1)), Double.parseDouble(values.get(2)),
+							Double.parseDouble(values.get(3)), Float.parseFloat(values.get(4)),
 							Float.parseFloat(values.get(5)));
 				} catch (Exception e) {
 				}
@@ -880,36 +1015,28 @@ public abstract class MMOPlugin extends SpoutPlugin {
 
 	/**
 	 * Pop up a requester for the player.
-	 * @param player the Player to ask
-	 * @param description the question to ask them
-	 * @param buttons a list of buttons to display
+	 * 
+	 * @param player
+	 *            the Player to ask
+	 * @param description
+	 *            the question to ask them
+	 * @param buttons
+	 *            a list of buttons to display
 	 * @return if the request could be shown
 	 */
 	public boolean request(Player player, String id, String description, String... buttons) {
-		if (false) {
-			return true;
-		}
 		return false;
 	}
 	/**
 	 * Will add custom commands to plugins without needing the plugin.yml entry
 	 * 
-	@Deprecated
-	private void addCommand(String command) {
-	Class<? extends Server> c = this.getServer().getClass();
-	try {
-	Field f = c.getDeclaredField("commandMap");
-	f.setAccessible(true);
-	SimpleCommandMap scm = (SimpleCommandMap) f.get(c);
-	} catch (SecurityException e) {
-	e.printStackTrace();
-	} catch (NoSuchFieldException e) {
-	e.printStackTrace();
-	} catch (IllegalArgumentException e) {
-	e.printStackTrace();
-	} catch (IllegalAccessException e) {
-	e.printStackTrace();
-	}
-	}
+	 * @Deprecated private void addCommand(String command) { Class<? extends
+	 *             Server> c = this.getServer().getClass(); try { Field f =
+	 *             c.getDeclaredField("commandMap"); f.setAccessible(true);
+	 *             SimpleCommandMap scm = (SimpleCommandMap) f.get(c); } catch
+	 *             (SecurityException e) { e.printStackTrace(); } catch
+	 *             (NoSuchFieldException e) { e.printStackTrace(); } catch
+	 *             (IllegalArgumentException e) { e.printStackTrace(); } catch
+	 *             (IllegalAccessException e) { e.printStackTrace(); } }
 	 */
 }

@@ -18,6 +18,8 @@ package mmo.Core.DamageAPI;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 /**
@@ -26,53 +28,71 @@ import org.bukkit.event.entity.EntityDamageEvent;
  * 
  * @author Sebastian Mayr
  */
-public interface MMODamageEvent extends Cancellable {
+public abstract class MMODamageEvent extends Event implements Cancellable {
+	private static final HandlerList handlers = new HandlerList();
+
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 
 	/**
 	 * Returns the damage this event does.
+	 * 
 	 * @return the amount of damage
 	 */
-	public int getDamage();
+	public abstract int getDamage();
 
 	/**
 	 * Sets the damage this event does.
-	 * @param damage the amount of damage
+	 * 
+	 * @param damage
+	 *            the amount of damage
 	 */
-	public void setDamage(int damage);
+	public abstract void setDamage(int damage);
 
 	/**
 	 * Returns the method of damage done.
+	 * 
 	 * @return the type of the damage
 	 */
-	public MMODamageType getDamageType();
+	public abstract MMODamageType getDamageType();
 
 	/**
 	 * Returns the original damage event.
+	 * 
 	 * @return the original damage event
 	 */
-	public EntityDamageEvent getEvent();
+	public abstract EntityDamageEvent getEvent();
 
 	/**
 	 * Gets the attacker of this damage event.
+	 * 
 	 * @return the attacker
 	 */
-	public Entity getAttacker();
+	public abstract Entity getAttacker();
 
 	/**
 	 * Gets the real attacker of this damage event, pet rather than owner etc.
+	 * 
 	 * @return the attacker
 	 */
-	public Entity getRealAttacker();
+	public abstract Entity getRealAttacker();
 
 	/**
 	 * Gets the defender of this damage event.
+	 * 
 	 * @return the defender
 	 */
-	public Entity getDefender();
+	public abstract Entity getDefender();
 
 	/**
 	 * Gets the real defender of this damage event, pet rather than owner etc.
+	 * 
 	 * @return the defender
 	 */
-	public Entity getRealDefender();
+	public abstract Entity getRealDefender();
 }
