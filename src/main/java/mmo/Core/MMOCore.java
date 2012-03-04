@@ -36,6 +36,7 @@ import mmo.Core.util.EnumBitSet;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -97,14 +98,13 @@ public class MMOCore extends MMOPlugin {
 
 		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
 		pm.registerEvents(cpl, this);
-		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this,
-				new Runnable() {
+		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
-					@Override
-					public void run() {
-						checkVersion();
-					}
-				}, 20 * 60 * 60 * config_update_hours, 20 * 60 * 60 * config_update_hours);
+			@Override
+			public void run() {
+				checkVersion();
+			}
+		}, 20 * 60 * 60 * config_update_hours, 20 * 60 * 60 * config_update_hours);
 	}
 
 	@Override
@@ -132,7 +132,12 @@ public class MMOCore extends MMOPlugin {
 		config_database_hsqldb_password = cfg.getString("database.hsqldb.password", config_database_hsqldb_password);
 		config_colours.add("op=GOLD");
 		config_colours.add("default=YELLOW");
-		config_colours = cfg.getStringList("player_colors");//, config_colours); // american spelling for config, proper spelling for us!
+
+		// american spelling for config, proper spelling for us!
+		if (cfg.isList("player_colors")) {
+			config_colours = cfg.getStringList("player_colors");
+		}
+
 		default_colours.clear();
 		for (String arg : config_colours) {
 			String[] perm = arg.split("=");
@@ -141,13 +146,14 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-
 		if (database != null) {
 			database.close();
 			database = null;
 		}
 		if (SQLite.type.equalsIgnoreCase(MMOCore.config_database_type)) {
-			database = new SQLite(null, new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), "mmoMinecraft.db"));
+			database = new SQLite(null, new File(
+					singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(),
+					"mmoMinecraft.db"));
 		} else if (MySQL.type.equalsIgnoreCase(MMOCore.config_database_type)) {
 			database = new MySQL(null,
 					MMOCore.config_database_mysql_hostname,
@@ -188,11 +194,14 @@ public class MMOCore extends MMOPlugin {
 				Object old;
 				if (args.length == 1 || (old = mmo.cfg.get(args[1])) == null) {
 					String keys = "";
-					for (String key : mmo.cfg.getKeys(args.length == 1 ? null : args[1])) {
-						if (!keys.equals("")) {
-							keys += ", ";
+					ConfigurationSection subConfig = mmo.cfg.getConfigurationSection(args.length == 1 ? null : args[1]);
+					if (subConfig != null) {
+						for (String key : subConfig.getKeys(false)) {
+							if (!keys.equals("")) {
+								keys += ", ";
+							}
+							keys += key;
 						}
-						keys += key;
 					}
 					sendMessage(sender, "Config: %s%s%s: %s", ChatColor.YELLOW, mmo.getDescription().getName(), ChatColor.WHITE, keys);
 				} else {
@@ -208,7 +217,12 @@ public class MMOCore extends MMOPlugin {
 						} else {
 							mmo.cfg.set(args[1], args[2]);
 						}
-						mmo.cfg.save();
+						File cfgFile = new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml");
+						try {
+							mmo.cfg.save(cfgFile);
+						} catch (IOException e) {
+							sendMessage(sender, this + ": there was an error while trying to save the file: " + cfgFile);
+						}
 					}
 					sendMessage(sender, "Config: %s%s.%s%s: %s", ChatColor.YELLOW, mmo.getDescription().getName(), args[1], ChatColor.WHITE, mmo.cfg.getString(args[1]));
 				}
@@ -243,7 +257,7 @@ public class MMOCore extends MMOPlugin {
 
 	public class mmoCorePlayerListener implements Listener {
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerJoin(PlayerJoinEvent event) {
 			Player player = event.getPlayer();
 			if (player.hasPermission("mmocore.update")) {
@@ -262,7 +276,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerQuit(PlayerQuitEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -275,7 +289,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerKick(PlayerKickEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -288,17 +302,17 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerRespawn(PlayerRespawnEvent event) {
 			redrawAll(event.getPlayer());
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerPortal(PlayerPortalEvent event) {
 			redrawAll(event.getPlayer());
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onPlayerTeleport(PlayerTeleportEvent event) {
 			if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
 				redrawAll(event.getPlayer());
@@ -308,7 +322,7 @@ public class MMOCore extends MMOPlugin {
 
 	public class mmoCoreSpoutListener implements Listener {
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
 			SpoutPlayer player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {
@@ -316,7 +330,7 @@ public class MMOCore extends MMOPlugin {
 			}
 		}
 
-		@EventHandler (priority = EventPriority.MONITOR)
+		@EventHandler(priority = EventPriority.MONITOR)
 		public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
 			Player player = event.getPlayer();
 			for (MMOPlugin plugin : support_mmo_player) {

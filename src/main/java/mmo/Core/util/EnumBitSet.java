@@ -27,7 +27,7 @@ public class EnumBitSet extends BitSet {
 	 * @param   bitIndex the index of the bit to flip.
 	 * @exception IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public void flip(Enum bitIndex) {
+	public void flip(Enum<?> bitIndex) {
 		super.flip(bitIndex.ordinal());
 	}
 
@@ -42,7 +42,7 @@ public class EnumBitSet extends BitSet {
 	 *            or <tt>toIndex</tt> is negative, or <tt>fromIndex</tt> is
 	 *            larger than <tt>toIndex</tt>.
 	 */
-	public void flip(Enum fromIndex, Enum toIndex) {
+	public void flip(Enum<?> fromIndex, Enum<?> toIndex) {
 		super.flip(fromIndex.ordinal(), toIndex.ordinal());
 	}
 
@@ -52,7 +52,7 @@ public class EnumBitSet extends BitSet {
 	 * @param bitIndex an enum index.
 	 * @exception IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public void set(Enum bitIndex) {
+	public void set(Enum<?> bitIndex) {
 		super.set(bitIndex.ordinal());
 	}
 
@@ -63,7 +63,7 @@ public class EnumBitSet extends BitSet {
 	 * @param     value a boolean value to set.
 	 * @exception IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public void set(Enum bitIndex, boolean value) {
+	public void set(Enum<?> bitIndex, boolean value) {
 		super.set(bitIndex.ordinal(), value);
 	}
 
@@ -77,7 +77,7 @@ public class EnumBitSet extends BitSet {
 	 *            or <tt>toIndex</tt> is negative, or <tt>fromIndex</tt> is
 	 *            larger than <tt>toIndex</tt>.
 	 */
-	public void set(Enum fromIndex, Enum toIndex) {
+	public void set(Enum<?> fromIndex, Enum<?> toIndex) {
 		super.set(fromIndex.ordinal(), toIndex.ordinal());
 	}
 
@@ -92,7 +92,7 @@ public class EnumBitSet extends BitSet {
 	 *            or <tt>toIndex</tt> is negative, or <tt>fromIndex</tt> is
 	 *            larger than <tt>toIndex</tt>.
 	 */
-	public void set(Enum fromIndex, Enum toIndex, boolean value) {
+	public void set(Enum<?> fromIndex, Enum<?> toIndex, boolean value) {
 		super.set(fromIndex.ordinal(), toIndex.ordinal(), value);
 	}
 
@@ -103,7 +103,7 @@ public class EnumBitSet extends BitSet {
 	 * @exception IndexOutOfBoundsException if the specified index is negative.
 	 * @since     JDK1.0
 	 */
-	public void clear(Enum bitIndex) {
+	public void clear(Enum<?> bitIndex) {
 		super.clear(bitIndex.ordinal());
 	}
 
@@ -118,7 +118,7 @@ public class EnumBitSet extends BitSet {
 	 *            larger than <tt>toIndex</tt>.
 	 * @since     1.4
 	 */
-	public void clear(Enum fromIndex, Enum toIndex) {
+	public void clear(Enum<?> fromIndex, Enum<?> toIndex) {
 		super.clear(fromIndex.ordinal(), toIndex.ordinal());
 	}
 
@@ -132,7 +132,7 @@ public class EnumBitSet extends BitSet {
 	 * @return    the value of the bit with the specified index.
 	 * @exception IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public boolean get(Enum bitIndex) {
+	public boolean get(Enum<?> bitIndex) {
 		return super.get(bitIndex.ordinal());
 	}
 
@@ -147,7 +147,7 @@ public class EnumBitSet extends BitSet {
 	 *            or <tt>toIndex</tt> is negative, or <tt>fromIndex</tt> is
 	 *            larger than <tt>toIndex</tt>.
 	 */
-	public EnumBitSet get(Enum fromIndex, Enum toIndex) {
+	public EnumBitSet get(Enum<?> fromIndex, Enum<?> toIndex) {
 		EnumBitSet result = new EnumBitSet();
 		result.or(super.get(fromIndex.ordinal(), toIndex.ordinal()));
 		return result;
@@ -170,7 +170,7 @@ public class EnumBitSet extends BitSet {
 	 * @return  the index of the next set bit.
 	 * @throws  IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public int nextSetBit(Enum fromIndex) {
+	public int nextSetBit(Enum<?> fromIndex) {
 		return super.nextSetBit(fromIndex.ordinal());
 	}
 
@@ -182,7 +182,7 @@ public class EnumBitSet extends BitSet {
 	 * @return  the index of the next clear bit.
 	 * @throws  IndexOutOfBoundsException if the specified index is negative.
 	 */
-	public int nextClearBit(Enum fromIndex) {
+	public int nextClearBit(Enum<?> fromIndex) {
 		return super.nextClearBit(fromIndex.ordinal());
 	}
 }
