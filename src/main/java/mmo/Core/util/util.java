@@ -102,7 +102,7 @@ public class util {
 		start = Math.min(Math.max(start, 0), oldSize - 1);
 		length = Math.max(Math.min(length, oldSize - start), 0);
 
-		Class elementType = oldArray.getClass().getComponentType();
+		Class<?> elementType = oldArray.getClass().getComponentType();
 		Object newArray = java.lang.reflect.Array.newInstance(elementType, length);
 
 		System.arraycopy(oldArray, start, newArray, 0, length);

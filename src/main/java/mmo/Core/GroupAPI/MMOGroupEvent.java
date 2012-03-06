@@ -18,30 +18,45 @@ package mmo.Core.GroupAPI;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
-public interface MMOGroupEvent extends Cancellable {
+public abstract class MMOGroupEvent extends Event implements Cancellable {
+	private static final HandlerList handlers = new HandlerList();
+
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 
 	/**
 	 * Get the player who is affected by this event.
+	 * 
 	 * @return the player
 	 */
-	public Player getPlayer();
+	public abstract Player getPlayer();
 
 	/**
 	 * Get the player who caused the event (ie, party leader).
+	 * 
 	 * @return the player
 	 */
-	public Player getBlamer();
+	public abstract Player getBlamer();
 
 	/**
 	 * Get the group that is being affected.
+	 * 
 	 * @return the group
 	 */
-	public Group getGroup();
+	public abstract Group getGroup();
 
 	/**
 	 * Get the type of event that has happened.
+	 * 
 	 * @return the group event type
 	 */
-	public MMOGroupAction getAction();
+	public abstract MMOGroupAction getAction();
 }

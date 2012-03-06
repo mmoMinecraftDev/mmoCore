@@ -19,7 +19,6 @@ package mmo.Core.GroupAPI;
 import java.util.List;
 import java.util.Set;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public interface Group {
 
