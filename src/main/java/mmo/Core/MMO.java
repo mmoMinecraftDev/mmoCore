@@ -104,19 +104,19 @@ public class MMO {
 	 * @param player the Player we're interested in
 	 * @return the percentage of max armour
 	 */
-	public static int getArmor(Entity player) {
-		if (player != null && player instanceof Player) {
-			int armor = 0, max, multi[] = {15, 30, 40, 15};
-			ItemStack inv[] = ((Player) player).getInventory().getArmorContents();
+	public static int getArmor(final Entity player) {
+		int armor = 0;
+		if (player instanceof Player) {
+			final int[] multi = {15, 30, 40, 15};
+			final ItemStack[] inv = ((Player) player).getInventory().getArmorContents();
 			for (int i = 0; i < inv.length; i++) {
-				max = inv[i].getType().getMaxDurability();
+				final int max = inv[i].getType().getMaxDurability();
 				if (max > 0) {
 					armor += multi[i] * (max - inv[i].getDurability()) / max;
 				}
 			}
-			return armor;
 		}
-		return 0;
+		return armor;
 	}
 
 	/**

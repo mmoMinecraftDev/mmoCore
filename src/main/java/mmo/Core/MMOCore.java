@@ -55,12 +55,8 @@ import org.getspout.spoutapi.event.spout.SpoutcraftFailedEvent;
 import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
-public class MMOCore extends MMOPlugin {
+public class MMOCore extends MMOPlugin implements Listener {
 
-	/**
-	 * List of plugins that want to react on various Player events
-	 */
-	static protected List<MMOPlugin> support_mmo_player = new ArrayList<MMOPlugin>();
 	/**
 	 * Task to check for mmoMinecraft updates
 	 */
@@ -96,8 +92,7 @@ public class MMOCore extends MMOPlugin {
 	public void onEnable() {
 		super.onEnable();
 
-		mmoCorePlayerListener cpl = new mmoCorePlayerListener();
-		pm.registerEvents(cpl, this);
+		pm.registerEvents(this, this);
 		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
 			@Override
@@ -255,102 +250,71 @@ public class MMOCore extends MMOPlugin {
 		}
 	}
 
-	public class mmoCorePlayerListener implements Listener {
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerJoin(PlayerJoinEvent event) {
-			Player player = event.getPlayer();
-			if (player.hasPermission("mmocore.update")) {
-				String list = "";
-				for (Plugin p : Arrays.asList(pm.getPlugins())) {
-					if (p instanceof MMOPlugin && ((MMOPlugin) p).update) {
-						list += (list.isEmpty() ? "" : ", ") + p.getDescription().getName();
-					}
-				}
-				if (!list.isEmpty()) {
-					sendMessage(player, "Updates: %s", list);
-				}
-			}
-			for (MMOPlugin plugin : support_mmo_player) {
-				plugin.onPlayerJoin(player);
-			}
-		}
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerQuit(PlayerQuitEvent event) {
-			Player player = event.getPlayer();
-			for (MMOPlugin plugin : support_mmo_player) {
-				plugin.onPlayerQuit(player);
-			}
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerJoin(final PlayerJoinEvent event) {
+		final Player player = event.getPlayer();
+		if (player.hasPermission("mmocore.update")) {
+			String list = "";
 			for (Plugin p : Arrays.asList(pm.getPlugins())) {
-				if (p instanceof MMOPlugin) {
-					((MMOPlugin) p).clearCache(player);
+				if (p instanceof MMOPlugin && ((MMOPlugin) p).update) {
+					list += (list.isEmpty() ? "" : ", ") + p.getDescription().getName();
 				}
 			}
-		}
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerKick(PlayerKickEvent event) {
-			Player player = event.getPlayer();
-			for (MMOPlugin plugin : support_mmo_player) {
-				plugin.onPlayerQuit(player);
-			}
-			for (Plugin p : Arrays.asList(pm.getPlugins())) {
-				if (p instanceof MMOPlugin) {
-					((MMOPlugin) p).clearCache(player);
-				}
-			}
-		}
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerRespawn(PlayerRespawnEvent event) {
-			redrawAll(event.getPlayer());
-		}
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerPortal(PlayerPortalEvent event) {
-			redrawAll(event.getPlayer());
-		}
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onPlayerTeleport(PlayerTeleportEvent event) {
-			if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
-				redrawAll(event.getPlayer());
+			if (!list.isEmpty()) {
+				sendMessage(player, "Updates: %s", list);
 			}
 		}
 	}
 
-	public class mmoCoreSpoutListener implements Listener {
-
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onSpoutCraftEnable(SpoutCraftEnableEvent event) {
-			SpoutPlayer player = event.getPlayer();
-			for (MMOPlugin plugin : support_mmo_player) {
-				plugin.onSpoutCraftPlayer(player);
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerQuit(final PlayerQuitEvent event) {
+		final Player player = event.getPlayer();
+		for (Plugin p : Arrays.asList(pm.getPlugins())) {
+			if (p instanceof MMOPlugin) {
+				((MMOPlugin) p).clearCache(player);
 			}
 		}
+	}
 
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onSpoutcraftFailed(SpoutcraftFailedEvent event) {
-			Player player = event.getPlayer();
-			for (MMOPlugin plugin : support_mmo_player) {
-				plugin.onNormalPlayer(player);
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerKick(final PlayerKickEvent event) {
+		final Player player = event.getPlayer();
+		for (Plugin p : Arrays.asList(pm.getPlugins())) {
+			if (p instanceof MMOPlugin) {
+				((MMOPlugin) p).clearCache(player);
 			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerRespawn(final PlayerRespawnEvent event) {
+		redrawAll(event.getPlayer());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerPortal(final PlayerPortalEvent event) {
+		redrawAll(event.getPlayer());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerTeleport(final PlayerTeleportEvent event) {
+		if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+			redrawAll(event.getPlayer());
 		}
 	}
 
 	public void checkVersion() {
 		try {
-			URL url = new URL("http://files.mmo.me.uk/versions.txt");
-			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+			final URL url = new URL("http://files.mmo.me.uk/versions.txt");
+			final BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String str;
 			while ((str = in.readLine()) != null) { // mmoPlugin:0.1:descrption
-				String[] tokens = str.split(":");
+				final String[] tokens = str.split(":");
 				if (tokens.length == 3) {
-					Plugin mmo = pm.getPlugin(tokens[0]);
-					if (mmo != null && mmo instanceof MMOPlugin && !((MMOPlugin) mmo).update) {
-						String newVersion[] = tokens[1].split("\\.");
-						int newVer = Integer.parseInt(newVersion[0]), newRev = Integer.parseInt(newVersion[1]);
+					final Plugin mmo = pm.getPlugin(tokens[0]);
+					if (mmo instanceof MMOPlugin && !((MMOPlugin) mmo).update) {
+						final String[] newVersion = tokens[1].split("\\.");
+						final int newVer = Integer.parseInt(newVersion[0]), newRev = Integer.parseInt(newVersion[1]);
 						if (newVer > ((MMOPlugin) mmo).version || (newVer == ((MMOPlugin) mmo).version && newRev > ((MMOPlugin) mmo).revision)) {
 							((MMOPlugin) mmo).update = true;
 							log("Update found: %s", ((MMOPlugin) mmo).description.getName());
@@ -363,22 +327,22 @@ public class MMOCore extends MMOPlugin {
 		}
 	}
 
-	public void getUpdate(MMOPlugin mmo) {
+	public void getUpdate(final MMOPlugin mmo) {
 		try {
 			FileOutputStream fos = null;
 			try {
-				File directory = new File(getServer().getUpdateFolder());
+				final File directory = new File(getServer().getUpdateFolder());
 				if (!directory.exists()) {
 					try {
 						directory.mkdir();
 					} catch (SecurityException e1) {
 					}
 				}
-				File newFile = new File(directory.getPath(), mmo.description.getName() + ".jar");
+				final File newFile = new File(directory.getPath(), mmo.description.getName() + ".jar");
 				if (newFile.canWrite()) {
-					URL url = new URL("http://mmo.rycochet.net/" + mmo.description.getName() + ".jar");
-					HttpURLConnection con = (HttpURLConnection) (url.openConnection());
-					ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
+					final URL url = new URL("http://mmo.rycochet.net/" + mmo.description.getName() + ".jar");
+					final HttpURLConnection con = (HttpURLConnection) (url.openConnection());
+					final ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
 					fos = new FileOutputStream(newFile);
 					fos.getChannel().transferFrom(rbc, 0, 1 << 24);
 				}
