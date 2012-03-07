@@ -23,17 +23,17 @@ import org.bukkit.plugin.Plugin;
 import org.getspout.spoutapi.gui.WidgetAnchor;
 
 /**
- * Used to alter the HUD item locations
+ * Used to alter the HUD item locations.
  */
 public class MMOHUDEvent extends Event {
 
-	Player player;
-	Plugin plugin;
-	WidgetAnchor anchor;
-	int offsetX, offsetY;
-	protected static final HandlerList handlers = new HandlerList();
+	private static final HandlerList handlers = new HandlerList();
+	private Player player;
+	private Plugin plugin;
+	private WidgetAnchor anchor;
+	private int offsetX, offsetY;
 
-	public MMOHUDEvent(Player player, Plugin plugin, WidgetAnchor anchor, int offsetX, int offsetY) {
+	public MMOHUDEvent(final Player player, final Plugin plugin, final WidgetAnchor anchor, final int offsetX, final int offsetY) {
 		super();
 		this.player = player;
 		this.plugin = plugin;
@@ -42,39 +42,75 @@ public class MMOHUDEvent extends Event {
 		this.offsetY = offsetY;
 	}
 
+	/**
+	 * Get the player this HUD element is for.
+	 *
+	 * @return the player
+	 */
 	public Player getPlayer() {
 		return player;
 	}
 
+	/**
+	 * Get the plugin opening a HUD element.
+	 *
+	 * @return the plugin
+	 */
 	public Plugin getPlugin() {
 		return plugin;
 	}
 
+	/**
+	 * Get the anchor point requested.
+	 *
+	 * @return the anchor
+	 */
 	public WidgetAnchor getAnchor() {
 		return anchor;
 	}
 
+	/**
+	 * Get the X offset of the element.
+	 *
+	 * @return X offset
+	 */
 	public int getOffsetX() {
 		return offsetX;
 	}
 
-	public void setOffsetX(int offsetX) {
+	/**
+	 * Set the X offset for the element.
+	 *
+	 * @param offsetX in pixels
+	 */
+	public void setOffsetX(final int offsetX) {
 		this.offsetX = offsetX;
 	}
 
+	/**
+	 * Get the Y offset for the element.
+	 *
+	 * @return Y offset
+	 */
 	public int getOffsetY() {
 		return offsetY;
 	}
 
-	public void setOffsetY(int offsetY) {
+	/**
+	 * Set the Y offset for the element.
+	 *
+	 * @param offsetY in pixels
+	 */
+	public void setOffsetY(final int offsetY) {
 		this.offsetY = offsetY;
 	}
 
+	@Override
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
-
 }

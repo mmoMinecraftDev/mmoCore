@@ -120,7 +120,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	@Override
 	public void onEnable() {
 		if (this instanceof MMOCore) {
-			mmoCore = this;
+			MMOPlugin.mmoCore = this;
 		}
 		plugin = this;
 		description = getDescription();

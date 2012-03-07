@@ -27,7 +27,7 @@ public interface MMOChatEvent extends Cancellable {
 	 * @param filter the name of the filter
 	 * @return if it should be used
 	 */
-	public boolean hasFilter(String filter);
+	boolean hasFilter(String filter);
 
 	/**
 	 * Get the args supplied for the filter.
@@ -36,33 +36,33 @@ public interface MMOChatEvent extends Cancellable {
 	 * @param filter the name of the filter
 	 * @return if it should be used
 	 */
-	public String[] getArgs(String filter);
+	String[] getArgs(String filter);
 
 	/**
-	 * Set the message for a single player
+	 * Set the message for a single player.
 	 * @param player the Player getting a custom message
 	 * @param message the custom message
 	 */
-	public void setMessage(Player player, String message);
+	void setMessage(Player player, String message);
 
 	/**
 	 * Set the default message for all players.
 	 * @param message the default message
 	 */
-	public void setMessage(String message);
+	void setMessage(String message);
 
 	/**
 	 * Get the message for a single player, get the default message if no custom message exists.
 	 * @param player the Player we're interested in
 	 * @return the message for that player
 	 */
-	public String getMessage(Player player);
+	String getMessage(Player player);
 
 	/**
 	 * Get the default message for all players.
 	 * @return the default message
 	 */
-	public String getMessage();
+	String getMessage();
 
 	/**
 	 * Set the default format string for all players.
@@ -72,7 +72,7 @@ public interface MMOChatEvent extends Cancellable {
 	 * "%4$s" = Message.
 	 * @param format the default format for all players
 	 */
-	public void setFormat(String format);
+	void setFormat(String format);
 
 	/**
 	 * Set the format string for a single player.
@@ -83,7 +83,7 @@ public interface MMOChatEvent extends Cancellable {
 	 * @param player the Player getting a custom format string
 	 * @param format the format string for that player
 	 */
-	public void setFormat(Player player, String format);
+	void setFormat(Player player, String format);
 
 	/**
 	 * Get the default format string for all players.
@@ -93,19 +93,20 @@ public interface MMOChatEvent extends Cancellable {
 	 * "%4$s" = Message.
 	 * @return the default format string
 	 */
-	public String getFormat();
+	String getFormat();
 
 	/**
 	 * Get the format string for a single player.
 	 * @param player the Player we're interested in
 	 * @return the format string for that player
 	 */
-	public String getFormat(Player player);
+	String getFormat(Player player);
 
 	/**
 	 * Get the player who sent the message.
+	 * @return the player
 	 */
-	public Player getPlayer();
+	Player getPlayer();
 
 	/**
 	 * Get the list of all players that can currently see the message.
@@ -113,5 +114,5 @@ public interface MMOChatEvent extends Cancellable {
 	 * when they shouldn't see the output of this event.
 	 * @return a list of players
 	 */
-	public Set<Player> getRecipients();
+	Set<Player> getRecipients();
 }
