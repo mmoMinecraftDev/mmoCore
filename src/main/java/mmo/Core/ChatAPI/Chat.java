@@ -27,7 +27,7 @@ public interface Chat {
 	 * @param message the message to send
 	 * @return if the message was sent
 	 */
-	public boolean doChat(String channel, Player from, String message);
+	boolean doChat(String channel, Player from, String message);
 
 	/**
 	 * Hide output of a channel from a Player.
@@ -35,7 +35,7 @@ public interface Chat {
 	 * @param channel the channel being hidden
 	 * @return if the channel exists
 	 */
-	public boolean hideChannel(Player player, String channel);
+	boolean hideChannel(Player player, String channel);
 
 	/**
 	 * Show output of a channel to a Player.
@@ -43,7 +43,7 @@ public interface Chat {
 	 * @param channel the channel being shown
 	 * @return if the channel exists
 	 */
-	public boolean showChannel(Player player, String channel);
+	boolean showChannel(Player player, String channel);
 
 	/**
 	 * Set the default chat channel for a Player.
@@ -51,7 +51,7 @@ public interface Chat {
 	 * @param channel the channel being chosen
 	 * @return if the channel exists
 	 */
-	public boolean setChannel(Player player, String channel);
+	boolean setChannel(Player player, String channel);
 
 	/**
 	 * Checks the permissions nodes for read access to a channel.
@@ -65,7 +65,7 @@ public interface Chat {
 	 * @param channel the channel to check
 	 * @return if we can see it
 	 */
-	public boolean seeChannel(Player player, String channel);
+	boolean seeChannel(Player player, String channel);
 
 	/**
 	 * Checks the permissions nodes for write access to a channel.
@@ -79,26 +79,26 @@ public interface Chat {
 	 * @param channel the channel to check
 	 * @return if we can use it
 	 */
-	public boolean useChannel(Player player, String channel);
+	boolean useChannel(Player player, String channel);
 
 	/**
 	 * Find the proper capitalisation of a channel name.
 	 * @param channel the name of the channel
 	 * @return the real name of the channel or null
 	 */
-	public String findChannel(String channel);
+	String findChannel(String channel);
 
 	/**
 	 * Check if a channel exists.
 	 * @param channel the name of the channel
 	 * @return if it exists
 	 */
-	public boolean isChannel(String channel);
+	boolean isChannel(String channel);
 
 	/**
 	 * Get the default channel name for a Player.
 	 * @param player the Player we want the channel for
 	 * @return the name of their default channel
 	 */
-	public String getChannel(Player player);
+	String getChannel(Player player);
 }
