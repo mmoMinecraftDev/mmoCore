@@ -167,6 +167,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		if (!support.get(Support.MMO_NO_CONFIG)) {
 			final File cfgFile = new File(singleFolder ? "plugins/mmoMinecraft" : getDataFolder().getPath(), description.getName() + ".yml");
 			cfg = YamlConfiguration.loadConfiguration(cfgFile);
+                        this.loadConfiguration(cfg);
 			if (!cfg.getKeys(false).isEmpty()) {
 				cfg.options().header("#" + title + " Configuration");
 				try {
