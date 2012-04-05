@@ -1,7 +1,7 @@
 /**
  * MySQL
  * Inherited subclass for making a connection to a MySQL server.
- * 
+ *
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  *
@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class MySQL extends DatabaseHandler {
-
 	public static final String type = "MySQL";
 	public static final String driver = "com.mysql.jdbc.Driver";
 	private String hostname = "localhost";
@@ -29,11 +28,11 @@ public class MySQL extends DatabaseHandler {
 	private String database = "minecraft";
 
 	public MySQL(String prefix,
-			String hostname,
-			String port,
-			String database,
-			String username,
-			String password) {
+				 String hostname,
+				 String port,
+				 String database,
+				 String username,
+				 String password) {
 		super(type, prefix);
 		this.hostname = hostname;
 		this.port = port;
@@ -97,8 +96,8 @@ public class MySQL extends DatabaseHandler {
 	}
 
 	@Override
-	public Map<String,Object> query(String query, Object... vars) {
-		Map<String,Object> output = null;
+	public Map<String, Object> query(String query, Object... vars) {
+		Map<String, Object> output = null;
 		PreparedStatement statement = null;
 		try {
 			statement = open().prepareStatement(query);

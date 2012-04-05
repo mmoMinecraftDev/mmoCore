@@ -23,7 +23,6 @@ import org.getspout.spoutapi.gui.GenericTexture;
  * The default size is 8x8 pixels, but must always be square.
  */
 public final class GenericFace extends GenericTexture {
-
 	private static String facePath = "http://face.mmo.me.uk/";
 	private static int defaultSize = 8;
 	private String name;

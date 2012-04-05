@@ -25,7 +25,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 /**
  * This is a wrapper for {@link EntityDamageEvent} providing projectile firing
  * and pet detection, and separate events depending on PVP status.
- * 
  * @author Sebastian Mayr
  */
 public abstract class MMODamageEvent extends Event implements Cancellable {
@@ -41,57 +40,48 @@ public abstract class MMODamageEvent extends Event implements Cancellable {
 
 	/**
 	 * Returns the damage this event does.
-	 * 
 	 * @return the amount of damage
 	 */
 	public abstract int getDamage();
 
 	/**
 	 * Sets the damage this event does.
-	 * 
-	 * @param damage
-	 *            the amount of damage
+	 * @param damage the amount of damage
 	 */
 	public abstract void setDamage(int damage);
 
 	/**
 	 * Returns the method of damage done.
-	 * 
 	 * @return the type of the damage
 	 */
 	public abstract MMODamageType getDamageType();
 
 	/**
 	 * Returns the original damage event.
-	 * 
 	 * @return the original damage event
 	 */
 	public abstract EntityDamageEvent getEvent();
 
 	/**
 	 * Gets the attacker of this damage event.
-	 * 
 	 * @return the attacker
 	 */
 	public abstract Entity getAttacker();
 
 	/**
 	 * Gets the real attacker of this damage event, pet rather than owner etc.
-	 * 
 	 * @return the attacker
 	 */
 	public abstract Entity getRealAttacker();
 
 	/**
 	 * Gets the defender of this damage event.
-	 * 
 	 * @return the defender
 	 */
 	public abstract Entity getDefender();
 
 	/**
 	 * Gets the real defender of this damage event, pet rather than owner etc.
-	 * 
 	 * @return the defender
 	 */
 	public abstract Entity getRealDefender();

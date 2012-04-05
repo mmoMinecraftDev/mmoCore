@@ -1,7 +1,7 @@
 /**
  * SQLite
  * Inherited subclass for reading and writing to and from an SQLite file.
- * 
+ *
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  *
@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SQLite extends DatabaseHandler {
-
 	public static final String type = "SQLite";
 	public static final String driver = "org.sqlite.JDBC";
 	private String file;
@@ -81,8 +80,8 @@ public class SQLite extends DatabaseHandler {
 	}
 
 	@Override
-	public Map<String,Object> query(String query, Object... vars) {
-		Map<String,Object> output = new HashMap<String,Object>();
+	public Map<String, Object> query(String query, Object... vars) {
+		Map<String, Object> output = new HashMap<String, Object>();
 		try {
 			int retry = 10; // Retry at most this number of times in case of a file lock
 			int index = 1;
@@ -94,11 +93,11 @@ public class SQLite extends DatabaseHandler {
 				try {
 					switch (this.getStatement(query)) {
 						case SELECT:
-//							this.writeInfo("executeQuery: " + query);
+							//							this.writeInfo("executeQuery: " + query);
 							output = ResultSetToMap(statement.executeQuery());
 							break;
 						default:
-//							this.writeInfo("executeUpdate: " + query);
+							//							this.writeInfo("executeUpdate: " + query);
 							statement.executeUpdate();
 							break;
 					}
@@ -163,7 +162,7 @@ public class SQLite extends DatabaseHandler {
 
 	@Override
 	public boolean checkTable(String table) {
-		return !query("SELECT name FROM sqlite_master WHERE type='table' AND name='"+table+"'").isEmpty();
+		return !query("SELECT name FROM sqlite_master WHERE type='table' AND name='" + table + "'").isEmpty();
 	}
 
 	@Override

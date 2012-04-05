@@ -17,10 +17,10 @@
 package mmo.Core.PartyAPI;
 
 import java.util.List;
+
 import org.bukkit.entity.Player;
 
 public interface Party {
-
 	/**
 	 * Find a Party via a Player.
 	 * @param player the player who's party we are trying to find
@@ -132,7 +132,7 @@ public interface Party {
 	/**
 	 * Promote a Player to party leader.
 	 * @param leader the person attempting it
-	 * @param name the player to promote
+	 * @param name   the player to promote
 	 * @return if they have been promoted
 	 */
 	public boolean promote(Player leader, String name);
@@ -147,7 +147,7 @@ public interface Party {
 	/**
 	 * Leave a party (in an unfriendly way).
 	 * @param leader the Player attempting to do this
-	 * @param name the Player leaving
+	 * @param name   the Player leaving
 	 * @return if they left this party
 	 */
 	public boolean kick(Player leader, String name);
@@ -175,7 +175,7 @@ public interface Party {
 	/**
 	 * Invite a player to the party.
 	 * @param leader the Player attempting to do this
-	 * @param name the player to invite
+	 * @param name   the player to invite
 	 * @return if the invitation was successful
 	 */
 	public boolean invite(Player leader, String name);
@@ -187,7 +187,7 @@ public interface Party {
 
 	/**
 	 * Update a single player's party display
-	 * @param player 
+	 * @param player
 	 */
 	public void update(Player player);
 

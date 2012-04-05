@@ -1,7 +1,7 @@
 /**
  * Database Handler
  * Abstract superclass for all subclass database files.
- * 
+ *
  * Date Created: 2011-08-26 19:08
  * @author PatPeter
  *
@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class DatabaseHandler {
-
 	protected static final Logger log = Logger.getLogger("Minecraft");
 	protected final String prefixDatabase;
 	protected final String prefix;
@@ -37,7 +36,7 @@ public abstract class DatabaseHandler {
 	/**
 	 * Create a new DatabaseHandler.
 	 * @param database the name of the database type, ie "MySQL" or "SQLite"
-	 * @param prefix a prefix for any error messages
+	 * @param prefix   a prefix for any error messages
 	 */
 	public DatabaseHandler(String database, String prefix) {
 		this.prefixDatabase = database;
@@ -71,7 +70,7 @@ public abstract class DatabaseHandler {
 	/**
 	 * Writes either errors or warnings to the console.
 	 * @param toWrite the text to write to the console
-	 * @param severe whether console output should appear as an error or warning
+	 * @param severe  whether console output should appear as an error or warning
 	 */
 	protected void writeError(String toWrite, boolean severe) {
 		if (toWrite != null && !toWrite.isEmpty()) {
@@ -106,12 +105,12 @@ public abstract class DatabaseHandler {
 	 * @param result the ResultSet to convert
 	 * @return a simple Map of the first row
 	 */
-	protected Map<String,Object> ResultSetToMap(ResultSet result) {
-		Map<String,Object> output = new HashMap<String,Object>();
+	protected Map<String, Object> ResultSetToMap(ResultSet result) {
+		Map<String, Object> output = new HashMap<String, Object>();
 		try {
 			if (result != null && result.next()) {
 				ResultSetMetaData mtd = result.getMetaData();
-				for (int i = mtd.getColumnCount(); i>0 ;i--) {
+				for (int i = mtd.getColumnCount(); i > 0; i--) {
 					output.put(mtd.getColumnLabel(i), result.getObject(i));
 					writeInfo(mtd.getColumnLabel(i) + " -> " + result.getObject(i));
 				}
@@ -154,22 +153,22 @@ public abstract class DatabaseHandler {
 	 * Sends a query to the SQL database.
 	 * This uses a prepared statement to ensure the safety of the arguments.
 	 * @param query the SQL query to send to the database
-	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * @param vars  a list of variables that replace "?" in the query in a secure manner
 	 * @return a single row result from the query
 	 */
-	abstract public Map<String,Object> query(String query, Object... vars);
+	abstract public Map<String, Object> query(String query, Object... vars);
 
 	/**
 	 * Creates a prepared query for the database.
 	 * @param query the SQL query to prepare to send to the database
-	 * @param vars a list of variables that replace "?" in the query in a secure manner
+	 * @param vars  a list of variables that replace "?" in the query in a secure manner
 	 * @return the prepared statement
 	 */
 	abstract public PreparedStatement prepare(String query, Object... vars);
 
 	/**
 	 * Creates a table in the database based on a specified query.
-	 * @param name the name of the table to create
+	 * @param name	the name of the table to create
 	 * @param columns a Map of name to definitions
 	 * @return if it was created successfully
 	 */

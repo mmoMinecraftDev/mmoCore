@@ -20,6 +20,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
+
 import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
@@ -36,50 +37,40 @@ public abstract class MMOInfoEvent extends Event implements Cancellable {
 
 	/**
 	 * The player who owns this Info bar
-	 * 
 	 * @return the player we're drawing for
 	 */
 	public abstract SpoutPlayer getPlayer();
 
 	/**
 	 * Check if this token matches us (not including curly braces)
-	 * 
-	 * @param token
-	 *            the name of the token we're looking for
+	 * @param token the name of the token we're looking for
 	 * @return if the token exists
 	 */
 	public abstract boolean isToken(String token);
 
 	/**
 	 * Get the optional args for our token
-	 * 
 	 * @return an array of args, split by spaces unless within quotes
 	 */
 	public abstract String[] getArgs();
 
 	/**
 	 * Set the widget we want displayed
-	 * 
-	 * @param plugin
-	 *            an instance of the plugin this widget is created for
-	 * @param widget
-	 *            any widget including a filled Container
+	 * @param plugin an instance of the plugin this widget is created for
+	 * @param widget any widget including a filled Container
 	 */
 	public abstract void setWidget(Plugin plugin, Widget widget);
 
 	/**
 	 * Get the widget we have set
-	 * 
 	 * @return the widget for this token
 	 */
 	public abstract Widget getWidget();
 
 	/**
 	 * Set the path of the icon we want to display, FileManager cache permitted
-	 * 
-	 * @param icon
-	 *            the pathname of the icon we're using, either a url, or an
-	 *            internal file using mmoSupport
+	 * @param icon the pathname of the icon we're using, either a url, or an
+	 *             internal file using mmoSupport
 	 */
 	public abstract void setIcon(String icon);
 

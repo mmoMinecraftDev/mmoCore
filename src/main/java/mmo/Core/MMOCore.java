@@ -16,7 +16,11 @@
  */
 package mmo.Core;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -25,10 +29,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import mmo.Core.SQLibrary.HSQLDB;
 import mmo.Core.SQLibrary.MySQL;
 import mmo.Core.SQLibrary.SQLite;
 import mmo.Core.util.EnumBitSet;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -38,14 +44,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
+
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Widget;
 import org.getspout.spoutapi.player.SpoutPlayer;
 
 public class MMOCore extends MMOPlugin implements Listener {
-
 	/**
 	 * Task to check for mmoMinecraft updates
 	 */
@@ -81,8 +92,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 	public void onEnable() {
 		super.onEnable();
 		pm.registerEvents(this, this);
-		updateTask = server.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-
+		updateTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			@Override
 			public void run() {
 				checkVersion();

@@ -34,28 +34,24 @@ public abstract class MMOGroupEvent extends Event implements Cancellable {
 
 	/**
 	 * Get the player who is affected by this event.
-	 * 
 	 * @return the player
 	 */
 	public abstract Player getPlayer();
 
 	/**
 	 * Get the player who caused the event (ie, party leader).
-	 * 
 	 * @return the player
 	 */
 	public abstract Player getBlamer();
 
 	/**
 	 * Get the group that is being affected.
-	 * 
 	 * @return the group
 	 */
 	public abstract Group getGroup();
 
 	/**
 	 * Get the type of event that has happened.
-	 * 
 	 * @return the group event type
 	 */
 	public abstract MMOGroupAction getAction();

@@ -18,10 +18,10 @@ package mmo.Core.GroupAPI;
 
 import java.util.List;
 import java.util.Set;
+
 import org.bukkit.Location;
 
 public interface Group {
-
 	/**
 	 * Find a Group by it's id.
 	 * @param id the path.to.the.group
@@ -87,7 +87,7 @@ public interface Group {
 	 * Find groups this player is a member of that are descendants of a single group.
 	 * @param player the Player or player name to find
 	 * @param parent the parent group to check
-	 * @param depth how deep into the tree should we look
+	 * @param depth  how deep into the tree should we look
 	 * @return a set of groups
 	 */
 	public <T> Set<Group> find(T player, Group parent, int depth);
@@ -261,16 +261,16 @@ public interface Group {
 	/**
 	 * Set a string for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setString(T player, String key, String value);
 
 	/**
 	 * Get a string for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> String getString(T player, String key, String def);
@@ -278,16 +278,16 @@ public interface Group {
 	/**
 	 * Set a list of strings for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setStringList(T player, String key, List<String> value);
 
 	/**
 	 * Get a list of strings for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> List<String> getStringList(T player, String key, List<String> def);
@@ -295,16 +295,16 @@ public interface Group {
 	/**
 	 * Set an integer for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setInt(T player, String key, int value);
 
 	/**
 	 * Get an integer for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> int getInt(T player, String key, int def);
@@ -312,16 +312,16 @@ public interface Group {
 	/**
 	 * Set a double for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setDouble(T player, String key, double value);
 
 	/**
 	 * Get a double for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> double getDouble(T player, String key, double def);
@@ -329,16 +329,16 @@ public interface Group {
 	/**
 	 * Set a boolean for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setBoolean(T player, String key, boolean value);
 
 	/**
 	 * Get a boolean for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> boolean getBoolean(T player, String key, boolean def);
@@ -346,16 +346,16 @@ public interface Group {
 	/**
 	 * Set a Location for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param value the value to set
+	 * @param key	a unique id (per group per player)
+	 * @param value  the value to set
 	 */
 	public <T> void setLocation(T player, String key, Location value);
 
 	/**
 	 * Get a Location for a player in this group.
 	 * @param player the Player (or player name) this relates to
-	 * @param key a unique id (per group per player)
-	 * @param def the default value if not found
+	 * @param key	a unique id (per group per player)
+	 * @param def	the default value if not found
 	 * @return the data
 	 */
 	public <T> Location getLocation(T player, String key, Location def);

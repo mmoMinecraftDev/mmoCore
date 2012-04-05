@@ -17,11 +17,11 @@
 package mmo.Core.ChatAPI;
 
 import java.util.Set;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
 public interface MMOChatEvent extends Cancellable {
-
 	/**
 	 * Check if a filter is supposed to be used.
 	 * @param filter the name of the filter
@@ -40,7 +40,7 @@ public interface MMOChatEvent extends Cancellable {
 
 	/**
 	 * Set the message for a single player.
-	 * @param player the Player getting a custom message
+	 * @param player  the Player getting a custom message
 	 * @param message the custom message
 	 */
 	void setMessage(Player player, String message);

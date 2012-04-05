@@ -19,11 +19,10 @@ package mmo.Core.ChatAPI;
 import org.bukkit.entity.Player;
 
 public interface Chat {
-
 	/**
 	 * Perform a chat message, if there is an empty message then set the default channel.
 	 * @param channel the channel to send the message on
-	 * @param from the Player who is sending the message
+	 * @param from	the Player who is sending the message
 	 * @param message the message to send
 	 * @return if the message was sent
 	 */
@@ -31,7 +30,7 @@ public interface Chat {
 
 	/**
 	 * Hide output of a channel from a Player.
-	 * @param player the Player wanting to hide a channel
+	 * @param player  the Player wanting to hide a channel
 	 * @param channel the channel being hidden
 	 * @return if the channel exists
 	 */
@@ -39,7 +38,7 @@ public interface Chat {
 
 	/**
 	 * Show output of a channel to a Player.
-	 * @param player the Player wanting to see a channel
+	 * @param player  the Player wanting to see a channel
 	 * @param channel the channel being shown
 	 * @return if the channel exists
 	 */
@@ -47,7 +46,7 @@ public interface Chat {
 
 	/**
 	 * Set the default chat channel for a Player.
-	 * @param player the Player whose channel we are changing
+	 * @param player  the Player whose channel we are changing
 	 * @param channel the channel being chosen
 	 * @return if the channel exists
 	 */
@@ -61,7 +60,7 @@ public interface Chat {
 	 * "mmo.chat.channel"
 	 * "mmo.chat.*"
 	 * If no node is found then access is true.
-	 * @param player the Player we are checking
+	 * @param player  the Player we are checking
 	 * @param channel the channel to check
 	 * @return if we can see it
 	 */
@@ -75,7 +74,7 @@ public interface Chat {
 	 * "mmo.chat.channel"
 	 * "mmo.chat.*"
 	 * If no node is found then access is true.
-	 * @param player the Player we are checking
+	 * @param player  the Player we are checking
 	 * @param channel the channel to check
 	 * @return if we can use it
 	 */

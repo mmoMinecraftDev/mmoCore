@@ -16,20 +16,48 @@
  */
 package mmo.Core;
 
+import javax.xml.bind.TypeConstraintException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.TypeConstraintException;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Blaze;
+import org.bukkit.entity.CaveSpider;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Cow;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Flying;
+import org.bukkit.entity.Ghast;
+import org.bukkit.entity.Giant;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.PigZombie;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Silverfish;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Spider;
+import org.bukkit.entity.Squid;
+import org.bukkit.entity.Tameable;
+import org.bukkit.entity.WaterMob;
+import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
 
 public class MMO {
-
 	/**
 	 * Never want to manually create a new instance - we're static only
 	 */
@@ -219,7 +247,7 @@ public class MMO {
 
 	/**
 	 * Get a simple name for a living entity.
-	 * @param target the target we want named
+	 * @param target	the target we want named
 	 * @param showOwner if we prefix a pet's name with the owner's name
 	 * @return the full name
 	 */
@@ -324,7 +352,7 @@ public class MMO {
 
 	/**
 	 * Get a coloured name for a player.
-	 * @param name the player name
+	 * @param name   the player name
 	 * @param online is they are currently online
 	 * @return a string including colour
 	 */
@@ -334,7 +362,7 @@ public class MMO {
 
 	/**
 	 * Get a string health bar etc.
-	 * @param prefix a string to output before the bar
+	 * @param prefix  a string to output before the bar
 	 * @param current between 0 and 10
 	 * @return a string with the bar in it
 	 */
@@ -405,7 +433,7 @@ public class MMO {
 
 	/**
 	 * Join an array into a string.
-	 * @param array an array of strings
+	 * @param array	 an array of strings
 	 * @param delimiter the string to place between each word
 	 * @return the final string
 	 */
@@ -428,7 +456,7 @@ public class MMO {
 
 	/**
 	 * Join a list into a string.
-	 * @param array a list of strings
+	 * @param array	 a list of strings
 	 * @param delimiter the string to place between each word
 	 * @return the final string
 	 */
@@ -442,7 +470,7 @@ public class MMO {
 
 	/**
 	 * Return a player name from a Player or string.
-	 * @param <T> a Player or String
+	 * @param <T>    a Player or String
 	 * @param player the player to find
 	 * @return the player name
 	 */
@@ -458,7 +486,7 @@ public class MMO {
 
 	/**
 	 * Return a Player from a Player or string.
-	 * @param <T> a Player or String
+	 * @param <T>    a Player or String
 	 * @param player the player to find
 	 * @return the player name
 	 */
@@ -474,7 +502,7 @@ public class MMO {
 
 	/**
 	 * Return a CommandSender from a Player or string.
-	 * @param <T> a Player or String
+	 * @param <T>    a Player or String
 	 * @param player the player to find
 	 * @return the player name
 	 */

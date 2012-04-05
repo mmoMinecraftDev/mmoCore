@@ -45,7 +45,6 @@ import java.util.HashMap;
  *			We need some central storage place for stuff, like the shared DB you mentioned.
  */
 public class MMOi18n {
-
 	private HashMap<String, HashMap<String, String>> locales = new HashMap<String, HashMap<String, String>>();
 	private String localeDefault = "en";
 	private HashMap<String, String> localeSelected = null;

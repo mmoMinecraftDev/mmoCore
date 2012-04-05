@@ -23,7 +23,6 @@ import java.util.ArrayList;
  * Overrides the .contains(), .indexOf(), .lastIndexOf() and .remove() methods.
  */
 public class ArrayListString extends ArrayList<String> {
-
 	private static final long serialVersionUID = 6793276940676543571L;
 
 	/**

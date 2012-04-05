@@ -20,13 +20,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
+
 import org.getspout.spoutapi.gui.WidgetAnchor;
 
 /**
  * Used to alter the HUD item locations.
  */
 public class MMOHUDEvent extends Event {
-
 	private static final HandlerList handlers = new HandlerList();
 	private Player player;
 	private Plugin plugin;
@@ -44,7 +44,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Get the player this HUD element is for.
-	 *
 	 * @return the player
 	 */
 	public Player getPlayer() {
@@ -53,7 +52,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Get the plugin opening a HUD element.
-	 *
 	 * @return the plugin
 	 */
 	public Plugin getPlugin() {
@@ -62,7 +60,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Get the anchor point requested.
-	 *
 	 * @return the anchor
 	 */
 	public WidgetAnchor getAnchor() {
@@ -71,7 +68,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Get the X offset of the element.
-	 *
 	 * @return X offset
 	 */
 	public int getOffsetX() {
@@ -80,7 +76,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Set the X offset for the element.
-	 *
 	 * @param offsetX in pixels
 	 */
 	public void setOffsetX(final int offsetX) {
@@ -89,7 +84,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Get the Y offset for the element.
-	 *
 	 * @return Y offset
 	 */
 	public int getOffsetY() {
@@ -98,7 +92,6 @@ public class MMOHUDEvent extends Event {
 
 	/**
 	 * Set the Y offset for the element.
-	 *
 	 * @param offsetY in pixels
 	 */
 	public void setOffsetY(final int offsetY) {

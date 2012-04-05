@@ -19,13 +19,13 @@ package mmo.Core;
 import mmo.Core.ChatAPI.Chat;
 import mmo.Core.GroupAPI.Group;
 import mmo.Core.PartyAPI.Party;
+
 import org.bukkit.plugin.Plugin;
 
 /**
  * MMOMinecraft provides access to the various APIs within mmoMinecraft.
  */
 public class MMOMinecraft {
-
 	/**
 	 * Does mmoChat exist - quicker than isPluginEnabled.
 	 */
@@ -151,5 +151,4 @@ public class MMOMinecraft {
 	static public Group getGroup() {
 		return mmoGroupAPI;
 	}
-
 }

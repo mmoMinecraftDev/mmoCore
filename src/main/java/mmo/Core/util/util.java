@@ -17,14 +17,13 @@
 package mmo.Core.util;
 
 import mmo.Core.MMO;
+
 import org.bukkit.entity.Player;
 
 /**
- *
  * @author Xaymar
  */
 public class util {
-
 	public static String substitude(String On, String[] What, String[] With) {
 		if (What.length != With.length) {
 			throw new java.lang.ArrayIndexOutOfBoundsException();
@@ -57,15 +56,15 @@ public class util {
 
 	public static String parsePlayer(String On, Player plr) {
 		return colorize(util.substitude(On,
-			new String[]{
-				"+n,+name",
-				"+d,+displayname",
-				"+w,+world",
-				"+t,+time",
-				"+l,+location",
-				"+x",
-				"+y",
-				"+z",}, new String[]{
+				new String[]{
+						"+n,+name",
+						"+d,+displayname",
+						"+w,+world",
+						"+t,+time",
+						"+l,+location",
+						"+x",
+						"+y",
+						"+z",}, new String[]{
 				plr.getName(),
 				plr.getDisplayName(),
 				plr.getWorld().getName(),
@@ -74,7 +73,7 @@ public class util {
 				String.valueOf(plr.getLocation().getX()),
 				String.valueOf(plr.getLocation().getY()),
 				String.valueOf(plr.getLocation().getZ())
-			}));
+		}));
 	}
 
 	public static String[] reparseArgs(String[] args) {
