@@ -1,8 +1,8 @@
 name: mmoCore
 main: mmo.Core.MMOCore
-version: 2.3
+version: 2.4
 website: http://forums.bukkit.org/threads/31054/
-author: Rycochet <rycochet@rycochet.com>
+author: Rycochet <rycochet@rycochet.com>, Zidane, Dockter
 depend: [Spout]
 
 description: Utility functions for mmo-minecraft
