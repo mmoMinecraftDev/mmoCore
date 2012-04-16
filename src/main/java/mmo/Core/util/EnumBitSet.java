@@ -20,6 +20,11 @@ import java.util.BitSet;
 
 public class EnumBitSet extends BitSet {
 	/**
+	 * For long term storage.
+	 */
+	private static final long serialVersionUID = -698197717246200488L;
+
+	/**
 	 * Sets the bit at the specified index to the complement of its
 	 * current value.
 	 * @param bitIndex the index of the bit to flip.

@@ -47,6 +47,11 @@ public class GenericLivingEntity extends GenericContainer {
 	String face = "~";
 
 	public GenericLivingEntity() {
+		this(80);
+	}
+	
+	public GenericLivingEntity(int width) {
+		def_width = width;
 		this.addChildren(
 				_bar = (Container) new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
 						new GenericGradient(new Color(0, 0, 0, 0.75f)) //
@@ -177,6 +182,7 @@ public class GenericLivingEntity extends GenericContainer {
 			child.setEntity(targets[i]);
 		}
 		setHeight((targets.length + 1) * (def_height + def_space));
+		setMarginBottom(((targets.length + 1) * (def_height + def_space)) - getHeight() +  def_space);
 		return this;
 	}
 

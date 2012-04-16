@@ -23,6 +23,11 @@ import java.util.HashMap;
  * Overrides the .containsKey(), .get() and .remove() methods.
  */
 public class HashMapString<V> extends HashMap<String, V> {
+	/**
+	 * For long term storage.
+	 */
+	private static final long serialVersionUID = 4315151536261362924L;
+
 	public boolean containsKey(String key) {
 		for (String k : keySet()) {
 			if (key.equalsIgnoreCase(k)) {
