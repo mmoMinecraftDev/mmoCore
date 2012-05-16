@@ -1,8 +1,8 @@
 name: mmoCore
 version: ${releaseVersion} b${buildNumber}
-description: mmoCore provides the common code for all mmoMinecraft plugins to use.
-author: Rycochet <rycochet@rycochet.com>
-website: 
+description: Provides the common code for all mmoMinecraft plugins to use.
+author: mmoMinecraftDev
+website: http://mmo.me.uk
 
 main: mmo.Core.MMOCore
 depend: [Spout]
@@ -10,24 +10,24 @@ depend: [Spout]
 commands:
     mmoset:
         description: Sets config options for mmoMinecraft plugins
-        permission: mmocore.set
+        permission: mmo.core.set
         usage: /mmoset <plugin> <path.to.option> <value>
     mmoupdate:
         description: Update all mmoMinecraft plugins
         aliases: [mmoupdate2]
-        permission: mmocore.update
+        permission: mmo.core.update
         usage: /mmoupdate [force]
 
 permissions:
-    mmocore.*:
+    mmo.core.*:
         description: Access to mmoCore commands
         default: op
         children:
-            mmocore.set: true
-            mmocore.update: true
-    mmocore.set:
+            mmo.core.set: true
+            mmo.core.update: true
+    mmo.core.set:
         description: Allows you to edit mmoMinecraft module settings
         default: false
-    mmocore.update:
+    mmo.core.update:
         description: Allows you to update all mmoMinecraft plugins
         default: false

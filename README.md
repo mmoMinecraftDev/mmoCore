@@ -13,23 +13,23 @@ mmoMinecraft is licensed under [GNU General Public License Version 3][License]
 Source
 ------
 The latest and greatest source can be found on [GitHub].  
-Download the latest builds from [Jenkins].   
+Download the latest builds from [Jenkins].  
 View the latest [Javadoc].
 
 Compiling
 ---------
 All mmoMinecraft projects use Maven to handle their dependencies.
 
- * Install [Maven 2 or 3](http://maven.apache.org/download.html)
- * Checkout this repo and run: `mvn clean package`
+* Install [Maven 2 or 3](http://maven.apache.org/download.html)
+* Checkout this repo and run: `mvn clean package`
 
 Coding and Pull Request Formatting
 ----------------------------------
- * Generally follow the Oracle coding standards.
- * Use tabs, no spaces.
- * No 80 column limit or midstatement newlines.
- * Pull requests must compile and work.
- * Pull requests must be formatted properly.
+* Generally follow the Oracle coding standards.
+* Use tabs, no spaces.
+* No 80 column limit or midstatement newlines.
+* Pull requests must compile and work.
+* Pull requests must be formatted properly.
 
 **Please follow the above conventions if you want your pull request(s) accepted.**
 
