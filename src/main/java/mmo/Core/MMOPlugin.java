@@ -1,7 +1,7 @@
 /*
- * This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
+ * This file is part of mmoCore <http://github.com/mmoMinecraftDev/mmoCore>.
  *
- * mmoMinecraft is free software: you can redistribute it and/or modify
+ * mmoCore is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -50,6 +50,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 
+import org.getspout.spoutapi.Spout;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.gui.Container;
 import org.getspout.spoutapi.gui.GenericContainer;
@@ -249,6 +250,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 				// i18n: Extract main configuration
 				File i18nMain = new File(this.getDataFolder(), "i18n.yml");
 				if (i18nMain.exists()) {
+					@SuppressWarnings("unused")
 					FileConfiguration i18nCfg = YamlConfiguration.loadConfiguration(i18nMain);
 
 					// TODO: Add load from web code here
@@ -523,9 +525,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param title  the title to show
 	 */
 	public void setTitle(final LivingEntity target, final String title) {
-		if (target != null) {
-			SpoutManager.getAppearanceManager().setGlobalTitle(target, title);
-		}
+		if (target != null) Spout.getServer().setTitle(target, title);
 	}
 
 	/**
@@ -535,9 +535,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param title  the title to show
 	 */
 	public void setTitle(final Player player, final LivingEntity target, final String title) {
-		if (player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerTitle(SpoutManager.getPlayer(player), target, title);
-		}
+		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setTitleFor(SpoutManager.getPlayer(player), title);
 	}
 
 	/**
@@ -546,9 +544,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setCloak(final HumanEntity target, final String url) {
-		if (target != null) {
-			SpoutManager.getAppearanceManager().setGlobalCloak(target, url);
-		}
+		if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setCape(url);
 	}
 
 	/**
@@ -558,9 +554,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setCloak(final Player player, final HumanEntity target, final String url) {
-		if (player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerCloak(SpoutManager.getPlayer(player), target, url);
-		}
+		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setCapeFor(SpoutManager.getPlayer(player), url);
 	}
 
 	/**
@@ -569,9 +563,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setSkin(final HumanEntity target, final String url) {
-		if (target != null) {
-			SpoutManager.getAppearanceManager().setGlobalSkin(target, url);
-		}
+		if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkin(url);
 	}
 
 	/**
@@ -581,9 +573,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setSkin(final Player player, final HumanEntity target, final String url) {
-		if (player != null && target != null) {
-			SpoutManager.getAppearanceManager().setPlayerSkin(SpoutManager.getPlayer(player), target, url);
-		}
+		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkinFor(SpoutManager.getPlayer(player), url);
 	}
 
 	/**

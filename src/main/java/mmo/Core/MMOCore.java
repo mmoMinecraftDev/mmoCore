@@ -1,7 +1,7 @@
 /*
- * This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
+ * This file is part of mmoCore <http://github.com/mmoMinecraftDev/mmoCore>.
  *
- * mmoMinecraft is free software: you can redistribute it and/or modify
+ * mmoCore is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -168,7 +168,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (sender.hasPermission("mmocore.set") && command.getName().equalsIgnoreCase("mmoset")) {
+		if (sender.hasPermission("mmo.core.set") && command.getName().equalsIgnoreCase("mmoset")) {
 			args = MMO.smartSplit(args);
 			MMOPlugin mmo = null;
 			String list = "";
@@ -221,7 +221,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 				}
 			}
 			return true;
-		} else if (sender.hasPermission("mmocore.update") && command.getName().equalsIgnoreCase("mmoupdate")) {
+		} else if (sender.hasPermission("mmo.core.update") && command.getName().equalsIgnoreCase("mmoupdate")) {
 			sendMessage(sender, "Checking for updates...");
 			checkVersion();
 			String list = "";
@@ -251,7 +251,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		final Player player = event.getPlayer();
-		if (player.hasPermission("mmocore.update")) {
+		if (player.hasPermission("mmo.core.update")) {
 			String list = "";
 			for (Plugin p : Arrays.asList(pm.getPlugins())) {
 				if (p instanceof MMOPlugin && ((MMOPlugin) p).update) {

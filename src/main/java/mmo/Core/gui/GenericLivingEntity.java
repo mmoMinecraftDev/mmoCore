@@ -1,7 +1,7 @@
 /*
- * This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
+ * This file is part of mmoCore <http://github.com/mmoMinecraftDev/mmoCore>.
  *
- * mmoMinecraft is free software: you can redistribute it and/or modify
+ * mmoCore is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -47,6 +47,11 @@ public class GenericLivingEntity extends GenericContainer {
 	String face = "~";
 
 	public GenericLivingEntity() {
+		this(80);
+	}
+	
+	public GenericLivingEntity(int width) {
+		def_width = width;
 		this.addChildren(
 				_bar = (Container) new GenericContainer(	// Used for the bar, this.children with an index 1+ are targets
 						new GenericGradient(new Color(0, 0, 0, 0.75f)) //
@@ -177,6 +182,7 @@ public class GenericLivingEntity extends GenericContainer {
 			child.setEntity(targets[i]);
 		}
 		setHeight((targets.length + 1) * (def_height + def_space));
+		setMarginBottom(((targets.length + 1) * (def_height + def_space)) - getHeight() +  def_space);
 		return this;
 	}
 

@@ -1,7 +1,7 @@
 /*
- * This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
+ * This file is part of mmoCore <http://github.com/mmoMinecraftDev/mmoCore>.
  *
- * mmoMinecraft is free software: you can redistribute it and/or modify
+ * mmoCore is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -23,6 +23,11 @@ import java.util.HashMap;
  * Overrides the .containsKey(), .get() and .remove() methods.
  */
 public class HashMapString<V> extends HashMap<String, V> {
+	/**
+	 * For long term storage.
+	 */
+	private static final long serialVersionUID = 4315151536261362924L;
+
 	public boolean containsKey(String key) {
 		for (String k : keySet()) {
 			if (key.equalsIgnoreCase(k)) {

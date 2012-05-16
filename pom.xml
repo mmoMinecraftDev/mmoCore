@@ -1,39 +1,24 @@
-<!--
-This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
-
-mmoMinecraft is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<!-- Project information -->
+	<name>mmoCore</name>
 	<groupId>mmo.Core</groupId>
 	<artifactId>mmoCore</artifactId>
-	<name>mmoCore</name>
-	<version>dev-SNAPSHOT</version>
+	<version>2.3-SNAPSHOT</version>
 	<url>http://github.com/mmoMinecraftDev/mmoCore</url>
-	<description>mmoCore provides the common code for all mmoMinecraft plugins to use.</description>
+	<description>Provides the common code for all mmoMinecraft plugins to use.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<bukkitVersion>1.2.5-R1.4-SNAPSHOT</bukkitVersion>
+		<spoutVersion>dev-SNAPSHOT</spoutVersion>
 	</properties>
 
 	<!-- License -->
 	<licenses>
 		<license>
-			<name>GNU GENERAL PUBLIC LICENSE Version 3</name>
+			<name>GNU General Public License Version 3</name>
 			<url>http://www.gnu.org/licenses/gpl.html</url>
 			<distribution>repo</distribution>
 		</license>
@@ -41,67 +26,134 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 	<!-- Source code -->
 	<scm>
-		<developerConnection>scm:git:git@github.com:mmoMinecraftDev/${project.name}.git</developerConnection>
-		<connection>scm:git:git://github.com/mmoMinecraftDev/${project.name}.git</connection>
-		<url>https://github.com/mmoMinecraftDev/${project.name}</url>
+		<developerConnection>scm:git:git@github.com:mmoMinecraftDev/mmoCore.git</developerConnection>
+		<connection>scm:git:git://github.com/mmoMinecraftDev/mmoCore.git</connection>
+		<url>https://github.com/mmoMinecraftDev/mmoCore</url>
 	</scm>
 
 	<!-- Continuous integration -->
 	<ciManagement>
 		<system>jenkins</system>
-		<url>http://ci.mmo.me.uk/</url>
+		<url>http://build.spout.org</url>
 	</ciManagement>
 
 	<!-- Repository locations -->
 	<repositories>
 		<repository>
 			<id>spout-repo</id>
-			<name>Spout API</name>
-			<url>http://repo.spout.org/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>mmoMinecraft-repo</id>
-			<name>mmoMinecraft API</name>
-			<url>http://repo.mmo.me.uk/</url>
-			<layout>default</layout>
+			<url>http://repo.spout.org</url>
 		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spout-plugins</id>
+			<url>http://repo.spout.org</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<!-- Dependencies -->
 	<dependencies>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.2.5-R1.0</version>
+			<version>${bukkitVersion}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.getspout</groupId>
 			<artifactId>spoutpluginapi</artifactId>
-			<version>dev-SNAPSHOT</version>
+			<version>${spoutVersion}</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
 	<!-- Build -->
 	<build>
+		<defaultGoal>clean package install</defaultGoal>
+		<!-- Resources -->
+		<resources>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>false</filtering>
+				<directory>${basedir}</directory>
+				<includes>
+					<include>LICENSE.txt</include>
+				</includes>
+			</resource>
+			<resource>
+				<targetPath>.</targetPath>
+				<filtering>true</filtering>
+				<directory>${basedir}/src/main/resources</directory>
+				<includes>
+					<include>plugin.yml</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
+			<!-- License header formatting plugin -->
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.10.b1</version>
+				<executions>
+					<execution>
+						<phase>clean</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<quiet>true</quiet>
+					<encoding>UTF-8</encoding>
+					<strictCheck>true</strictCheck>
+					<header>${basedir}/HEADER.txt</header>
+					<keywords>
+						<keyword>${project.name}</keyword>
+						<keyword>${project.url}</keyword>
+						<keyword>license</keyword>
+					</keywords>
+					<mapping>
+						<java>SLASHSTAR_STYLE</java>
+					</mapping>
+					<properties>
+						<name>${project.name}</name>
+						<url>${project.url}</url>
+					</properties>
+					<includes>
+						<include>src/main/java/**</include>
+						<include>src/test/java/**</include>
+					</includes>
+				</configuration>
+			</plugin>
+			<!-- Version plugin -->
+			<plugin>
+				<groupId>com.sourcesense.maven</groupId>
+				<artifactId>maven-nosnapshot-plugin</artifactId>
+				<version>0.0.7-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>strip-snapshot</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>strip</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<version>${project.version}</version>
+					<propertyName>releaseVersion</propertyName>
+				</configuration>
+			</plugin>
 			<!-- Compile plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>2.4</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
-			</plugin>
-            <!-- JAR creation plugin -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
 			</plugin>
 			<!-- Javadoc creation plugin -->
 			<plugin>
@@ -121,5 +173,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				</executions>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!-- Eclipse exclusions -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.sourcesense.maven</groupId>
+										<artifactId>maven-nosnapshot-plugin</artifactId>
+										<versionRange>[0.0.7-SNAPSHOT,)</versionRange>
+										<goals>
+											<goal>strip</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
+
 </project>

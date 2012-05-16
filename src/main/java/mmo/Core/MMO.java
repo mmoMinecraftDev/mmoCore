@@ -1,7 +1,7 @@
 /*
- * This file is part of mmoMinecraft (https://github.com/mmoMinecraftDev).
+ * This file is part of mmoCore <http://github.com/mmoMinecraftDev/mmoCore>.
  *
- * mmoMinecraft is free software: you can redistribute it and/or modify
+ * mmoCore is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -26,22 +26,30 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
+import org.bukkit.entity.ComplexLivingEntity;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Creature;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
+import org.bukkit.entity.Golem;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.MushroomCow;
+import org.bukkit.entity.NPC;
+import org.bukkit.entity.Ocelot;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
@@ -49,9 +57,11 @@ import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Villager;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
@@ -253,90 +263,113 @@ public class MMO {
 	 */
 	public static String getSimpleName(LivingEntity target, boolean showOwner) {
 		String name = "";
-		if (target instanceof Player) {
-			if (MMOCore.config_show_display_name) {
-				name += ((Player) target).getName();
+		if (target instanceof ComplexLivingEntity) {
+			if (target instanceof EnderDragon) {
+				name += "Ender Dragon";
 			} else {
-				name += ((Player) target).getDisplayName();
+				name += "Complex";
 			}
-		} else if (target instanceof HumanEntity) {
-			name += ((HumanEntity) target).getName();
-		} else {
-			if (target instanceof Creature) {
-				if (target instanceof Tameable) {
-					if (((Tameable) target).isTamed()) {
-						if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
-							Player owner = (Player) ((Tameable) target).getOwner();
-							if (MMOCore.config_show_display_name) {
-								name += owner.getName() + "'s ";
-							} else {
-								name += owner.getDisplayName() + "'s ";
-							}
+		} else if (target instanceof Creature) {
+			if (target instanceof Tameable) {
+				if (((Tameable) target).isTamed()) {
+					if (showOwner && ((Tameable) target).getOwner() instanceof Player) {
+						Player owner = (Player) ((Tameable) target).getOwner();
+						if (MMOCore.config_show_display_name) {
+							name += owner.getName() + "'s ";
 						} else {
-							name += "Pet ";
+							name += owner.getDisplayName() + "'s ";
 						}
+					} else {
+						name += "Pet ";
 					}
 				}
-				if (target instanceof Animals) {
-					if (target instanceof Chicken) {
-						name += "Chicken";
-					} else if (target instanceof Cow) {
-						name += "Cow";
-					} else if (target instanceof Pig) {
-						name += "Pig";
-					} else if (target instanceof MushroomCow) {
-						name += "MushroomCow";
-					} else if (target instanceof Sheep) {
-						name += "Sheep";
-					} else if (target instanceof Wolf) {
-						name += "Wolf";
-					} else {
-						name += "Animal";
-					}
-				} else if (target instanceof Monster) {
-					if (target instanceof Blaze) {
-						name += "Blaze";
-					} else if (target instanceof CaveSpider) {
-						name += "CaveSpider";
-					} else if (target instanceof Creeper) {
-						name += "Creeper";
-					} else if (target instanceof Enderman) {
-						name += "Enderman";
-					} else if (target instanceof Giant) {
-						name += "Giant";
-					} else if (target instanceof PigZombie) {
-						name += "PigZombie";
-					} else if (target instanceof Silverfish) {
-						name += "Silverfish";
-					} else if (target instanceof Skeleton) {
-						name += "Skeleton";
-					} else if (target instanceof Spider) {
-						name += "Spider";
-					} else if (target instanceof Zombie) {
-						name += "Zombie";
-					} else {
-						name += "Monster";
-					}
-				} else if (target instanceof WaterMob) {
-					if (target instanceof Squid) {
-						name += "Squid";
-					} else {
-						name += "WaterMob";
-					}
-				} else if (target instanceof Flying) {
-					if (target instanceof Ghast) {
-						name += "Ghast";
-					} else {
-						name += "Flying";
-					}
-				} else if (target instanceof Slime) {
-					name += "Slime";
+			}
+			if(!((Ageable) target).isAdult()) name+="Baby ";
+			if (target instanceof Animals) {
+				if (target instanceof Chicken) {
+					name += "Chicken";
+				} else if (target instanceof MushroomCow) { //Mooshrooms need to be before Cow because they subclass Cow.
+					name += "Mooshroom";
+				} else if (target instanceof Cow) {
+					name += "Cow";
+				} else if (target instanceof Ocelot){
+					name += ((Tameable) target).isTamed() ? "Cat" : "Ocelot";
+				} else if (target instanceof Pig) {
+					name += "Pig";
+				} else if (target instanceof Sheep) {
+					name += "Sheep";
+				} else if (target instanceof Wolf) {
+					name += "Wolf";
 				} else {
-					name += "Creature";
+					name += "Animal";
+				}
+			} else if(target instanceof Golem) {
+				if(target instanceof IronGolem) {
+					name += "Iron Golem";
+				} else if(target instanceof Snowman) {
+					name += "Snow Golem";
+				} else {
+					name += "Golem";
+				}
+			} else if (target instanceof Monster) {
+				if (target instanceof Blaze) {
+					name += "Blaze";
+				} else if (target instanceof Creeper) {
+					name += "Creeper";
+				} else if (target instanceof Enderman) {
+					name += "Enderman";
+				} else if (target instanceof Giant) {
+					name += "Giant";
+				} else if (target instanceof Silverfish) {
+					name += "Silverfish";
+				} else if (target instanceof Skeleton) {
+					name += "Skeleton";
+				} else if (target instanceof CaveSpider) {
+					name += "CaveSpider";
+				} else if (target instanceof Spider) {
+					name += "Spider";
+				} else if (target instanceof PigZombie) {
+					name += "PigZombie";
+				} else if (target instanceof Zombie) {
+					name += "Zombie";
+				} else {
+					name += "Monster";
+				}
+			} else if (target instanceof NPC) {
+				if (target instanceof Villager) {
+					name += "Villager";
+				} else {
+					name += "NPC";
+				}
+			} else if (target instanceof WaterMob) {
+				if (target instanceof Squid) {
+					name += "Squid";
+				} else {
+					name += "WaterMob";
 				}
 			} else {
-				name += "Unknown";
+				name += "Creature";
 			}
+		} else if (target instanceof Flying) {
+			if (target instanceof Ghast) {
+				name += "Ghast";
+			} else {
+				name += "Flying";
+			}
+		} else if(target instanceof HumanEntity) {
+			if (target instanceof Player && !MMOCore.config_show_display_name) {
+				name += ((Player) target).getDisplayName();
+			} else {
+				name += ((HumanEntity) target).getName();
+			}
+		} else if (target instanceof Slime) {
+			if(target instanceof MagmaCube) {
+				name += "Magma Cube";
+			} else {
+				name += "Slime";
+			}
+		} else {
+			name += "Unknown";
 		}
 		return name;
 	}
