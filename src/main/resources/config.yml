@@ -1,0 +1,23 @@
+# #Core Configuration
+update_download: false
+update_hours: 24
+show_display_name: false
+show_player_faces: true
+database:
+  hsqldb:
+    port: '9001'
+    username: sa
+    hostname: localhost
+    password: ''
+    database: minecraft
+  type: sqlite
+  mysql:
+    port: '3306'
+    username: root
+    hostname: localhost
+    password: password
+    database: minecraft
+player_colors:
+- admin.title=GOLD
+- mod.title=GREEN
+- op=RED
