@@ -61,3 +61,5 @@ nb-configuration.xml
 *.iml
 *.ipr
 *.iws
+/plugin.yml
+/config.yml

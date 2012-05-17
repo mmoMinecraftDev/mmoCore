@@ -81,10 +81,11 @@ public class MMOCore extends MMOPlugin implements Listener {
 	static public boolean config_update_download = false;
 	static public List<String> config_colours = new ArrayList<String>();
 	static public LinkedHashMap<String, String> default_colours = new LinkedHashMap<String, String>();
-
+	
 	@Override
 	public EnumBitSet mmoSupport(EnumBitSet support) {
 		support.set(Support.MMO_DATABASE);
+		support.set(Support.MMO_AUTO_EXTRACT);
 		return support;
 	}
 
@@ -107,7 +108,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 	}
 
 	@Override
-	public void loadConfiguration(FileConfiguration cfg) {
+	public void loadConfiguration(FileConfiguration cfg) {		
 		config_show_display_name = cfg.getBoolean("show_display_name", config_show_display_name);
 		config_show_player_faces = cfg.getBoolean("show_player_faces", config_show_player_faces);
 		config_update_hours = cfg.getInt("update_hours", config_update_hours);
