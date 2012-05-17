@@ -1,5 +1,5 @@
 name: mmoCore
-version: ${releaseVersion} b${buildNumber}
+version: ${releaseVersion}.${buildNumber}
 description: Provides the common code for all mmoMinecraft plugins to use.
 author: mmoMinecraftDev
 website: http://mmo.me.uk
