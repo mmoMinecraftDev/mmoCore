@@ -284,8 +284,9 @@ public class MMO {
 					}
 				}
 			}
-			if(!((Ageable) target).isAdult()) name+="Baby ";
+			
 			if (target instanceof Animals) {
+				if(!((Ageable) target).isAdult()) name+="Baby ";  
 				if (target instanceof Chicken) {
 					name += "Chicken";
 				} else if (target instanceof MushroomCow) { //Mooshrooms need to be before Cow because they subclass Cow.
