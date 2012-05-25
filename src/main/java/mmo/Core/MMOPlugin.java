@@ -177,7 +177,7 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		final EnumBitSet support = mmoSupport(new EnumBitSet());
 		
 		// Auto-extract resource files from within our plugin.jar
-		if (support.get(Support.MMO_AUTO_EXTRACT)) {			
+		if (support.get(Support.MMO_AUTO_EXTRACT)) {
 			extractFile("^config.yml$");
 			extractFile(".*\\.(png|jpg|ogg|midi|wav|zip)$", true);
 		}
@@ -310,8 +310,10 @@ public abstract class MMOPlugin extends SpoutPlugin {
 						if (singleFolder && "config.yml".equals(name)) {
 							name = description.getName() + ".yml";
 							file = new File("plugins/mmoMinecraft", name);
-						} else {
+						} else if ("config.yml".equals(name)) {
 							name = description.getName() + ".yml";
+							file = new File(getDataFolder(), name);
+						} else {
 							file = new File(getDataFolder(), name);
 						}
 						if (!file.exists()) {
