@@ -3,9 +3,10 @@ version: ${releaseVersion}.${buildNumber}
 description: Provides the common code for all mmoMinecraft plugins to use.
 author: mmoMinecraftDev
 website: http://mmo.me.uk
-
+load: POSTWORLD
 main: mmo.Core.MMOCore
 depend: [Spout]
+softdepend: [Dynmap]
 
 commands:
     mmoset:
