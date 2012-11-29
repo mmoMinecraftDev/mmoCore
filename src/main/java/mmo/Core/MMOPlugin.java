@@ -49,6 +49,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import org.getspout.spoutapi.Spout;
 import org.getspout.spoutapi.SpoutManager;
@@ -63,7 +64,7 @@ import org.getspout.spoutapi.plugin.SpoutPlugin;
  * a consistent interface and access to all abilities within the mmoMinecraft
  * suite.
  */
-public abstract class MMOPlugin extends SpoutPlugin {
+public abstract class MMOPlugin extends JavaPlugin {
 	/**
 	 * Abilities that this plugin requires.
 	 */
@@ -346,7 +347,10 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		log("Disabled " + description.getFullName());
 	}
 
-	@Override
+	/** 
+	 * Dockter Removal, this shouldn't be needed anymore.
+	 * 
+	 * @Override
 	public File getDataFolder() {
 		File result;
 		if (singleFolder) {
@@ -356,7 +360,8 @@ public abstract class MMOPlugin extends SpoutPlugin {
 		}
 		return result;
 	}
-
+    */
+	
 	/**
 	 * Load the configuration - don't save or anything...
 	 * @param cfg load from here only
