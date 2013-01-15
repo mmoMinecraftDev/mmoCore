@@ -347,21 +347,6 @@ public abstract class MMOPlugin extends JavaPlugin {
 		log("Disabled " + description.getFullName());
 	}
 
-	/** 
-	 * Dockter Removal, this shouldn't be needed anymore.
-	 * 
-	 * @Override
-	public File getDataFolder() {
-		File result;
-		if (singleFolder) {
-			result = new File("plugins/mmoMinecraft", description.getName());
-		} else {
-			result = super.getDataFolder();
-		}
-		return result;
-	}
-    */
-	
 	/**
 	 * Load the configuration - don't save or anything...
 	 * @param cfg load from here only
