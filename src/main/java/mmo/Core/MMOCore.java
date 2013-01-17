@@ -223,16 +223,7 @@ public class MMOCore extends MMOPlugin implements Listener {
 			}
 			return true;
 		} else if (sender.hasPermission("mmo.core.update") && command.getName().equalsIgnoreCase("mmoupdate")) {
-			sendMessage(sender, "Checking for updates...");
-			checkVersion();
-			String list = "";
-			for (Plugin p : Arrays.asList(pm.getPlugins())) {
-				if (p instanceof MMOPlugin && ((MMOPlugin) p).update) {
-					getUpdate((MMOPlugin) p);
-					list += (list.isEmpty() ? "" : ", ") + p.getDescription().getName();
-				}
-			}
-			sendMessage(sender, "...Updated: %s", list.isEmpty() ? "none" : list);
+			sendMessage(sender, "In-Game checking for updates has been removed.");			
 			return true;
 		}
 		return false;
@@ -324,37 +315,5 @@ public class MMOCore extends MMOPlugin implements Listener {
 			in.close();
 		} catch (Exception e) {
 		}
-	}
-
-	public void getUpdate(final MMOPlugin mmo) {
-		try {
-			FileOutputStream fos = null;
-			try {
-				final File directory = new File(getServer().getUpdateFolder());
-				if (!directory.exists()) {
-					try {
-						directory.mkdir();
-					} catch (SecurityException e1) {
-					}
-				}
-				final File newFile = new File(directory.getPath(), mmo.description.getName() + ".jar");
-				if (newFile.canWrite()) {
-					final URL url = new URL("http://mmo.rycochet.net/" + mmo.description.getName() + ".jar");
-					final HttpURLConnection con = (HttpURLConnection) (url.openConnection());
-					final ReadableByteChannel rbc = Channels.newChannel(con.getInputStream());
-					fos = new FileOutputStream(newFile);
-					fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-				}
-			} catch (Exception e) {
-			} finally {
-				if (fos != null) {
-					try {
-						fos.close();
-					} catch (IOException e) {
-					}
-				}
-			}
-		} catch (Exception e) {
-		}
-	}
+	}	
 }
