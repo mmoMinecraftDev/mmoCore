@@ -105,7 +105,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 */
 	protected static DatabaseHandler database = null;
 	protected static MMOPlugin mmoCore;
-	protected static final Logger logger = Logger.getLogger("Minecraft");
+	//protected static final Logger logger = Logger.getLogger("Minecraft");
 	protected PluginDescriptionFile description;
 	protected FileConfiguration cfg;
 	protected PluginManager pm;
@@ -377,7 +377,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param args any args for the format
 	 */
 	public void log(final Level level, final String text, final Object... args) {
-		logger.log(level, String.format("[" + description.getName() + "] " + text, args));
+		getLogger().log(level, String.format(text, args));
 	}
 
 	/**

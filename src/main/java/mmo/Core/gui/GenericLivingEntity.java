@@ -190,7 +190,7 @@ public class GenericLivingEntity extends GenericContainer {
 	 * Get the current top bar (health) value as a percentage.
 	 * @return current health
 	 */
-	public int getTopValue() {
+	public double getTopValue() {
 		if (target != null) {
 			return MMO.getHealth(target); // Needs a maxHealth() check
 		}
@@ -259,7 +259,7 @@ public class GenericLivingEntity extends GenericContainer {
 	public void onTick() {
 		super.onTick();
 		Container box = _bottom.getContainer();
-		_top.setWidth((box.getWidth() * getTopValue()) / 100);
+		_top.setWidth((box.getWidth() * (int)getTopValue()) / 100);
 		_bottom.setWidth((box.getWidth() * getBottomValue()) / 100);
 	}
 }

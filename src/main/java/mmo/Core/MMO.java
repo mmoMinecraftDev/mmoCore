@@ -17,6 +17,7 @@
 package mmo.Core;
 
 import javax.xml.bind.TypeConstraintException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,6 +29,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
 import org.bukkit.entity.CaveSpider;
 import org.bukkit.entity.Chicken;
@@ -42,7 +44,9 @@ import org.bukkit.entity.Flying;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.Golem;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
@@ -62,7 +66,10 @@ import org.bukkit.entity.Spider;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Villager;
+import org.bukkit.entity.Villager.Profession;
 import org.bukkit.entity.WaterMob;
+import org.bukkit.entity.Witch;
+import org.bukkit.entity.Wither;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
@@ -127,7 +134,7 @@ public class MMO {
 	 * @param player The Player we're interested in
 	 * @return The percentage of max health
 	 */
-	public static int getHealth(Entity player) {
+	public static double getHealth(Entity player) {
 		if (player != null && player instanceof LivingEntity) {
 			try {
 				return Math.min(((LivingEntity) player).getHealth() * 5, 100);
@@ -284,8 +291,11 @@ public class MMO {
 					}
 				}
 			}
-			
 			if (target instanceof Animals) {
+				if (target instanceof Bat) {
+					name += "Bat";
+				}
+			} else if (target instanceof Animals) {
 				if(!((Ageable) target).isAdult()) name+="Baby ";  
 				if (target instanceof Chicken) {
 					name += "Chicken";
@@ -300,6 +310,15 @@ public class MMO {
 				} else if (target instanceof Sheep) {
 					name += "Sheep";
 				} else if (target instanceof Wolf) {
+					name += "Wolf";
+				} else if (target instanceof Horse) {
+					if (((Horse) target).getVariant().equals(Variant.DONKEY)) {
+						name += "Donkey";
+					} else if (((Horse) target).getVariant().equals(Variant.HORSE)) {
+						name += "Horse";
+					} else if (((Horse) target).getVariant().equals(Variant.MULE)) {
+						name += "Mule";					
+					}
 					name += "Wolf";
 				} else {
 					name += "Animal";
@@ -333,12 +352,32 @@ public class MMO {
 					name += "PigZombie";
 				} else if (target instanceof Zombie) {
 					name += "Zombie";
+				} else if (target instanceof Horse) {
+					if (((Horse) target).getVariant().equals(Variant.SKELETON_HORSE)) {
+						name += "Skeleton Horse";
+					} else if (((Horse) target).getVariant().equals(Variant.UNDEAD_HORSE)) {
+						name += "Undead Horse";
+					}
+				} else if (target instanceof Witch) {
+						name += "Witch";
+				} else if (target instanceof Wither) {
+					name += "Wither";
 				} else {
 					name += "Monster";
-				}
+				} 
 			} else if (target instanceof NPC) {
 				if (target instanceof Villager) {
-					name += "Villager";
+					if (((Villager) target).getProfession().equals(Profession.BLACKSMITH)) {
+					name += "Blacksmith";
+					} else if (((Villager) target).getProfession().equals(Profession.BUTCHER)) {
+						name += "Butcher";
+					} if (((Villager) target).getProfession().equals(Profession.FARMER)) {
+						name += "Farmer";
+					} if (((Villager) target).getProfession().equals(Profession.LIBRARIAN)) {
+						name += "Librarian";
+					} if (((Villager) target).getProfession().equals(Profession.PRIEST)) {
+						name += "Priest";
+					}
 				} else {
 					name += "NPC";
 				}

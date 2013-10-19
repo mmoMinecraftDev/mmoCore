@@ -5,14 +5,14 @@
 	<name>mmoCore</name>
 	<groupId>mmo.Core</groupId>
 	<artifactId>mmoCore</artifactId>
-	<version>2.51</version>
+	<version>2.6</version>
 	<url>http://github.com/mmoMinecraftDev/mmoCore</url>
 	<description>Provides the common code for all mmoMinecraft plugins to use.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bukkitVersion>1.4.6-R0.3</bukkitVersion>
-		<spoutVersion>dev-SNAPSHOT</spoutVersion>
+		<bukkitVersion>1.6.2-R1.0</bukkitVersion>
+		<spoutVersion>1.5.2-R1.0-SNAPSHOT</spoutVersion>
 		<buildNumber>0</buildNumber>
 	</properties>
 
