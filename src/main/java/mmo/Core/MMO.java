@@ -28,6 +28,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Ageable;
+import org.bukkit.entity.Ambient;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Blaze;
@@ -291,7 +292,7 @@ public class MMO {
 					}
 				}
 			}
-			if (target instanceof Animals) {
+			if (target instanceof Ambient) {
 				if (target instanceof Bat) {
 					name += "Bat";
 				}
@@ -319,7 +320,6 @@ public class MMO {
 					} else if (((Horse) target).getVariant().equals(Variant.MULE)) {
 						name += "Mule";					
 					}
-					name += "Wolf";
 				} else {
 					name += "Animal";
 				}
@@ -359,7 +359,7 @@ public class MMO {
 						name += "Undead Horse";
 					}
 				} else if (target instanceof Witch) {
-						name += "Witch";
+					name += "Witch";
 				} else if (target instanceof Wither) {
 					name += "Wither";
 				} else {
@@ -368,7 +368,7 @@ public class MMO {
 			} else if (target instanceof NPC) {
 				if (target instanceof Villager) {
 					if (((Villager) target).getProfession().equals(Profession.BLACKSMITH)) {
-					name += "Blacksmith";
+						name += "Blacksmith";
 					} else if (((Villager) target).getProfession().equals(Profession.BUTCHER)) {
 						name += "Butcher";
 					} if (((Villager) target).getProfession().equals(Profession.FARMER)) {
