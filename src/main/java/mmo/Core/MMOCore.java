@@ -52,10 +52,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
 
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.Widget;
-import org.getspout.spoutapi.player.SpoutPlayer;
-
 public class MMOCore extends MMOPlugin implements Listener {
 	/**
 	 * Task to check for mmoMinecraft updates
@@ -229,17 +225,6 @@ public class MMOCore extends MMOPlugin implements Listener {
 		return false;
 	}
 
-	public void redrawAll(Player player) {
-		SpoutPlayer splayer = SpoutManager.getPlayer(player);
-		if (splayer.isSpoutCraftEnabled()) {
-			for (Widget widget : splayer.getMainScreen().getAttachedWidgets()) {
-				if (widget.getPlugin() instanceof MMOPlugin) {
-					widget.setDirty(true);
-				}
-			}
-		}
-	}
-
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(final PlayerJoinEvent event) {
 		final Player player = event.getPlayer();
@@ -278,18 +263,18 @@ public class MMOCore extends MMOPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerRespawn(final PlayerRespawnEvent event) {
-		redrawAll(event.getPlayer());
+		//redrawAll(event.getPlayer());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerPortal(final PlayerPortalEvent event) {
-		redrawAll(event.getPlayer());
+		//redrawAll(event.getPlayer());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerTeleport(final PlayerTeleportEvent event) {
 		if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
-			redrawAll(event.getPlayer());
+			//redrawAll(event.getPlayer());
 		}
 	}
 

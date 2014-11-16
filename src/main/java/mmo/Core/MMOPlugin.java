@@ -32,7 +32,6 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import mmo.Core.CoreAPI.MMOHUDEvent;
 import mmo.Core.SQLibrary.DatabaseHandler;
 import mmo.Core.util.EnumBitSet;
 import mmo.Core.util.HashMapString;
@@ -50,14 +49,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import org.getspout.spoutapi.Spout;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.Container;
-import org.getspout.spoutapi.gui.GenericContainer;
-import org.getspout.spoutapi.gui.WidgetAnchor;
-import org.getspout.spoutapi.player.SpoutPlayer;
-import org.getspout.spoutapi.plugin.SpoutPlugin;
 
 /**
  * All mmoMinecraft plugins should extend this instead of SpoutPlugin to provide
@@ -328,7 +319,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 							found = true;
 						}
 						if (cache && name.matches(".*\\.(txt|yml|xml|png|jpg|ogg|midi|wav|zip)$")) {
-							SpoutManager.getFileManager().addToCache(plugin, file);
+							//SpoutManager.getFileManager().addToCache(plugin, file);
 						}
 					} catch (Exception e) {
 					}
@@ -420,7 +411,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 				}
 			} else {
 				try {
-					SpoutManager.getPlayer(MMO.playerFromName(player)).sendNotification(title, String.format(msg, args), icon);
+					//SpoutManager.getPlayer(MMO.playerFromName(player)).sendNotification(title, String.format(msg, args), icon);
 				} catch (Exception e) {
 				}
 			}
@@ -473,6 +464,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param offsetY	the vertical offset to use
 	 * @return the Container
 	 */
+	/*
 	public Container getContainer(final SpoutPlayer player, final String anchorName, final int offsetX, final int offsetY) {
 		int X = offsetX, Y = offsetY;
 		WidgetAnchor anchor = WidgetAnchor.SCALE;
@@ -512,7 +504,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 		Container container = (Container) new GenericContainer().setAlign(event.getAnchor()).setAnchor(event.getAnchor()).setFixed(true).setX(event.getOffsetX()).setY(event.getOffsetY()).setWidth(427).setHeight(240);
 		player.getMainScreen().attachWidget(this, container);
 		return container;
-	}
+	} */
 
 	/**
 	 * Spout-safe version of setGlobalTitle.
@@ -520,7 +512,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param title  the title to show
 	 */
 	public void setTitle(final LivingEntity target, final String title) {
-		if (target != null) Spout.getServer().setTitle(target, title);
+		//if (target != null) Spout.getServer().setTitle(target, title);
 	}
 
 	/**
@@ -530,7 +522,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param title  the title to show
 	 */
 	public void setTitle(final Player player, final LivingEntity target, final String title) {
-		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setTitleFor(SpoutManager.getPlayer(player), title);
+		//if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setTitleFor(SpoutManager.getPlayer(player), title);
 	}
 
 	/**
@@ -539,7 +531,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setCloak(final HumanEntity target, final String url) {
-		if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setCape(url);
+		//if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer)target).setCape(url);
 	}
 
 	/**
@@ -549,7 +541,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setCloak(final Player player, final HumanEntity target, final String url) {
-		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setCapeFor(SpoutManager.getPlayer(player), url);
+		//if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setCapeFor(SpoutManager.getPlayer(player), url);
 	}
 
 	/**
@@ -558,7 +550,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setSkin(final HumanEntity target, final String url) {
-		if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkin(url);
+		//if (target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkin(url);
 	}
 
 	/**
@@ -568,7 +560,7 @@ public abstract class MMOPlugin extends JavaPlugin {
 	 * @param url	the cloak to show
 	 */
 	public void setSkin(final Player player, final HumanEntity target, final String url) {
-		if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkinFor(SpoutManager.getPlayer(player), url);
+		//if (player != null && target != null && target instanceof SpoutPlayer) ((SpoutPlayer) target).setSkinFor(SpoutManager.getPlayer(player), url);
 	}
 
 	/**

@@ -5,7 +5,6 @@ author: mmoMinecraftDev
 website: http://mmo.me.uk
 load: POSTWORLD
 main: mmo.Core.MMOCore
-depend: [Spout]
 softdepend: [Dynmap]
 
 commands:

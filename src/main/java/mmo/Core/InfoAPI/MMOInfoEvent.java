@@ -16,13 +16,11 @@
  */
 package mmo.Core.InfoAPI;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
-
-import org.getspout.spoutapi.gui.Widget;
-import org.getspout.spoutapi.player.SpoutPlayer;
 
 public abstract class MMOInfoEvent extends Event implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
@@ -39,7 +37,7 @@ public abstract class MMOInfoEvent extends Event implements Cancellable {
 	 * The player who owns this Info bar
 	 * @return the player we're drawing for
 	 */
-	public abstract SpoutPlayer getPlayer();
+	public abstract Player getPlayer();
 
 	/**
 	 * Check if this token matches us (not including curly braces)
@@ -59,13 +57,13 @@ public abstract class MMOInfoEvent extends Event implements Cancellable {
 	 * @param plugin an instance of the plugin this widget is created for
 	 * @param widget any widget including a filled Container
 	 */
-	public abstract void setWidget(Plugin plugin, Widget widget);
+	//public abstract void setWidget(Plugin plugin, Widget widget);
 
 	/**
 	 * Get the widget we have set
 	 * @return the widget for this token
 	 */
-	public abstract Widget getWidget();
+	//public abstract Widget getWidget();
 
 	/**
 	 * Set the path of the icon we want to display, FileManager cache permitted
